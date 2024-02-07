@@ -3,12 +3,12 @@ import RealityKit
 import RealityKitContent
 import UniformTypeIdentifiers
 import Foundation
-import Foundation
 import ImageIO
 import MobileCoreServices
 
+
 func loadTexture() -> QVis{
-    return try! QVis(filename: getFromResource(strFileName: "c60", ext: "dat"))
+    return try! QVis(filename: getFromResource(strFileName: "engine", ext: "dat"))
 }
 
 func getTexture(dataset: QVis, id: Int) -> TextureResource {
@@ -49,10 +49,11 @@ func createEntities() async -> [Entity] {
                 
                 let dataset = loadTexture()
                 
-                for j in 0...(Int(dataset.volume.depth) - 2) {
-                    print(String(Float(Float(j)/Float(dataset.volume.depth)) * 100) + "%")
+                let depth = Int(dataset.volume.depth) - 2
+                for layer in 0...(depth - 2) {
+                    print(String(Float(layer)/Float(depth) * 100) + "%")
                     
-                    try? sphereMaterial.setParameter(name: "test", value: .textureResource(getTexture(dataset: dataset, id: j)))
+                    try? sphereMaterial.setParameter(name: "test", value: .textureResource(getTexture(dataset: dataset, id: layer)))
                     
                     let entity = Entity()
                     entity.components.set(ModelComponent(
@@ -60,7 +61,7 @@ func createEntities() async -> [Entity] {
 //                        mesh: .generateBox(width: 1, height: 1, depth: 1/64),
                         materials: [sphereMaterial]
                     ))
-                    entity.transform.translation = (SIMD3<Float>(0, 0, 0 - Float(j) / 64))
+                    entity.transform.translation = (SIMD3<Float>(0, 0, 0 - Float(layer) / Float(depth)))
                     entities.append(entity)
                 }
             }
