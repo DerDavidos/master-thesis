@@ -3,7 +3,9 @@ import RealityKit
 import RealityKitContent
 
 struct ContentView: View {
-
+    
+    @EnvironmentObject var sharedRenderer: SharedRenderer
+    
     @State private var showImmersiveSpace = false
     @State private var immersiveSpaceIsShown = false
 
@@ -14,7 +16,7 @@ struct ContentView: View {
         VStack {
             if  (!immersiveSpaceIsShown) {
                 RealityView { content in
-                    let entities = await createEntities()
+                    let entities = await sharedRenderer.renderer.getEntities()
                     for entity in entities {
                         entity.transform.translation += SIMD3<Float>(0, 0, 0.5)
                         content.add(entity)
