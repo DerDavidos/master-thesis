@@ -25,10 +25,6 @@ class Renderer {
         let height = Int(dataset.volume.height)
         let depth = Int(dataset.volume.depth)
         
-        print(width)
-        print(height)
-        print(depth)
-        
         var subData: Array<UInt8>
         switch axis {
         case 0: // z
@@ -47,12 +43,13 @@ class Renderer {
             }
         default: // y
             subData = Array()
-            var i = width * height * (depth - 1) + (id * width)
+//            var i = width * height * (depth - 1) + (id * width)
+            var i = id * width
             while subData.count < width * depth {
                 for x in i...i+width-1 {
                     subData.append(dataset.volume.data[x])
                 }
-                i = i - width * height
+                i = i + width * height
             }
         }
         
@@ -103,27 +100,8 @@ class Renderer {
                     let dataset = loadTexture()
                     
                     var entities: [Entity] = []
-                    var layers = Int(dataset.volume.width)
+                    var layers = Int(dataset.volume.depth)
                     for layer in 0...layers - 2 {
-                        print(String(Float(layer)/Float(layers) * 100) + "%")
-                        
-                        try? sphereMaterial.setParameter(name: "test", value: .textureResource(getTexture(dataset: dataset, id: layer, axis: 1)))
-                        
-                        let entity = Entity()
-                        entity.components.set(ModelComponent(
-                            mesh: .generateBox(width: 0, height: 1, depth: 1),
-                            materials: [sphereMaterial]
-                        ))
-                        entity.transform.translation = (SIMD3<Float>(-0.5 + Float(layer)/Float(layers), 0 , 0))
-                        entities.append(entity)
-                    }
-                    entitiesAxis.append(entities)
-                    
-                    entities = []
-                    layers = Int(dataset.volume.depth)
-                    for layer in 0...layers - 2 {
-                        print(String(Float(layer)/Float(layers) * 100) + "%")
-                        
                         try? sphereMaterial.setParameter(name: "test", value: .textureResource(getTexture(dataset: dataset, id: layer, axis: 0)))
                         
                         let entity = Entity()
@@ -131,7 +109,25 @@ class Renderer {
                             mesh: .generateBox(width: 1, height: 1, depth: 0),
                             materials: [sphereMaterial]
                         ))
-                        entity.transform.translation = (SIMD3<Float>(0, 0 , -0.5 + Float(layer)/Float(layers)))
+                        entity.transform.translation = (SIMD3<Float>(0, 0 ,-0.5 + Float(layer)/Float(layers)))
+                        entities.append(entity)
+                    }
+                    entitiesAxis.append(entities)
+                    
+                    entities = []
+                    layers = Int(dataset.volume.width)
+                    for layer in 0...layers - 2 {
+                        
+                        try? sphereMaterial.setParameter(name: "test", value: .textureResource(getTexture(dataset: dataset, id: layer, axis: 1)))
+                        
+                        let entity = Entity()
+                        entity.components.set(ModelComponent(
+                            mesh: .generateBox(width: 1, height: 1, depth: 0),
+                            materials: [sphereMaterial]
+                        ))
+                        entity.transform.rotation = simd_quatf(angle: .pi/2, axis: SIMD3<Float>(0, 1, 0))
+                        entity.transform.translation = (SIMD3<Float>(-0.5 + Float(layer)/Float(layers), 0 , 0))
+                        
                         entities.append(entity)
                     }
                     entitiesAxis.append(entities)
@@ -149,7 +145,7 @@ class Renderer {
                         entity.transform.translation = (SIMD3<Float>(0, -0.5 + Float(layer)/Float(layers), 0))
                         entities.append(entity)
                     }
-                    entitiesAxis.append(entities)
+//                    entitiesAxis.append(entities)
                 }
             }
         }
