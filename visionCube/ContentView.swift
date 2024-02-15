@@ -12,16 +12,25 @@ struct ContentView: View {
     @Environment(\.openImmersiveSpace) var openImmersiveSpace
     @Environment(\.dismissImmersiveSpace) var dismissImmersiveSpace
 
+    @FocusState private var isFocused: Bool
+    
     var body: some View {
         VStack {
+//            ARView.
+            
             if  (!immersiveSpaceIsShown) {
                 RealityView { content in
-                    let entities = await sharedRenderer.renderer.getEntities()
-                    for entity in entities {
-                        entity.transform.translation += SIMD3<Float>(0, 0, 0.5)
-                        content.add(entity)
+                    let allAxis = await sharedRenderer.renderer.getEntities()
+                    allAxis.forEach { oneAxis in
+                        for entity in oneAxis {
+                            entity.transform.translation += SIMD3<Float>(0, 0, 0)
+                            content.add(entity)
+                        }
                     }
+                    
                 }.padding(.bottom, 500)
+                .opacity(isFocused ? 1.0 : 0.0)
+                .focused($isFocused)
             }
                 
             VStack {

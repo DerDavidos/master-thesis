@@ -8,11 +8,13 @@ struct ImmersiveView: View {
     
     var body: some View {
         RealityView { content in
-            let entities = await sharedRenderer.renderer.getEntities()
-                for entity in entities {
+            let allAxis = await sharedRenderer.renderer.getEntities()
+            allAxis.forEach { oneAxis in
+                for entity in oneAxis {
                     entity.transform.translation += SIMD3<Float>(0, 2, -2)
                     content.add(entity)
                 }
+            }
         }
     }
 }
