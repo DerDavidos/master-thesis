@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		6346945E2B7107720063817D /* Renderer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6346945D2B7107720063817D /* Renderer.swift */; };
+		6374FEA42B83811000F74D28 /* VisionProPosition.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6374FEA32B83811000F74D28 /* VisionProPosition.swift */; };
 		638E69242B6AE81600DC2E98 /* Tesselation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 638E691D2B6AE81600DC2E98 /* Tesselation.swift */; };
 		638E69262B6AE81600DC2E98 /* CubeMath.swift in Sources */ = {isa = PBXBuildFile; fileRef = 638E691F2B6AE81600DC2E98 /* CubeMath.swift */; };
 		638E69272B6AE81600DC2E98 /* Vecs.swift in Sources */ = {isa = PBXBuildFile; fileRef = 638E69202B6AE81600DC2E98 /* Vecs.swift */; };
@@ -30,6 +31,7 @@
 
 /* Begin PBXFileReference section */
 		6346945D2B7107720063817D /* Renderer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Renderer.swift; sourceTree = "<group>"; };
+		6374FEA32B83811000F74D28 /* VisionProPosition.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VisionProPosition.swift; sourceTree = "<group>"; };
 		638E691D2B6AE81600DC2E98 /* Tesselation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Tesselation.swift; sourceTree = "<group>"; };
 		638E691F2B6AE81600DC2E98 /* CubeMath.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CubeMath.swift; sourceTree = "<group>"; };
 		638E69202B6AE81600DC2E98 /* Vecs.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Vecs.swift; sourceTree = "<group>"; };
@@ -115,6 +117,7 @@
 				63C245552B66CDC90037B3E1 /* visionShaderApp.swift */,
 				63C245572B66CDC90037B3E1 /* ContentView.swift */,
 				63C245592B66CDC90037B3E1 /* ImmersiveView.swift */,
+				6374FEA32B83811000F74D28 /* VisionProPosition.swift */,
 				6346945D2B7107720063817D /* Renderer.swift */,
 				63C2455B2B66CDCB0037B3E1 /* Assets.xcassets */,
 				63C245602B66CDCB0037B3E1 /* Info.plist */,
@@ -221,6 +224,7 @@
 				638E69242B6AE81600DC2E98 /* Tesselation.swift in Sources */,
 				638E69262B6AE81600DC2E98 /* CubeMath.swift in Sources */,
 				638E69272B6AE81600DC2E98 /* Vecs.swift in Sources */,
+				6374FEA42B83811000F74D28 /* VisionProPosition.swift in Sources */,
 				638E69282B6AE81600DC2E98 /* Clipper.swift in Sources */,
 				638E69292B6AE81600DC2E98 /* QVis.swift in Sources */,
 				638E692A2B6AE81600DC2E98 /* Volumes.swift in Sources */,

@@ -6,19 +6,31 @@ import Foundation
 import ImageIO
 import MobileCoreServices
 
+import ImageIO
+import MobileCoreServices
+
 class SharedRenderer: ObservableObject {
     @Published var renderer: Renderer = Renderer()
 }
 
 class Renderer {
     
-    private var allAxis: [[Entity]] = []
+    private var axis0: [Entity] = []
+    private var axis1: [Entity] = []
+    private var axis2: [Entity] = []
     
     func loadTexture() -> QVis{
         return try! QVis(filename: getFromResource(strFileName: "c60", ext: "dat"))
     }
     
 //            let subData = dataset.volume.data.enumerated().filter { $0.offset % width == id }.map { $0.element }
+
+    func writeCGImage(_ image: CGImage, to destinationURL: URL) -> Bool {
+        guard let destination = CGImageDestinationCreateWithURL(destinationURL as CFURL, UTType.png.identifier as CFString, 1, nil) else { return false }
+        CGImageDestinationAddImage(destination, image, nil)
+        return CGImageDestinationFinalize(destination)
+    }
+
     
     func getTexture(dataset: QVis, id: Int, axis: Int) -> TextureResource {
         let width = Int(dataset.volume.width)
@@ -84,14 +96,22 @@ class Renderer {
 
         }
         
+//        let fileManager = FileManager.default
+//        let directoryURL = fileManager.urls(for: .documentDirectory, in: .userDomainMask)[0]
+//        let resultFolderURL = directoryURL.appendingPathComponent("results")
+//        if !fileManager.fileExists(atPath: resultFolderURL.path) {
+//            try? fileManager.createDirectory(at: resultFolderURL, withIntermediateDirectories: true, attributes: nil)
+//        }
+//        let destinationURL = resultFolderURL.appendingPathComponent(String(id) + ".png")
+        
         let textureResource = try! TextureResource.generate(from: image, options: TextureResource.CreateOptions(semantic: .color, mipmapsMode: .allocateAll))
         
         return textureResource
     }
-    
+
     @MainActor
-    fileprivate func createEntities() async -> [[Entity]] {
-        var entitiesAxis: [[Entity]] = []
+    fileprivate func createEntities(axis: Int) async -> [Entity] {
+        var entities: [Entity] = []
         if let scene = try? await Entity(named: "Scene", in: realityKitContentBundle) {
             
             if let sphere = scene.findEntity(named: "placeHolder") as? ModelEntity {
@@ -99,71 +119,72 @@ class Renderer {
                     
                     let dataset = loadTexture()
                     
-                    var entities: [Entity] = []
-                    var layers = Int(dataset.volume.depth)
-                    for layer in 0...layers - 2 {
-                        try? sphereMaterial.setParameter(name: "test", value: .textureResource(getTexture(dataset: dataset, id: layer, axis: 0)))
-                        
-                        let entity = Entity()
-                        entity.components.set(ModelComponent(
-                            mesh: .generateBox(width: 1, height: 1, depth: 0),
-                            materials: [sphereMaterial]
-                        ))
-                        entity.transform.translation = (SIMD3<Float>(0, 0 ,-0.5 + Float(layer)/Float(layers)))
-                        entities.append(entity)
-                    }
-                    entitiesAxis.append(entities)
                     
-                    entities = []
-                    layers = Int(dataset.volume.width)
-                    for layer in 0...layers - 2 {
+                    var layers = 0
+                    switch axis {
+                    case 0:
+                        layers = Int(dataset.volume.depth)
+                    case 1:
+                        layers = Int(dataset.volume.width)
+                    default:
+                        layers = Int(dataset.volume.height)
                         
-                        try? sphereMaterial.setParameter(name: "test", value: .textureResource(getTexture(dataset: dataset, id: layer, axis: 1)))
-                        
-                        let entity = Entity()
-                        entity.components.set(ModelComponent(
-                            mesh: .generateBox(width: 1, height: 1, depth: 0),
-                            materials: [sphereMaterial]
-                        ))
-                        entity.transform.rotation = simd_quatf(angle: .pi/2, axis: SIMD3<Float>(0, 1, 0))
-                        entity.transform.translation = (SIMD3<Float>(-0.5 + Float(layer)/Float(layers), 0 , 0))
-                        
-                        entities.append(entity)
                     }
-                    entitiesAxis.append(entities)
                     
-                    entities = []
-                    layers = Int(dataset.volume.height)
                     for layer in 0...layers - 2 {
-                        try? sphereMaterial.setParameter(name: "test", value: .textureResource(getTexture(dataset: dataset, id: layer, axis: 2)))
+                        try? sphereMaterial.setParameter(name: "test", value: .textureResource(getTexture(dataset: dataset, id: layer, axis: axis)))
                         
                         let entity = Entity()
-                        entity.components.set(ModelComponent(
-                            mesh: .generateBox(width: 1, height: 0, depth: 1),
-                            materials: [sphereMaterial]
-                        ))
-                        entity.transform.translation = (SIMD3<Float>(0, -0.5 + Float(layer)/Float(layers), 0))
+                       
+                        switch axis {
+                        case 0:
+                            entity.components.set(ModelComponent(
+                                mesh: .generateBox(width: 1, height: 1, depth: 0),
+                                materials: [sphereMaterial]
+                            ))
+                            entity.transform.translation = (SIMD3<Float>(0, 0 , -0.5 + Float(layer)/Float(layers-2)))
+                        case 1:
+                            entity.components.set(ModelComponent(
+                                mesh: .generateBox(width: 0, height: 1, depth: 1),
+                                materials: [sphereMaterial]
+                            ))
+                            entity.transform.translation = (SIMD3<Float>(-0.5 + Float(layer)/Float(layers-2), 0 , 0))
+                        default:
+                            entity.components.set(ModelComponent(
+                                mesh: .generateBox(width: 1, height: 0, depth: 1),
+                                materials: [sphereMaterial]
+                            ))
+                            entity.transform.translation = (SIMD3<Float>(0, -0.5 + Float(layer)/Float(layers-2), 0))
+                        }
+                        
                         entities.append(entity)
                     }
-//                    entitiesAxis.append(entities)
                 }
             }
         }
-        return entitiesAxis
+        return entities
     }
     
     @MainActor
-    func getEntities() async -> [[Entity]] {
+    func getEntities(axisNumber: Int) async -> [Entity] {
         
-        if allAxis.isEmpty {
-            allAxis = await createEntities()
+        var axis: [Entity]
+        switch axisNumber {
+        case 0:
+            axis = axis0
+        case 1:
+            axis = axis1
+        default:
+            axis = axis2
+        }
+        
+        if axis.isEmpty {
+            axis = await createEntities(axis: axisNumber)
         }
        
-        var copy: [[Entity]] = [[]]
+        var copy: [Entity] = []
         
-        allAxis.forEach { axis in
-            copy.append(axis.map { $0.copy() as! Entity })
-        }
+        copy = axis.map { $0.copy() as! Entity }
         
         return copy
     }
