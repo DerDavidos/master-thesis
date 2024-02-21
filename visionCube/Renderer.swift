@@ -20,7 +20,7 @@ class Renderer {
     private var axis2: [Entity] = []
     
     func loadTexture() -> QVis{
-        return try! QVis(filename: getFromResource(strFileName: "c60", ext: "dat"))
+        return try! QVis(filename: getFromResource(strFileName: "engine", ext: "dat"))
     }
     
 //            let subData = dataset.volume.data.enumerated().filter { $0.offset % width == id }.map { $0.element }
@@ -44,15 +44,17 @@ class Renderer {
         case 1: // x
             subData = Array()
             var i = id
-            var j = 1
+            var j = 0
             while subData.count < depth * height {
-                subData.append(dataset.volume.data[i])
-                i = i + width * height
                 if i >= dataset.volume.data.count {
-                    i = id + (width * j)
+                    i = id + (width*j)
                     j = j + 1
                 }
+                subData.append(dataset.volume.data[i])
+                i = i + width * height
+//                print(j)
             }
+            subData = subData.reversed()
         default: // y
             subData = Array()
 //            var i = width * height * (depth - 1) + (id * width)

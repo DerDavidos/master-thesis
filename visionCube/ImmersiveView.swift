@@ -15,11 +15,10 @@ struct ImmersiveView: View {
     @State private var pitch: Float = 0.0
     @State private var yaw: Float = 0.0
     
-    @State private var axisOpacity0: Double = 1.0
-    @State private var axisOpacity1: Double = 1.0
-    @State private var axisOpacity2: Double = 1.0
-    
     var body: some View {
+        let axis0Entities = Entity()
+        let axis1Entities = Entity()
+        let axis2Entities = Entity()
         
         RealityView { _ in
             
@@ -27,6 +26,27 @@ struct ImmersiveView: View {
                 await visionProPose.runArSession()
             }
             
+        }
+        
+        RealityView {content in
+            for entity in await sharedRenderer.renderer.getEntities(axisNumber: 0) {
+                entity.transform.translation += SIMD3<Float>(0, 2, -0.5)
+                axis0Entities.addChild(entity)
+            }
+            content.add(axis0Entities)
+            
+            for entity in await sharedRenderer.renderer.getEntities(axisNumber: 1) {
+                entity.transform.translation += SIMD3<Float>(0, 2, -0.5)
+                axis1Entities.addChild(entity)
+            }
+            content.add(axis1Entities)
+            
+            for entity in await sharedRenderer.renderer.getEntities(axisNumber: 2) {
+                entity.transform.translation += SIMD3<Float>(0, 2, -0.5)
+                axis2Entities.addChild(entity)
+            }
+            content.add(axis2Entities)
+            print("Loaded")
         }.onAppear {
             Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true) { _ in
                 Task {
@@ -34,48 +54,22 @@ struct ImmersiveView: View {
                     let angles = mtx!.eulerAngles
                     pitch = angles.x
                     yaw = angles.y
-                    
-                    axisOpacity0 = 0.0
-                    axisOpacity1 = 0.0
-                    axisOpacity2 = 0.0
+
+                    axis0Entities.isEnabled = false
+                    axis1Entities.isEnabled = false
+                    axis2Entities.isEnabled = false
+
                     
                     if (pitch <= -0.5 || pitch >= 0.5) {
-                        axisOpacity2 = 1.0
+                        axis2Entities.isEnabled = true
                     } else if ((yaw >= -0.75 && yaw <= 0.75) ||  yaw >= 2.25 ||  yaw <= -2.25) {
-                        axisOpacity0 = 1.0
+                        axis0Entities.isEnabled = true
                     } else {
-                        axisOpacity1 = 1.0
+                        axis1Entities.isEnabled = true
                     }
                 }
             }
         }
-        
-        
-        RealityView {content in
-            let entities = await sharedRenderer.renderer.getEntities(axisNumber: 0)
-            
-            for entity in entities {
-//                entity.transform.translation += SIMD3<Float>(0, 2, -0.5)
-                content.add(entity)
-            }
-        }.opacity(axisOpacity0).position(CGPoint())
-        RealityView {content in
-            let entities = await sharedRenderer.renderer.getEntities(axisNumber: 0)
-            
-            for entity in entities {
-//                entity.transform.translation += SIMD3<Float>(0, 2, -0.5)
-                content.add(entity)
-            }
-        }.opacity(axisOpacity1).padding(0).position(CGPoint())
-        RealityView {content in
-            let entities = await sharedRenderer.renderer.getEntities(axisNumber: 2)
-            
-            for entity in entities {
-//                entity.transform.translation += SIMD3<Float>(0, 2, -0.5)
-                content.add(entity)
-            }
-        }.opacity(axisOpacity2).padding(0).position(CGPoint())
-        
     }
     
 }

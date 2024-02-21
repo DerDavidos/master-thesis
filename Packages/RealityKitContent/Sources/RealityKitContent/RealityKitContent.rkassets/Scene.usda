@@ -236,7 +236,7 @@ def Xform "Root"
 
         def NodeGraph "transfer"
         {
-            float inputs:smoothStepStep = 0 (
+            float inputs:smoothStepStep = 0.3 (
                 customData = {
                     dictionary realitykit = {
                         float2 sizeInSubgraph = (173, 53)
@@ -244,7 +244,7 @@ def Xform "Root"
                     }
                 }
             )
-            float inputs:smoothStepStep.connect = </Root/Material/Modulo.outputs:out>
+            float inputs:smoothStepStep.connect = None
             float inputs:smoothStepWidth = 0.1 (
                 customData = {
                     dictionary realitykit = {
@@ -274,7 +274,7 @@ def Xform "Root"
             float outputs:return.connect = </Root/Material/transfer/Multiply_2.outputs:out>
             float2 ui:nodegraph:node:pos = (365.07117, 13.864315)
             float2 ui:nodegraph:node:size = (145, 145)
-            int ui:nodegraph:node:stackingOrder = 905
+            int ui:nodegraph:node:stackingOrder = 1007
             string[] ui:nodegraph:realitykit:node:attributesShowingChildren = ["inputs:smoothStepWidth", "inputs:smoothStepWidth", "inputs:smoothStepStep", "inputs:smoothStepStep"]
             float2 ui:nodegraph:realitykit:subgraphOutputs:pos = (1186.434, 51.35862)
             float2 ui:nodegraph:realitykit:subgraphOutputs:size = (129, 81)
