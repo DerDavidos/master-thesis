@@ -236,7 +236,7 @@ def Xform "Root"
 
         def NodeGraph "transfer"
         {
-            float inputs:smoothStepStep = 0.3 (
+            float inputs:smoothStepStep = 0.1 (
                 customData = {
                     dictionary realitykit = {
                         float2 sizeInSubgraph = (173, 53)
@@ -274,7 +274,7 @@ def Xform "Root"
             float outputs:return.connect = </Root/Material/transfer/Multiply_2.outputs:out>
             float2 ui:nodegraph:node:pos = (365.07117, 13.864315)
             float2 ui:nodegraph:node:size = (145, 145)
-            int ui:nodegraph:node:stackingOrder = 1007
+            int ui:nodegraph:node:stackingOrder = 1010
             string[] ui:nodegraph:realitykit:node:attributesShowingChildren = ["inputs:smoothStepWidth", "inputs:smoothStepWidth", "inputs:smoothStepStep", "inputs:smoothStepStep"]
             float2 ui:nodegraph:realitykit:subgraphOutputs:pos = (1186.434, 51.35862)
             float2 ui:nodegraph:realitykit:subgraphOutputs:size = (129, 81)
@@ -419,42 +419,6 @@ def Xform "Root"
             token outputs:surface
         }
 
-        def Shader "Add"
-        {
-            uniform token info:id = "ND_add_float"
-            float inputs:in1.connect = None
-            float inputs:in2.connect = </Root/Material/Separate3.outputs:outz>
-            float outputs:out
-            float2 ui:nodegraph:node:pos = (734.5991, 211.73523)
-            float2 ui:nodegraph:node:size = (63, 37)
-            int ui:nodegraph:node:stackingOrder = 1002
-            string[] ui:nodegraph:realitykit:node:attributesShowingChildren = ["outputs:out"]
-        }
-
-        def Shader "Separate3"
-        {
-            uniform token info:id = "ND_separate3_vector3"
-            float3 inputs:in.connect = </Root/Material/ViewDirection.outputs:out>
-            float outputs:outx
-            float outputs:outy
-            float outputs:outz
-            float2 ui:nodegraph:node:pos = (578.15784, 187.71046)
-            float2 ui:nodegraph:node:size = (117, 145)
-            int ui:nodegraph:node:stackingOrder = 1002
-            string[] ui:nodegraph:realitykit:node:attributesShowingChildren = ["outputs:outx"]
-        }
-
-        def Shader "ViewDirection"
-        {
-            uniform token info:id = "ND_realitykit_viewdirection_vector3"
-            string inputs:space = "tangent"
-            float3 outputs:out
-            float2 ui:nodegraph:node:pos = (361.44427, 170.28549)
-            float2 ui:nodegraph:node:size = (211, 53)
-            int ui:nodegraph:node:stackingOrder = 1002
-            string[] ui:nodegraph:realitykit:node:attributesShowingChildren = ["outputs:out", "outputs:out"]
-        }
-
         def NodeGraph "inBetween"
         {
             float inputs:falseResult = 0 (
@@ -503,7 +467,6 @@ def Xform "Root"
                     }
                 }
             )
-            float inputs:value.connect = </Root/Material/Add.outputs:out>
             float outputs:result (
                 customData = {
                     dictionary realitykit = {

@@ -15,57 +15,125 @@ struct ImmersiveView: View {
     @State private var pitch: Float = 0.0
     @State private var yaw: Float = 0.0
     
+    @State var rotation: Angle = .zero
+    
     var body: some View {
-        let axis0Entities = Entity()
-        let axis1Entities = Entity()
-        let axis2Entities = Entity()
+        let allEntities = Entity()
+        
+        let zPositiveEntities = Entity()
+        let zNegativeEntities = Entity()
+        let xPositiveEntities = Entity()
+        let xNegativeEntities = Entity()
+        let yPositiveEntities = Entity()
+        let yNegativeEntities = Entity()
         
         RealityView { _ in
-            
             Task {
                 await visionProPose.runArSession()
             }
-            
         }
         
         RealityView {content in
-            for entity in await sharedRenderer.renderer.getEntities(axisNumber: 0) {
-                entity.transform.translation += SIMD3<Float>(0, 2, -0.5)
-                axis0Entities.addChild(entity)
-            }
-            content.add(axis0Entities)
             
-            for entity in await sharedRenderer.renderer.getEntities(axisNumber: 1) {
-                entity.transform.translation += SIMD3<Float>(0, 2, -0.5)
-                axis1Entities.addChild(entity)
+            for entity in await sharedRenderer.renderer.getEntities(axis: "zPositive") {
+                zPositiveEntities.addChild(entity)
             }
-            content.add(axis1Entities)
+            allEntities.addChild(zPositiveEntities)
+            for entity in await sharedRenderer.renderer.getEntities(axis: "zNegative") {
+                zNegativeEntities.addChild(entity)
+            }
+            allEntities.addChild(zNegativeEntities)
+        
+            for entity in await sharedRenderer.renderer.getEntities(axis: "xPositive") {
+                xPositiveEntities.addChild(entity)
+            }
+            allEntities.addChild(xPositiveEntities)
+            for entity in await sharedRenderer.renderer.getEntities(axis: "xNegative") {
+                xNegativeEntities.addChild(entity)
+            }
+            allEntities.addChild(xNegativeEntities)
             
-            for entity in await sharedRenderer.renderer.getEntities(axisNumber: 2) {
-                entity.transform.translation += SIMD3<Float>(0, 2, -0.5)
-                axis2Entities.addChild(entity)
+            for entity in await sharedRenderer.renderer.getEntities(axis: "yPositive") {
+                yPositiveEntities.addChild(entity)
             }
-            content.add(axis2Entities)
+            allEntities.addChild(yPositiveEntities)
+            for entity in await sharedRenderer.renderer.getEntities(axis: "yNegative") {
+                yNegativeEntities.addChild(entity)
+            }
+            allEntities.addChild(yNegativeEntities)
+            
+            content.add(allEntities)
             print("Loaded")
-        }.onAppear {
+        }
+        .onAppear {
+            Timer.scheduledTimer(withTimeInterval: 0.05, repeats: true) { _ in
+                Task {
+                    rotation.degrees += 0.5
+                    
+                    let m1 = Transform(pitch: Float(rotation.radians)).matrix
+                    let m2 = Transform(yaw: Float(rotation.radians)).matrix
+                    
+//                    allEntities.transform.matrix = matrix_multiply(m1, m2)
+                    allEntities.transform.translation = SIMD3<Float>(0, 2, 0)
+                }
+            }
+            var pitchMax:Float = 0.0
+            var yawMax:Float = 0
+            
+            var pitchMin:Float = 0.0
+            var yawMin:Float = 0
             Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true) { _ in
                 Task {
                     let mtx = await visionProPose.getTransform()
                     let angles = mtx!.eulerAngles
                     pitch = angles.x
                     yaw = angles.y
-
-                    axis0Entities.isEnabled = false
-                    axis1Entities.isEnabled = false
-                    axis2Entities.isEnabled = false
-
                     
-                    if (pitch <= -0.5 || pitch >= 0.5) {
-                        axis2Entities.isEnabled = true
+                    if (pitch < pitchMin) {
+                        pitchMin = pitch
+                    }
+                       
+                    if (pitch > pitchMax) {
+                        pitchMax = pitch}
+                    if (yaw < yawMin) {
+                        yawMin = yaw}
+                    if (yaw > yawMax) {
+                        yawMax = yaw}
+                    
+                    print(yawMin)
+                    print(yawMax)
+                        
+                    print(pitchMin)
+                    print(pitchMax)
+                    print()
+                    
+                    zPositiveEntities.isEnabled = false
+                    zNegativeEntities.isEnabled = false
+                    xPositiveEntities.isEnabled = false
+                    xNegativeEntities.isEnabled = false
+                    yPositiveEntities.isEnabled = false
+                    yNegativeEntities.isEnabled = false
+                    
+                    if (pitch <= -0.75 || pitch >= 0.75) {
+                        if (pitch >= 0.75) {
+                            yPositiveEntities.isEnabled = true
+                        } else {
+                            yNegativeEntities.isEnabled = true
+                        }
+                       
                     } else if ((yaw >= -0.75 && yaw <= 0.75) ||  yaw >= 2.25 ||  yaw <= -2.25) {
-                        axis0Entities.isEnabled = true
+                        if (yaw >= -0.75 && yaw <= 0.75) {
+                            zPositiveEntities.isEnabled = true
+                        } else {
+                            zNegativeEntities.isEnabled = true
+                        }
                     } else {
-                        axis1Entities.isEnabled = true
+                        if (yaw >= 0.75) {
+                            xPositiveEntities.isEnabled = true
+                        } else {
+                            xNegativeEntities.isEnabled = true
+                        }
+                        
                     }
                 }
             }
