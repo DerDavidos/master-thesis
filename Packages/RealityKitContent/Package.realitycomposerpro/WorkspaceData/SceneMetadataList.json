@@ -16,25 +16,7 @@
       [
         "1D572CEB-057A-41C3-B575-04C37501A3C0",
         "Root",
-        "GridMaterial"
-      ],
-      {
-        "isExpanded" : true,
-        "isLocked" : false
-      },
-      [
-        "1D572CEB-057A-41C3-B575-04C37501A3C0",
-        "Root",
         "Sphere_Left"
-      ],
-      {
-        "isExpanded" : true,
-        "isLocked" : false
-      },
-      [
-        "1D572CEB-057A-41C3-B575-04C37501A3C0",
-        "Root",
-        "Sphere_Right"
       ],
       {
         "isExpanded" : true,
@@ -52,6 +34,24 @@
         "1D572CEB-057A-41C3-B575-04C37501A3C0",
         "Root",
         "Cube"
+      ],
+      {
+        "isExpanded" : true,
+        "isLocked" : false
+      },
+      [
+        "1D572CEB-057A-41C3-B575-04C37501A3C0",
+        "Root",
+        "Sphere_Right"
+      ],
+      {
+        "isExpanded" : true,
+        "isLocked" : false
+      },
+      [
+        "1D572CEB-057A-41C3-B575-04C37501A3C0",
+        "Root",
+        "GridMaterial"
       ],
       {
         "isExpanded" : true,
@@ -87,8 +87,7 @@
     "objectMetadataList" : [
       [
         "1395D70E-1406-4344-A37E-1474C31E763E",
-        "model",
-        "Material"
+        "model"
       ],
       {
         "isExpanded" : true,
@@ -96,7 +95,8 @@
       },
       [
         "1395D70E-1406-4344-A37E-1474C31E763E",
-        "model"
+        "model",
+        "Material"
       ],
       {
         "isExpanded" : true,
@@ -126,16 +126,7 @@
       [
         "D66134B1-3681-4A8E-AFE5-29F257229F3B",
         "Root",
-        "Material",
-        "transfer"
-      ],
-      {
-        "isExpanded" : true,
-        "isLocked" : false
-      },
-      [
-        "D66134B1-3681-4A8E-AFE5-29F257229F3B",
-        "Root"
+        "Material"
       ],
       {
         "isExpanded" : true,
@@ -144,7 +135,8 @@
       [
         "D66134B1-3681-4A8E-AFE5-29F257229F3B",
         "Root",
-        "Material"
+        "Material",
+        "transfer"
       ],
       {
         "isExpanded" : true,
@@ -162,8 +154,7 @@
       },
       [
         "D66134B1-3681-4A8E-AFE5-29F257229F3B",
-        "Root",
-        "Material_1"
+        "Root"
       ],
       {
         "isExpanded" : true,
@@ -173,6 +164,15 @@
         "D66134B1-3681-4A8E-AFE5-29F257229F3B",
         "Root",
         "placeHolder"
+      ],
+      {
+        "isExpanded" : true,
+        "isLocked" : false
+      },
+      [
+        "D66134B1-3681-4A8E-AFE5-29F257229F3B",
+        "Root",
+        "Material_1"
       ],
       {
         "isExpanded" : true,

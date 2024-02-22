@@ -9,7 +9,7 @@ import MobileCoreServices
 import ImageIO
 import MobileCoreServices
 
-let RESOURCE = "bonsai"
+let RESOURCE = "engine"
 
 class SharedRenderer: ObservableObject {
     @Published var renderer: Renderer = Renderer()
@@ -67,87 +67,85 @@ class Renderer {
         var imageHeight: Int
         
         var image: CGImage
-        
-        var subData: Array<UInt8>
+        var imageData: Array<UInt8>
         
         switch axis {
             
         case "zPositive":
             imageWidth = width
             imageHeight = height
-            subData = Array(dataset.volume.data[(width*height*id)...(width*height*(id+1))])
+            imageData = Array(dataset.volume.data[(width*height*id)...(width*height*(id+1))])
         case "zNegative":
             imageWidth = width
             imageHeight = height
             var j = width*height*id
-            subData = Array()
+            imageData = Array()
             while j < width*height*(id+1) {
-                subData.append(contentsOf: dataset.volume.data[(j)...(j + width-1)].reversed())
+                imageData.append(contentsOf: dataset.volume.data[(j)...(j + width-1)].reversed())
                 j = j + width
             }
-            
         case "xPositive":
             imageWidth = depth
             imageHeight = height
-            subData = Array()
+            imageData = Array()
             var i = id
             var j = 0
-            var subSubData: Array<UInt8>
-            subSubData = Array()
-            while subData.count < depth * height {
-                
+            while imageData.count < depth * height {
                 if i >= dataset.volume.data.count {
                     i = id + (width*j)
                     j = j + 1
-                    subData.append(contentsOf: subSubData.reversed())
-                    subSubData = Array()
                 }
-                subSubData.append(dataset.volume.data[i])
+                imageData.append(dataset.volume.data[i])
                 i = i + width * height
             }
         case "xNegative":
             imageWidth = depth
             imageHeight = height
-            subData = Array()
+            imageData = Array()
             var i = id
             var j = 0
-            while subData.count < depth * height {
+            var imageColumn: Array<UInt8>
+            imageColumn = Array()
+            while imageData.count < depth * height {
+                
                 if i >= dataset.volume.data.count {
                     i = id + (width*j)
                     j = j + 1
+                    imageData.append(contentsOf: imageColumn.reversed())
+                    imageColumn = Array()
                 }
-                subData.append(dataset.volume.data[i])
+                imageColumn.append(dataset.volume.data[i])
                 i = i + width * height
             }
         case "yPositive":
             imageWidth = width
             imageHeight = depth
-            subData = Array()
+            imageData = Array()
             var i = (id-height+1) * (-1) * width
-            while subData.count < width * depth {
-                subData.append(contentsOf: dataset.volume.data[i...i+width-1].reversed())
+            while imageData.count < width * depth {
+                imageData.append(contentsOf: dataset.volume.data[i...i+width-1].reversed())
                 i = i + width * height
             }
-            subData = subData.reversed()
+            imageData = imageData.reversed()
         case "yNegative":
             imageWidth = width
             imageHeight = depth
-            subData = Array()
+            imageData = Array()
             var i = (id-height+1) * (-1) * width
-            while subData.count < width * depth {
-                subData.append(contentsOf: dataset.volume.data[i...i+width-1])
+            while imageData.count < width * depth {
+                imageData.append(contentsOf: dataset.volume.data[i...i+width-1])
                 i = i + width * height
             }
         default:
             fatalError("Unexpected value \(axis)")
         }
         
-        var unsafeRawPointer: UnsafeRawPointer? = nil
-        subData.withUnsafeBytes { rawBufferPointer in
-            unsafeRawPointer = rawBufferPointer.baseAddress!
+        var imageRawPointer: UnsafeRawPointer? = nil
+        imageData.withUnsafeBytes { rawBufferPointer in
+            imageRawPointer = rawBufferPointer.baseAddress!
         }
         
-        let provider = CGDataProvider(dataInfo: nil, data: unsafeRawPointer!, size: imageWidth*imageHeight) { _, _, _ in}
+        let provider = CGDataProvider(dataInfo: nil, data: imageRawPointer!, size: imageWidth*imageHeight) { _, _, _ in}
         image = CGImage(width: imageWidth, height: imageHeight, bitsPerComponent: bitsPerComponent, bitsPerPixel: bitsPerPixel, bytesPerRow: imageWidth, space: colorSpace, bitmapInfo: bitmapInfo, provider: provider!, decode: nil, shouldInterpolate: false, intent: renderingIntent)!
         
         let textureResource = try! TextureResource.generate(from: image, options: TextureResource.CreateOptions(semantic: .color, mipmapsMode: .allocateAll))

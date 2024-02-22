@@ -15,9 +15,9 @@ class VisionProPositon {
             print("Error starting AR session: \(error)")
         }
     }
-
+    
     func getTransform() async -> simd_float4x4? {
-        guard let deviceAnchor = worldTracking.queryDeviceAnchor(atTimestamp: CACurrentMediaTime()) else {
+        guard let deviceAnchor = worldTracking.queryDeviceAnchor(atTimestamp: 0) else {
             return nil
         }
         return deviceAnchor.originFromAnchorTransform

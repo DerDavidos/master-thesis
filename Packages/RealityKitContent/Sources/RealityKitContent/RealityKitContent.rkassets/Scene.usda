@@ -244,7 +244,7 @@ def Xform "Root"
                     }
                 }
             )
-            float inputs:smoothStepStep.connect = </Root/Material/Modulo.outputs:out>
+            float inputs:smoothStepStep.connect = None
             float inputs:smoothStepWidth = 0.1 (
                 customData = {
                     dictionary realitykit = {
