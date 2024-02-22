@@ -26,6 +26,12 @@ struct ContentView: View {
         VStack {
             if  (!immersiveSpaceIsShown) {
                 
+                RealityView {content in
+                    if let scene = try? await Entity(named: "c60", in: realityKitContentBundle) {
+                        scene.transform.translation += SIMD3(-0.4, -0.25, 0)
+                        content.add(scene)
+                    }
+                }
                 
             }
             

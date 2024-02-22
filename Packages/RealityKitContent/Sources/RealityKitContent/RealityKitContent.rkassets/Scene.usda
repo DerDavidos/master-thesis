@@ -183,12 +183,12 @@ def Xform "Root"
     def Material "Material"
     {
         reorder nameChildren = ["UnlitSurface_1", "Image", "Image_1", "transfer", "Time", "Modulo", "Divide", "ViewDirection", "Separate3", "inBetween"]
-        asset inputs:test = @image.jpeg@ (
+        asset inputs:Image = @image.jpeg@ (
             customData = {
                 dictionary realitykit = {
                     float2 positionInSubgraph = (-207.10326, -111.50011)
                     float2 sizeInSubgraph = (116, 53)
-                    int stackingOrderInSubgraph = 642
+                    int stackingOrderInSubgraph = 1014
                 }
             }
         )
@@ -222,7 +222,7 @@ def Xform "Root"
         {
             uniform token info:id = "ND_image_float"
             float inputs:default
-            asset inputs:file.connect = </Root/Material.inputs:test>
+            asset inputs:file.connect = </Root/Material.inputs:Image>
             string inputs:filtertype
             float2 inputs:texcoord
             string inputs:uaddressmode
@@ -244,7 +244,7 @@ def Xform "Root"
                     }
                 }
             )
-            float inputs:smoothStepStep.connect = None
+            float inputs:smoothStepStep.connect = </Root/Material/Modulo.outputs:out>
             float inputs:smoothStepWidth = 0.1 (
                 customData = {
                     dictionary realitykit = {
@@ -381,7 +381,7 @@ def Xform "Root"
             float2 ui:nodegraph:node:pos = (177.37262, 161.5974)
             float2 ui:nodegraph:node:size = (64, 39)
             int ui:nodegraph:node:stackingOrder = 695
-            string[] ui:nodegraph:realitykit:node:attributesShowingChildren = ["inputs:in1", "outputs:out"]
+            string[] ui:nodegraph:realitykit:node:attributesShowingChildren = ["inputs:in1", "outputs:out", "outputs:out"]
         }
 
         def Shader "Divide"
@@ -399,7 +399,7 @@ def Xform "Root"
         {
             uniform token info:id = "ND_image_color3"
             color3f inputs:default
-            prepend asset inputs:file.connect = </Root/Material.inputs:test>
+            asset inputs:file.connect = </Root/Material.inputs:Image>
             string inputs:filtertype
             float2 inputs:texcoord
             string inputs:uaddressmode

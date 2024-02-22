@@ -9,7 +9,7 @@ import MobileCoreServices
 import ImageIO
 import MobileCoreServices
 
-let RESOURCE = "c60"
+let RESOURCE = "bonsai"
 
 class SharedRenderer: ObservableObject {
     @Published var renderer: Renderer = Renderer()
@@ -24,9 +24,14 @@ class Renderer {
     private var axisYPostive: [Entity] = []
     private var axisYNegative: [Entity] = []
     
+    private var qVis: QVis? = nil
+    
     func loadTexture() -> QVis{
-        print("Loading \(RESOURCE)...")
-        return try! QVis(filename: getFromResource(strFileName: RESOURCE, ext: "dat"))
+        if (qVis == nil) {
+            print("Loading \(RESOURCE)...")
+            qVis = try! QVis(filename: getFromResource(strFileName: RESOURCE, ext: "dat"))
+        }
+        return qVis!
     }
     
 //            let subData = dataset.volume.data.enumerated().filter { $0.offset % width == id }.map { $0.element }
@@ -159,8 +164,7 @@ class Renderer {
                 if var sphereMaterial = sphere.model?.materials.first as? ShaderGraphMaterial {
                     
                     let dataset = loadTexture()
-                    
-                    
+                         
                     var layers = 0
                     switch axis {
                     case "zPositive", "zNegative":
@@ -175,7 +179,7 @@ class Renderer {
                     }
                     print("loading \(axis)")
                     for layer in 0...layers - 2 {
-                        try? sphereMaterial.setParameter(name: "test", value: .textureResource(getTexture(dataset: dataset, id: layer, axis: axis)))
+                        try? sphereMaterial.setParameter(name: "Image", value: .textureResource(getTexture(dataset: dataset, id: layer, axis: axis)))
                         
                         let entity = Entity()
                        
@@ -232,8 +236,24 @@ class Renderer {
         
         if entities.isEmpty {
             entities = await createEntities(axis: axis)
+            switch axis {
+            case "zPositive":
+                  axisZPostive = entities
+            case "zNegative":
+                 axisZNegative = entities
+            case "xPositive":
+                 axisXPositive = entities
+            case "xNegative":
+                 axisXNegative = entities
+            case "yPositive":
+                 axisYPostive = entities
+            case "yNegative":
+                 axisYNegative = entities
+            default:
+                fatalError("Unexpected value \(axis)")
+            }
         }
-       
+
         var copy: [Entity] = []
         
         copy = entities.map { $0.copy() as! Entity }

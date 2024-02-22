@@ -68,44 +68,23 @@ struct ImmersiveView: View {
         .onAppear {
             Timer.scheduledTimer(withTimeInterval: 0.05, repeats: true) { _ in
                 Task {
-                    rotation.degrees += 0.5
+//                    rotation.degrees += 0.5
                     
                     let m1 = Transform(pitch: Float(rotation.radians)).matrix
                     let m2 = Transform(yaw: Float(rotation.radians)).matrix
                     
-//                    allEntities.transform.matrix = matrix_multiply(m1, m2)
-                    allEntities.transform.translation = SIMD3<Float>(0, 2, 0)
+                    allEntities.transform.matrix = matrix_multiply(m1, m2)
+                    allEntities.transform.translation = SIMD3<Float>(0, 2, -2)
                 }
             }
-            var pitchMax:Float = 0.0
-            var yawMax:Float = 0
             
-            var pitchMin:Float = 0.0
-            var yawMin:Float = 0
             Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true) { _ in
                 Task {
                     let mtx = await visionProPose.getTransform()
                     let angles = mtx!.eulerAngles
-                    pitch = angles.x
-                    yaw = angles.y
-                    
-                    if (pitch < pitchMin) {
-                        pitchMin = pitch
-                    }
-                       
-                    if (pitch > pitchMax) {
-                        pitchMax = pitch}
-                    if (yaw < yawMin) {
-                        yawMin = yaw}
-                    if (yaw > yawMax) {
-                        yawMax = yaw}
-                    
-                    print(yawMin)
-                    print(yawMax)
-                        
-                    print(pitchMin)
-                    print(pitchMax)
-                    print()
+
+                    pitch = angles.x + allEntities.transform.matrix.eulerAngles.x
+                    yaw = angles.y + allEntities.transform.matrix.eulerAngles.y
                     
                     zPositiveEntities.isEnabled = false
                     zNegativeEntities.isEnabled = false
@@ -114,15 +93,15 @@ struct ImmersiveView: View {
                     yPositiveEntities.isEnabled = false
                     yNegativeEntities.isEnabled = false
                     
-                    if (pitch <= -0.75 || pitch >= 0.75) {
-                        if (pitch >= 0.75) {
+                    if (pitch < -0.75 || pitch > 0.75) {
+                        if (pitch > 0.75) {
                             yPositiveEntities.isEnabled = true
                         } else {
                             yNegativeEntities.isEnabled = true
                         }
                        
-                    } else if ((yaw >= -0.75 && yaw <= 0.75) ||  yaw >= 2.25 ||  yaw <= -2.25) {
-                        if (yaw >= -0.75 && yaw <= 0.75) {
+                    } else if ((yaw > -0.75 && yaw < 0.75) ||  yaw > 2.25 ||  yaw < -2.25) {
+                        if (yaw > -0.75 && yaw < 0.75) {
                             zPositiveEntities.isEnabled = true
                         } else {
                             zNegativeEntities.isEnabled = true
@@ -133,11 +112,9 @@ struct ImmersiveView: View {
                         } else {
                             xNegativeEntities.isEnabled = true
                         }
-                        
                     }
                 }
             }
         }
     }
-    
 }
