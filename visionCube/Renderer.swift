@@ -71,70 +71,56 @@ class Renderer {
         
         switch axis {
             
-        case "zPositive":
+        case "zPositive", "zNegative":
             imageWidth = width
             imageHeight = height
-            imageData = Array(dataset.volume.data[(width*height*id)...(width*height*(id+1))])
-        case "zNegative":
-            imageWidth = width
-            imageHeight = height
-            var j = width*height*id
             imageData = Array()
+            var j = width*height*id
             while j < width*height*(id+1) {
-                imageData.append(contentsOf: dataset.volume.data[(j)...(j + width-1)].reversed())
+                var columnData = Array(dataset.volume.data[(j)...(j + width-1)])
+                if (axis == "zNegative") {
+                    columnData = columnData.reversed()
+                }
+                imageData.append(contentsOf: columnData)
                 j = j + width
             }
-        case "xPositive":
+        case "xPositive", "xNegative":
             imageWidth = depth
             imageHeight = height
             imageData = Array()
-            var i = id
-            var j = 0
-            while imageData.count < depth * height {
-                if i >= dataset.volume.data.count {
-                    i = id + (width*j)
-                    j = j + 1
-                }
-                imageData.append(dataset.volume.data[i])
-                i = i + width * height
-            }
-        case "xNegative":
-            imageWidth = depth
-            imageHeight = height
-            imageData = Array()
-            var i = id
-            var j = 0
             var imageColumn: Array<UInt8>
             imageColumn = Array()
+            var i = id
+            var j = 0
             while imageData.count < depth * height {
-                
                 if i >= dataset.volume.data.count {
                     i = id + (width*j)
                     j = j + 1
-                    imageData.append(contentsOf: imageColumn.reversed())
+                    if (axis == "xPositive") {
+                        imageColumn = imageColumn.reversed()
+                    }
+                    imageData.append(contentsOf: imageColumn)
                     imageColumn = Array()
                 }
                 imageColumn.append(dataset.volume.data[i])
                 i = i + width * height
             }
-        case "yPositive":
+        case "yPositive", "yNegative":
             imageWidth = width
             imageHeight = depth
             imageData = Array()
             var i = (id-height+1) * (-1) * width
-            while imageData.count < width * depth {
-                imageData.append(contentsOf: dataset.volume.data[i...i+width-1].reversed())
-                i = i + width * height
-            }
-            imageData = imageData.reversed()
-        case "yNegative":
-            imageWidth = width
-            imageHeight = depth
-            imageData = Array()
-            var i = (id-height+1) * (-1) * width
-            while imageData.count < width * depth {
-                imageData.append(contentsOf: dataset.volume.data[i...i+width-1])
-                i = i + width * height
+            if (axis == "yPositive") {
+                while imageData.count < width * depth {
+                    imageData.append(contentsOf: dataset.volume.data[i...i+width-1].reversed())
+                    i = i + width * height
+                }
+            } else {
+                while imageData.count < width * depth {
+                    imageData.append(contentsOf: dataset.volume.data[i...i+width-1])
+                    i = i + width * height
+                }
+                imageData = imageData.reversed()
             }
         default:
             fatalError("Unexpected value \(axis)")
@@ -173,7 +159,6 @@ class Renderer {
                         layers = Int(dataset.volume.height)
                     default:
                         fatalError("Unexpected value \(axis)")
-                        
                     }
                     print("loading \(axis)")
                     for layer in 0...layers - 2 {
@@ -187,19 +172,19 @@ class Renderer {
                                 mesh: .generateBox(width: 1, height: 1, depth: 0),
                                 materials: [sphereMaterial]
                             ))
-                            entity.transform.translation = (SIMD3<Float>(0, 0 , -0.5 + Float(layer)/Float(layers-2)))
+                            entity.transform.translation = (SIMD3<Float>(0, 0 , -Float(layers)/2/Float(layers) + Float(layer)/Float(layers)))
                         case "xPositive", "xNegative":
                             entity.components.set(ModelComponent(
                                 mesh: .generateBox(width: 0, height: 1, depth: 1),
                                 materials: [sphereMaterial]
                             ))
-                            entity.transform.translation = (SIMD3<Float>(-0.5 + Float(layer)/Float(layers-2), 0 , 0))
+                            entity.transform.translation = (SIMD3<Float>(Float(layers)/2/Float(layers) - Float(layer)/Float(layers), 0 , 0))
                         case "yPositive", "yNegative":
                             entity.components.set(ModelComponent(
                                 mesh: .generateBox(width: 1, height: 0, depth: 1),
                                 materials: [sphereMaterial]
                             ))
-                            entity.transform.translation = (SIMD3<Float>(0, -0.5 + Float(layer)/Float(layers-2), 0))
+                            entity.transform.translation = (SIMD3<Float>(0, -Float(layers)/2/Float(layers) + Float(layer)/Float(layers), 0))
                         default:
                             fatalError("Unexpected value \(axis)")}
                         

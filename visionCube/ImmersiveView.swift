@@ -13,10 +13,20 @@ struct ImmersiveView: View {
 
     let visionProPose = VisionProPositon()
 
-    @State private var pitch: Float = 0.0
-    @State private var yaw: Float = 0.0
+    @State private var isDragging: Bool = false
     
     @State var rotation: Angle = .zero
+    
+    var drag: some Gesture {
+            DragGesture()
+                .onChanged { _ in
+                    isDragging = true
+                    rotation.degrees += 5.0
+                }
+                .onEnded { _ in
+                    isDragging = false
+                }
+        }
     
     var body: some View {
         let allEntities = Entity()
@@ -69,7 +79,7 @@ struct ImmersiveView: View {
         .onAppear {
             Timer.scheduledTimer(withTimeInterval: 0.05, repeats: true) { _ in
                 Task {
-                    rotation.degrees += 0.5
+//                    rotation.degrees += 0.5
                     
                     let m1 = Transform(pitch: Float(rotation.radians)).matrix
                     let m2 = Transform(yaw: Float(rotation.radians)).matrix
@@ -78,15 +88,15 @@ struct ImmersiveView: View {
                     allEntities.transform.translation += SIMD3<Float>(0, 1.6, 0)
                 }
             }
-            
+
             Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true) { _ in
                 Task {
                     let viewMatrix = await visionProPose.getTransform()!
-                     
-                    var modelViewMatrix = allEntities.transform.matrix * viewMatrix
+                    let modelViewMatrix = viewMatrix * allEntities.transform.matrix
                     
-                    let viewVec: simd_float4 = matrix_multiply(simd_float4(0, 0, 1, 0), modelViewMatrix)
+//                    let viewVec: simd_float4 = matrix_multiply(simd_float4(0, 0, 1, 0), modelViewMatrix)
 //                    let viewVec: simd_float4 = simd_mul(modelViewMatrix, simd_float4(0, 0, 1, 0))
+                    let viewVector: simd_float4 = simd_mul(modelViewMatrix.inverse, simd_float4(0, 0, -1, 0))
                     
                     zPositiveEntities.isEnabled = false
                     zNegativeEntities.isEnabled = false
@@ -95,8 +105,10 @@ struct ImmersiveView: View {
                     yPositiveEntities.isEnabled = false
                     yNegativeEntities.isEnabled = false
                     
-                    if (viewVec.z.magnitude > viewVec.x.magnitude && viewVec.z.magnitude > viewVec.y.magnitude) {
-                        if (viewVec.z > 0) {
+                    print(viewVector)
+                    
+                    if (viewVector.z.magnitude > viewVector.x.magnitude && viewVector.z.magnitude > viewVector.y.magnitude) {
+                        if (viewVector.z > 0) {
                             print("z positive")
                             zPositiveEntities.isEnabled = true
                         } else {
@@ -104,8 +116,8 @@ struct ImmersiveView: View {
                             zNegativeEntities.isEnabled = true
                         }
                     }
-                    else if (viewVec.x.magnitude > viewVec.y.magnitude && viewVec.x.magnitude > viewVec.z.magnitude) {
-                        if (viewVec.x > 0) {
+                    else if (viewVector.x.magnitude > viewVector.y.magnitude && viewVector.x.magnitude > viewVector.z.magnitude) {
+                        if (viewVector.x > 0) {
                             print("x positive")
                             xPositiveEntities.isEnabled = true
                         } else {
@@ -114,7 +126,7 @@ struct ImmersiveView: View {
                         }
                     }
                     else {
-                        if (viewVec.y > 0) {
+                        if (viewVector.y > 0) {
                             print("y Positive")
                             yPositiveEntities.isEnabled = true
                         } else {
@@ -124,6 +136,8 @@ struct ImmersiveView: View {
                     }
                 }
             }
+        
         }
+        .gesture(drag)
     }
 }
