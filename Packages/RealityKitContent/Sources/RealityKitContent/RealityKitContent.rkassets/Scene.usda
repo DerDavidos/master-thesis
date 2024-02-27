@@ -192,6 +192,15 @@ def Xform "Root"
                 }
             }
         )
+        float inputs:smoothStep = 0 (
+            customData = {
+                dictionary realitykit = {
+                    float2 positionInSubgraph = (-70.18194, 167.24835)
+                    float2 sizeInSubgraph = (144, 53)
+                    int stackingOrderInSubgraph = 1027
+                }
+            }
+        )
         token outputs:mtlx:surface.connect = </Root/Material/UnlitSurface_1.outputs:out>
         token outputs:realitykit:vertex.connect = </Root/Material/GeometryModifier.outputs:out>
         token outputs:surface.connect = </Root/Material/UsdPreviewSurface.outputs:surface>
@@ -244,7 +253,7 @@ def Xform "Root"
                     }
                 }
             )
-            float inputs:smoothStepStep.connect = None
+            float inputs:smoothStepStep.connect = </Root/Material.inputs:smoothStep>
             float inputs:smoothStepWidth = 0.1 (
                 customData = {
                     dictionary realitykit = {
@@ -367,9 +376,9 @@ def Xform "Root"
         {
             uniform token info:id = "ND_time_float"
             float outputs:out
-            float2 ui:nodegraph:node:pos = (-5.58259, 165.61745)
+            float2 ui:nodegraph:node:pos = (148.36118, 171.23862)
             float2 ui:nodegraph:node:size = (123, 53)
-            int ui:nodegraph:node:stackingOrder = 833
+            int ui:nodegraph:node:stackingOrder = 1018
         }
 
         def Shader "Modulo"
@@ -377,10 +386,11 @@ def Xform "Root"
             uniform token info:id = "ND_modulo_float"
             float inputs:in1.connect = </Root/Material/Divide.outputs:out>
             float inputs:in2 = 1
+            float inputs:in2.connect = None
             float outputs:out
-            float2 ui:nodegraph:node:pos = (177.37262, 161.5974)
+            float2 ui:nodegraph:node:pos = (337.02765, 158.44394)
             float2 ui:nodegraph:node:size = (64, 39)
-            int ui:nodegraph:node:stackingOrder = 695
+            int ui:nodegraph:node:stackingOrder = 1025
             string[] ui:nodegraph:realitykit:node:attributesShowingChildren = ["inputs:in1", "outputs:out", "outputs:out"]
         }
 
@@ -390,9 +400,9 @@ def Xform "Root"
             float inputs:in1.connect = </Root/Material/Time.outputs:out>
             float inputs:in2 = 5
             float outputs:out
-            float2 ui:nodegraph:node:pos = (97.7212, 167.1834)
+            float2 ui:nodegraph:node:pos = (265.9907, 162.66344)
             float2 ui:nodegraph:node:size = (63, 36)
-            int ui:nodegraph:node:stackingOrder = 695
+            int ui:nodegraph:node:stackingOrder = 1024
         }
 
         def Shader "Image_1"

@@ -15,14 +15,21 @@ class SharedRenderer: ObservableObject {
     @Published var renderer: Renderer = Renderer()
 }
 
+struct MaterialEntity {
+    var entity: Entity
+    var material: ShaderGraphMaterial
+}
+
 class Renderer {
     
-    private var axisZPostive: [Entity] = []
-    private var axisZNegative: [Entity] = []
-    private var axisXPositive: [Entity] = []
-    private var axisXNegative: [Entity] = []
-    private var axisYPostive: [Entity] = []
-    private var axisYNegative: [Entity] = []
+    @State var tran: Float = 0
+    
+    private var axisZPostive: [MaterialEntity] = []
+    private var axisZNegative: [MaterialEntity] = []
+    private var axisXPositive: [MaterialEntity] = []
+    private var axisXNegative: [MaterialEntity] = []
+    private var axisYPostive: [MaterialEntity] = []
+    private var axisYNegative: [MaterialEntity] = []
     
     private var qVis: QVis? = nil
     
@@ -140,8 +147,8 @@ class Renderer {
     }
 
     @MainActor
-    fileprivate func createEntities(axis: String) async -> [Entity] {
-        var entities: [Entity] = []
+    fileprivate func createEntities(axis: String) async -> [MaterialEntity] {
+        var entities: [MaterialEntity] = []
         if let scene = try? await Entity(named: "Scene", in: realityKitContentBundle) {
             
             if let sphere = scene.findEntity(named: "placeHolder") as? ModelEntity {
@@ -163,32 +170,33 @@ class Renderer {
                     print("loading \(axis)")
                     for layer in 0...layers - 2 {
                         try? sphereMaterial.setParameter(name: "Image", value: .textureResource(getTexture(dataset: dataset, id: layer, axis: axis)))
-                        
                         let entity = Entity()
-                       
+
                         switch axis {
-                        case "zPositive", "zNegative":
-                            entity.components.set(ModelComponent(
-                                mesh: .generateBox(width: 1, height: 1, depth: 0),
-                                materials: [sphereMaterial]
-                            ))
-                            entity.transform.translation = (SIMD3<Float>(0, 0 , -Float(layers)/2/Float(layers) + Float(layer)/Float(layers)))
-                        case "xPositive", "xNegative":
-                            entity.components.set(ModelComponent(
-                                mesh: .generateBox(width: 0, height: 1, depth: 1),
-                                materials: [sphereMaterial]
-                            ))
-                            entity.transform.translation = (SIMD3<Float>(Float(layers)/2/Float(layers) - Float(layer)/Float(layers), 0 , 0))
-                        case "yPositive", "yNegative":
-                            entity.components.set(ModelComponent(
-                                mesh: .generateBox(width: 1, height: 0, depth: 1),
-                                materials: [sphereMaterial]
-                            ))
-                            entity.transform.translation = (SIMD3<Float>(0, -Float(layers)/2/Float(layers) + Float(layer)/Float(layers), 0))
+                        case "zNegative":
+                            entity.transform.translation = SIMD3<Float>(0, 0 , -Float(layers)/2/Float(layers) + Float(layer)/Float(layers))
+                        case "zPositive":
+                            entity.transform.translation = SIMD3<Float>(0, 0 , -Float(layers)/2/Float(layers) + Float(layer)/Float(layers))
+                            entity.transform.rotation = simd_quatf(angle: .pi, axis: SIMD3<Float>(0, 1, 0))
+                        case "xPositive":
+                            entity.transform.rotation = simd_quatf(angle: .pi/2, axis: SIMD3<Float>(0, 1, 0))
+                            entity.transform.translation = SIMD3<Float>(Float(layers)/2/Float(layers) - Float(layer)/Float(layers), 0 , 0)
+                        case "xNegative":
+                            entity.transform.rotation = simd_quatf(angle: -.pi/2, axis: SIMD3<Float>(0, 1, 0))
+                            entity.transform.translation = SIMD3<Float>(Float(layers)/2/Float(layers) - Float(layer)/Float(layers), 0 , 0)
+                        case "yPositive":
+                            entity.transform.rotation = simd_quatf(angle: -.pi/2, axis: SIMD3<Float>(1, 0, 0))
+                            entity.transform.translation = SIMD3<Float>(0, -Float(layers)/2/Float(layers) + Float(layer)/Float(layers), 0)
+                        case "yNegative":
+                            entity.transform.rotation = simd_quatf(angle: .pi/2, axis: SIMD3<Float>(1, 0, 0))
+                            entity.transform.translation = SIMD3<Float>(0, -Float(layers)/2/Float(layers) + Float(layer)/Float(layers), 0)
                         default:
                             fatalError("Unexpected value \(axis)")}
                         
-                        entities.append(entity)
+                        let materialEntity = MaterialEntity(entity: entity, material: sphereMaterial)
+                        
+                        entities.append(materialEntity)
+                        
                     }
                 }
             }
@@ -197,63 +205,7 @@ class Renderer {
     }
     
     @MainActor
-    func getEntities(axis: String) async -> [Entity] {
-        
-        var entities: [Entity]
-        switch axis {
-        case "zPositive":
-            entities = axisZPostive
-        case "zNegative":
-            entities = axisZNegative
-        case "xPositive":
-            entities = axisXPositive
-        case "xNegative":
-            entities = axisXNegative
-        case "yPositive":
-            entities = axisYPostive
-        case "yNegative":
-            entities = axisYNegative
-        default:
-            fatalError("Unexpected value \(axis)")
-        }
-        
-        if entities.isEmpty {
-            entities = await createEntities(axis: axis)
-            switch axis {
-            case "zPositive":
-                  axisZPostive = entities
-            case "zNegative":
-                 axisZNegative = entities
-            case "xPositive":
-                 axisXPositive = entities
-            case "xNegative":
-                 axisXNegative = entities
-            case "yPositive":
-                 axisYPostive = entities
-            case "yNegative":
-                 axisYNegative = entities
-            default:
-                fatalError("Unexpected value \(axis)")
-            }
-        }
-
-        var copy: [Entity] = []
-        
-        copy = entities.map { $0.copy() as! Entity }
-        
-        return copy
+    func getEntities(axis: String) async -> [MaterialEntity] {
+        return await createEntities(axis: axis)
     }
 }
-
-extension Entity {
-    func copy(with zone: NSZone? = nil) -> Any {
-        let copy = Entity()
-        copy.transform = self.transform
-        copy.components.set(ModelComponent(
-            mesh: self.components[ModelComponent.self]!.mesh,
-            materials: self.components[ModelComponent.self]!.materials
-        ))
-        return copy
-    }
-}
-
