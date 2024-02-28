@@ -5,14 +5,13 @@ import ARKit
 
 struct ContentView: View {
     
-    @EnvironmentObject var sharedRenderer: SharedRenderer
-    
-    @State private var showImmersiveSpace = false
+    @State private var showAxisView = false
+    @State private var showFullView = false
     @State private var immersiveSpaceIsShown = false
 
     @Environment(\.openImmersiveSpace) var openImmersiveSpace
     @Environment(\.dismissImmersiveSpace) var dismissImmersiveSpace
-
+    
     @FocusState private var isFocused: Bool
     
     let session = ARKitSession()
@@ -20,39 +19,30 @@ struct ContentView: View {
 
     let visionProPose = VisionProPositon()
 
-
-    
     var body: some View {
         VStack {
-            if  (!immersiveSpaceIsShown) {
-                
-                RealityView {content in
-                    if let scene = try? await Entity(named: "c60", in: realityKitContentBundle) {
-                        scene.transform.translation += SIMD3(-0.4, -0.25, 0)
-                        content.add(scene)
-                    }
-                }
-                
-            }
-            
-                
             VStack {
-                Toggle("Show ImmersiveSpace", isOn: $showImmersiveSpace)
+                Toggle("Show Axis View", isOn: $showAxisView)
                     .font(.extraLargeTitle)
                     .padding(36)
                     .frame(width: 700, height: 150, alignment: .center)
                     .glassBackgroundEffect()
-                    .onChange(of: showImmersiveSpace) { _, newValue in
+                    .onChange(of: showAxisView) { _, newValue in
                         Task {
                             if newValue {
-                                switch await openImmersiveSpace(id: "ImmersiveSpace") {
+                                if immersiveSpaceIsShown {
+                                    await dismissImmersiveSpace()
+                                    immersiveSpaceIsShown = false
+                                    showFullView = false
+                                }
+                                switch await openImmersiveSpace(id: "AxisView") {
                                 case .opened:
                                     immersiveSpaceIsShown = true
                                 case .error, .userCancelled:
                                     fallthrough
                                 @unknown default:
                                     immersiveSpaceIsShown = false
-                                    showImmersiveSpace = false
+                                    showAxisView = false
                                 }
                             } else if immersiveSpaceIsShown {
                                 await dismissImmersiveSpace()
@@ -61,7 +51,35 @@ struct ContentView: View {
                         }
                     }
             }.frame(depth: 0, alignment: .front)
-        }
+            Toggle("Show Full View", isOn: $showFullView)
+                .font(.extraLargeTitle)
+                .padding(36)
+                .frame(width: 700, height: 150, alignment: .center)
+                .glassBackgroundEffect()
+                .onChange(of: showFullView) { _, newValue in
+                    Task {
+                        if newValue {
+                            if immersiveSpaceIsShown {
+                                await dismissImmersiveSpace()
+                                immersiveSpaceIsShown = false
+                                showAxisView = false
+                            }
+                            switch await openImmersiveSpace(id: "FullView") {
+                            case .opened:
+                                immersiveSpaceIsShown = true
+                            case .error, .userCancelled:
+                                fallthrough
+                            @unknown default:
+                                immersiveSpaceIsShown = false
+                                showFullView = false
+                            }
+                        } else if immersiveSpaceIsShown {
+                            await dismissImmersiveSpace()
+                            immersiveSpaceIsShown = false
+                        }
+                    }
+                }
+        }.frame(depth: 0, alignment: .front)
     }
 }
 

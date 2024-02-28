@@ -27,9 +27,9 @@ func addEntities(allEntities: Entity, axisList: axisList) {
     allEntities.addChild(axisList.entity)
 }
 
-struct ImmersiveView: View {
+struct AxisView: View {
     
-    @EnvironmentObject var sharedRenderer: SharedRenderer
+    var axisRenderer: AxisRenderer = AxisRenderer()
     
     let session = ARKitSession()
     let worldInfo = WorldTrackingProvider()
@@ -76,17 +76,17 @@ struct ImmersiveView: View {
         
         RealityView {content in
             
-            zPositiveEntities.materialEntity = await sharedRenderer.renderer.getEntities(axis: "zPositive")
+            zPositiveEntities.materialEntity = await axisRenderer.getEntities(axis: "zPositive")
             addEntities(allEntities: allEntities, axisList: zPositiveEntities)
-            zNegativeEntities.materialEntity = await sharedRenderer.renderer.getEntities(axis: "zNegative")
+            zNegativeEntities.materialEntity = await axisRenderer.getEntities(axis: "zNegative")
             addEntities(allEntities: allEntities, axisList: zNegativeEntities)
-            xPositiveEntities.materialEntity = await sharedRenderer.renderer.getEntities(axis: "xPositive")
+            xPositiveEntities.materialEntity = await axisRenderer.getEntities(axis: "xPositive")
             addEntities(allEntities: allEntities, axisList: xPositiveEntities)
-            xNegativeEntities.materialEntity = await sharedRenderer.renderer.getEntities(axis: "xNegative")
+            xNegativeEntities.materialEntity = await axisRenderer.getEntities(axis: "xNegative")
             addEntities(allEntities: allEntities, axisList: xNegativeEntities)
-            yPositiveEntities.materialEntity = await sharedRenderer.renderer.getEntities(axis: "yPositive")
+            yPositiveEntities.materialEntity = await axisRenderer.getEntities(axis: "yPositive")
             addEntities(allEntities: allEntities, axisList: yPositiveEntities)
-            yNegativeEntities.materialEntity = await sharedRenderer.renderer.getEntities(axis: "yNegative")
+            yNegativeEntities.materialEntity = await axisRenderer.getEntities(axis: "yNegative")
             addEntities(allEntities: allEntities, axisList: yNegativeEntities)
             
             content.add(allEntities)

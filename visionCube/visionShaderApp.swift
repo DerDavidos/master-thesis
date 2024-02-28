@@ -1,18 +1,24 @@
 import SwiftUI
+import CompositorServices
 
 @main
 struct visionShaderApp: App {
     
-    var sharedData = SharedRenderer()
-    
     var body: some Scene {
     
         WindowGroup {
-            ContentView().environmentObject(sharedData)
+            ContentView()
         }.windowStyle(.volumetric).defaultSize(width: 1500, height: 2000, depth: 1500)
 
-        ImmersiveSpace(id: "ImmersiveSpace") {
-            ImmersiveView().environmentObject(sharedData)
+        ImmersiveSpace(id: "AxisView") {
+            AxisView()
         }
+        
+        ImmersiveSpace(id: "FullView") {
+            CompositorLayer(configuration: ContentStageConfiguration()) { layerRenderer in
+                let fullView = FullView(layerRenderer)
+                fullView.startRenderLoop()
+            }
+        }.immersionStyle(selection: .constant(.full), in: .full)
     }
 }

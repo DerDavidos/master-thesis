@@ -11,16 +11,12 @@ import MobileCoreServices
 
 let RESOURCE = "engine"
 
-class SharedRenderer: ObservableObject {
-    @Published var renderer: Renderer = Renderer()
-}
-
 struct MaterialEntity {
     var entity: Entity
     var material: ShaderGraphMaterial
 }
 
-class Renderer {
+class AxisRenderer {
     
     @State var tran: Float = 0
     
