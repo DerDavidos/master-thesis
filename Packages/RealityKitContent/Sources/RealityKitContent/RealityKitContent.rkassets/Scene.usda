@@ -186,18 +186,18 @@ def Xform "Root"
         asset inputs:Image (
             customData = {
                 dictionary realitykit = {
-                    float2 positionInSubgraph = (-207.10326, -111.50011)
+                    float2 positionInSubgraph = (-316.0134, -121.14087)
                     float2 sizeInSubgraph = (116, 53)
-                    int stackingOrderInSubgraph = 1018
+                    int stackingOrderInSubgraph = 1024
                 }
             }
         )
-        float inputs:smoothStep = 0 (
+        float inputs:smoothStep = 1 (
             customData = {
                 dictionary realitykit = {
                     float2 positionInSubgraph = (257.252, -28.70647)
                     float2 sizeInSubgraph = (144, 53)
-                    int stackingOrderInSubgraph = 1017
+                    int stackingOrderInSubgraph = 1027
                 }
             }
         )
@@ -223,7 +223,7 @@ def Xform "Root"
             token outputs:out
             float2 ui:nodegraph:node:pos = (1085.2537, -81.29728)
             float2 ui:nodegraph:node:size = (195, 181)
-            int ui:nodegraph:node:stackingOrder = 961
+            int ui:nodegraph:node:stackingOrder = 1016
             string[] ui:nodegraph:realitykit:node:attributesShowingChildren = ["inputs:color", "inputs:opacity", "inputs:applyPostProcessToneMap", "inputs:opacityThreshold", "inputs:opacityThreshold", "outputs:out", "inputs:applyPostProcessToneMap", "inputs:hasPremultipliedAlpha", "inputs:opacityThreshold", "inputs:hasPremultipliedAlpha", "inputs:opacity"]
         }
 
@@ -283,8 +283,8 @@ def Xform "Root"
             float outputs:return.connect = </Root/Material/transfer/Multiply_2.outputs:out>
             float2 ui:nodegraph:node:pos = (540.083, 9.229234)
             float2 ui:nodegraph:node:size = (145, 145)
-            int ui:nodegraph:node:stackingOrder = 1015
-            string[] ui:nodegraph:realitykit:node:attributesShowingChildren = ["inputs:smoothStepWidth", "inputs:smoothStepWidth", "inputs:smoothStepStep", "inputs:smoothStepStep"]
+            int ui:nodegraph:node:stackingOrder = 1017
+            string[] ui:nodegraph:realitykit:node:attributesShowingChildren = ["inputs:smoothStepWidth", "inputs:smoothStepWidth", "inputs:smoothStepStep", "inputs:smoothStepStep", "inputs:smoothStepStep"]
             float2 ui:nodegraph:realitykit:subgraphOutputs:pos = (1186.434, 51.35862)
             float2 ui:nodegraph:realitykit:subgraphOutputs:size = (129, 81)
             int ui:nodegraph:realitykit:subgraphOutputs:stackingOrder = 889
