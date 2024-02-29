@@ -10,7 +10,7 @@
 
 def Xform "Root"
 {
-    reorder nameChildren = ["Plane", "Material", "Cube"]
+    reorder nameChildren = ["Plane", "Cube", "Rotater"]
     def Cube "Plane" (
         active = true
         prepend apiSchemas = ["MaterialBindingAPI"]
@@ -95,6 +95,32 @@ def Xform "Root"
                 float2 ui:nodegraph:node:size = (149, 199)
                 int ui:nodegraph:node:stackingOrder = 16
                 string[] ui:nodegraph:realitykit:node:attributesShowingChildren = ["inputs:diffuseColor", "inputs:opacity"]
+            }
+        }
+    }
+
+    def Cube "Rotater" (
+        active = true
+        prepend apiSchemas = ["MaterialBindingAPI"]
+    )
+    {
+        rel material:binding = </Root/Rotater/DefaultMaterial>
+        double size = 0.2
+        quatf xformOp:orient = (1, 0, 0, 0)
+        float3 xformOp:scale = (1, 1, 1)
+        float3 xformOp:translate = (0, 0, -0.41225225)
+        uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
+
+        def Material "DefaultMaterial"
+        {
+            prepend token outputs:surface.connect = </Root/Rotater/DefaultMaterial/DefaultSurfaceShader.outputs:surface>
+
+            def Shader "DefaultSurfaceShader"
+            {
+                uniform token info:id = "UsdPreviewSurface"
+                color3f inputs:diffuseColor = (1, 1, 1)
+                float inputs:roughness = 0.75
+                token outputs:surface
             }
         }
     }

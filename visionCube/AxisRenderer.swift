@@ -99,7 +99,7 @@ class AxisRenderer {
                 if i >= dataset.volume.data.count {
                     i = id + (width*j)
                     j = j + 1
-                    if (axis == "xPositive") {
+                    if (axis == "xNegative") {
                         imageColumn = imageColumn.reversed()
                     }
                     imageData.append(contentsOf: imageColumn)
@@ -113,7 +113,7 @@ class AxisRenderer {
             imageHeight = depth
             imageData = Array()
             var i = (id-height+1) * (-1) * width
-            if (axis == "yPositive") {
+            if (axis == "yNegative") {
                 while imageData.count < width * depth {
                     imageData.append(contentsOf: dataset.volume.data[i...i+width-1].reversed())
                     i = i + width * height
@@ -175,16 +175,16 @@ class AxisRenderer {
                             entity.transform.translation = SIMD3<Float>(0, 0 , -Float(layers)/2/Float(layers) + Float(layer)/Float(layers))
                             entity.transform.rotation = simd_quatf(angle: .pi, axis: SIMD3<Float>(0, 1, 0))
                         case "xPositive":
-                            entity.transform.rotation = simd_quatf(angle: .pi/2, axis: SIMD3<Float>(0, 1, 0))
-                            entity.transform.translation = SIMD3<Float>(Float(layers)/2/Float(layers) - Float(layer)/Float(layers), 0 , 0)
-                        case "xNegative":
                             entity.transform.rotation = simd_quatf(angle: -.pi/2, axis: SIMD3<Float>(0, 1, 0))
                             entity.transform.translation = SIMD3<Float>(Float(layers)/2/Float(layers) - Float(layer)/Float(layers), 0 , 0)
+                        case "xNegative":
+                            entity.transform.rotation = simd_quatf(angle: .pi/2, axis: SIMD3<Float>(0, 1, 0))
+                            entity.transform.translation = SIMD3<Float>(Float(layers)/2/Float(layers) - Float(layer)/Float(layers), 0 , 0)
                         case "yPositive":
-                            entity.transform.rotation = simd_quatf(angle: -.pi/2, axis: SIMD3<Float>(1, 0, 0))
+                            entity.transform.rotation = simd_quatf(angle: .pi/2, axis: SIMD3<Float>(1, 0, 0))
                             entity.transform.translation = SIMD3<Float>(0, -Float(layers)/2/Float(layers) + Float(layer)/Float(layers), 0)
                         case "yNegative":
-                            entity.transform.rotation = simd_quatf(angle: .pi/2, axis: SIMD3<Float>(1, 0, 0))
+                            entity.transform.rotation = simd_quatf(angle: -.pi/2, axis: SIMD3<Float>(1, 0, 0))
                             entity.transform.translation = SIMD3<Float>(0, -Float(layers)/2/Float(layers) + Float(layer)/Float(layers), 0)
                         default:
                             fatalError("Unexpected value \(axis)")}
