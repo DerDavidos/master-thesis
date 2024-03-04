@@ -56,6 +56,8 @@ struct AxisView: View {
     @State var rotater = Entity()
     @State var clipRotation: Angle = .zero
 
+    @State var loading = true
+    
     var body: some View {
         let allEntities = Entity()
         
@@ -113,8 +115,25 @@ struct AxisView: View {
                 rotater = scene.findEntity(named: "Rotater")!
                 rotater.components.set(InputTargetComponent())
                 rotater.generateCollisionShapes(recursive: false)
-                content.add(rotater)
+                rotater.transform.translation = SIMD3<Float>(0, 1.6, 0)
             }
+            
+            zPositiveEntities.materialEntity = await axisRenderer.getEntities(axis: "zPositive")
+            addEntities(allEntities: rotater, axisList: zPositiveEntities)
+            zNegativeEntities.materialEntity = await axisRenderer.getEntities(axis: "zNegative")
+            addEntities(allEntities: rotater, axisList: zNegativeEntities)
+            xPositiveEntities.materialEntity = await axisRenderer.getEntities(axis: "xPositive")
+            addEntities(allEntities: rotater, axisList: xPositiveEntities)
+            xNegativeEntities.materialEntity = await axisRenderer.getEntities(axis: "xNegative")
+            addEntities(allEntities: rotater, axisList: xNegativeEntities)
+            yPositiveEntities.materialEntity = await axisRenderer.getEntities(axis: "yPositive")
+            addEntities(allEntities: rotater, axisList: yPositiveEntities)
+            yNegativeEntities.materialEntity = await axisRenderer.getEntities(axis: "yNegative")
+            addEntities(allEntities: rotater, axisList: yNegativeEntities)
+            
+            content.add(rotater)
+            print("Loaded")
+            loading = false
         }
         .gesture(DragGesture().targetedToEntity(rotater).onChanged{ value in
             let angle = sqrt(pow(value.translation.width, 2) + pow(value.translation.height, 2))
@@ -131,43 +150,19 @@ struct AxisView: View {
                 )
             )
             rotater.orientation = quaternion
+            rotater.transform.translation = SIMD3<Float>(0, 1.6, 0)
         })
-
-        RealityView {content in
-            zPositiveEntities.materialEntity = await axisRenderer.getEntities(axis: "zPositive")
-            addEntities(allEntities: allEntities, axisList: zPositiveEntities)
-            zNegativeEntities.materialEntity = await axisRenderer.getEntities(axis: "zNegative")
-            addEntities(allEntities: allEntities, axisList: zNegativeEntities)
-            xPositiveEntities.materialEntity = await axisRenderer.getEntities(axis: "xPositive")
-            addEntities(allEntities: allEntities, axisList: xPositiveEntities)
-            xNegativeEntities.materialEntity = await axisRenderer.getEntities(axis: "xNegative")
-            addEntities(allEntities: allEntities, axisList: xNegativeEntities)
-            yPositiveEntities.materialEntity = await axisRenderer.getEntities(axis: "yPositive")
-            addEntities(allEntities: allEntities, axisList: yPositiveEntities)
-            yNegativeEntities.materialEntity = await axisRenderer.getEntities(axis: "yNegative")
-            addEntities(allEntities: allEntities, axisList: yNegativeEntities)
-            
-            content.add(allEntities)
-            print("Loaded")
-        }
         .onAppear {
-            Timer.scheduledTimer(withTimeInterval: 0.05, repeats: true) { _ in
-                Task {
-                    allEntities.transform.matrix = rotater.transform.matrix
-                    allEntities.transform.translation += SIMD3<Float>(0, 1.6, 0)
-                }
-            }
-
             Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true) { _ in
                 
                 Task {
-                    if (yNegativeEntities.entity.children.isEmpty) {
+                    if (loading) {
                         return
                     }
                     
                     let viewMatrix = await visionProPose.getTransform()!
-                    let modelViewMatrix = viewMatrix * allEntities.transform.matrix
-//                    let viewVector: simd_float4 = simd_mul(modelViewMatrix.inverse, simd_float4(0, 0, -1, 0))
+                    let modelViewMatrix = rotater.transform.matrix * viewMatrix
+                    
                     let viewVector: simd_float4 = matrix_multiply(simd_float4(0, 0, -1, 0), modelViewMatrix.inverse)
                     
                     zPositiveEntities.entity.isEnabled = false
@@ -177,26 +172,27 @@ struct AxisView: View {
                     yPositiveEntities.entity.isEnabled = false
                     yNegativeEntities.entity.isEnabled = false
                     
-                    print(viewMatrix)
-                    print(modelViewMatrix)
-                    print(viewVector)
+                    print(allEntities.transform.matrix)
+//                    print(viewMatrix)
+//                    print(modelViewMatrix)
+//                    print(viewVector)
                     print()
                     
                     if (viewVector.z.magnitude > viewVector.x.magnitude && viewVector.z.magnitude > viewVector.y.magnitude) {
                         if (viewVector.z > 0) {
-//                            print("z positive")
+                            print("z positive")
                             setEntities(sliderValue: sliderValue, axisList: &zPositiveEntities)
                         } else {
-//                            print("z negative")
+                            print("z negative")
                             setEntities(sliderValue: sliderValue, axisList: &zNegativeEntities)
                         }
                     }
                     else if (viewVector.x.magnitude > viewVector.y.magnitude && viewVector.x.magnitude > viewVector.z.magnitude) {
                         if (viewVector.x > 0) {
-//                            print("x positive")
+                            print("x positive")
                             setEntities(sliderValue: sliderValue, axisList: &xPositiveEntities)
                         } else {
-//                            print("x negative")
+                            print("x negative")
                             setEntities(sliderValue: sliderValue, axisList: &xNegativeEntities)
                         }
                     }
