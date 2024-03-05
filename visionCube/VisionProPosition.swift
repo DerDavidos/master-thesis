@@ -17,7 +17,7 @@ class VisionProPositon {
     }
     
     func getTransform() async -> simd_float4x4? {
-        guard let deviceAnchor = worldTracking.queryDeviceAnchor(atTimestamp: 0) else {
+        guard let deviceAnchor = worldTracking.queryDeviceAnchor(atTimestamp: CACurrentMediaTime()) else {
             return nil
         }
         return deviceAnchor.originFromAnchorTransform

@@ -165,14 +165,16 @@ class AxisRenderer {
                     }
                     print("loading \(axis)")
                     for layer in 0...layers - 2 {
-                        try? sphereMaterial.setParameter(name: "Image", value: .textureResource(getTexture(dataset: dataset, id: layer, axis: axis)))
+                        
                         let entity = Entity()
 
+                        try? sphereMaterial.setParameter(name: "Image", value: .textureResource(getTexture(dataset: dataset, id: layer, axis: axis)))
+                        
                         switch axis {
                         case "zNegative":
                             entity.transform.translation = SIMD3<Float>(0, 0 , -Float(layers)/2/Float(layers) + Float(layer)/Float(layers))
                         case "zPositive":
-                            entity.transform.translation = SIMD3<Float>(0, 0 , -Float(layers)/2/Float(layers) + Float(layer)/Float(layers))
+                            entity.transform.translation = SIMD3<Float>(0, 0 , Float(layers)/2/Float(layers) - Float(layer)/Float(layers))
                             entity.transform.rotation = simd_quatf(angle: .pi, axis: SIMD3<Float>(0, 1, 0))
                         case "xPositive":
                             entity.transform.rotation = simd_quatf(angle: -.pi/2, axis: SIMD3<Float>(0, 1, 0))
