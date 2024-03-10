@@ -63,8 +63,8 @@ class FullView {
     var smothStep: Float = 0
     var view = simd_float4x4()
     var model = simd_float4x4()
-    var clipBoxSize = simd_float3(0.5, 1, 1)
-    var clipBoxShift = simd_float3(0.5, 0, 0)
+    var clipBoxSize = simd_float3(0.5, 0.5, 0.7)
+    var clipBoxShift = simd_float3(0.5, 0.35, 0.3)
     var cube: Tesselation!
     var meshNeedsUpdate = true
     var volumeScale = makeScale(simd_float3(0.5, 0.5, 0.5))
@@ -159,7 +159,7 @@ class FullView {
         view = makeLookAt(vEye: simd_float3(0, 0, 3), vAt: simd_float3(0, 0, 0), vUp: simd_float3(0, 1, 0))
         model = makeTranslate(simd_float3(0, 0, 1)) * makeXRotate(angleRadians: angle) * makeYRotate(angleRadians: angle * 2) * volumeScale
         let projection = makePerspective(fovRadians: 45.0 * Float.pi / 180.0, aspect: Float(500) / Float(500), znear: 0.03, zfar: 500.0)
-        
+        print(projection)
         let viewToTexture = makeTranslate(simd_float3(0.5, 0.5, 0.5)) * simd_inverse(view * model)
         
         // Set values in _pMatrixBuffer
