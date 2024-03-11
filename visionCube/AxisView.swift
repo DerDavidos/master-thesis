@@ -37,6 +37,8 @@ struct AxisView: View {
     @State var yPositiveEntities: axisList = axisList(entity: Entity(), materialEntity: [])
     @State var yNegativeEntities: axisList = axisList(entity: Entity(), materialEntity: [])
 
+    @State private var planePosition: CGFloat = 0
+    
     func setEntities(entity: Entity) {
         for axis in axises {
             if (axis.entity == entity) {
@@ -92,75 +94,68 @@ struct AxisView: View {
     var body: some View {
         VStack {
             Spacer()
-            Text("Slider Value: \(Int(sliderValue))")
-            Slider(value: $sliderValue, in: 0...1) { editing in
-                if (!editing && !loading) {
-                    updateAllAxis()
+            Grid(alignment: .leading, verticalSpacing: 30) {
+                GridRow {
+                    Text("Slider Value:")
+                    Slider(value: $sliderValue, in: 0...1) { editing in
+                        if (!editing && !loading) {
+                            updateAllAxis()
+                        }
+                    }
                 }
+                GridRow {
+                    Text("X Value:")
+                    Slider(value: $X, in: 0...1) { editing in
+                        if (!editing && !loading) {
+                            updateAllAxis()
+                        }
+                    }
+                }
+                GridRow {
+                    Text("Y Value:")
+                    Slider(value: $Y, in: 0...1) { editing in
+                        if (!editing && !loading) {
+                            updateAllAxis()
+                        }
+                    }
+                }
+                GridRow {
+                    Text("Z Value:")
+                    Slider(value: $Z, in: 0...1) { editing in
+                        if (!editing && !loading) {
+                            updateAllAxis()
+                        }
+                    }
+                }
+                Button(action: {
+                    rotater.transform.rotation = simd_quatf(angle: 0, axis: SIMD3<Float>(0, 0, 0))
+                    X = 0
+                    Y = 0
+                    Z = 0
+                    sliderValue = 0
+                    updateAllAxis()
+                }, label: {
+                    Text("Reset")
+                })
             }
-            Text("X Value: \(Int(X))")
-            Slider(value: $X, in: 0...1) { editing in
-                if (!editing && !loading) {
-                    updateAllAxis()
-                }
-            }
-            Text("Y Value: \(Int(Y))")
-            Slider(value: $Y, in: 0...1) { editing in
-                if (!editing && !loading) {
-                    updateAllAxis()
-                }
-            }
-            Text("Z Value: \(Int(Z))")
-            Slider(value: $Z, in: 0...1) { editing in
-                if (!editing && !loading) {
-                    updateAllAxis()
-                }
-            }.padding(10)
-            Button(action: {
-                rotater.transform.rotation = simd_quatf(angle: 0, axis: SIMD3<Float>(0, 0, 0))
-                X = 0
-                Y = 0
-                Z = 0
-                sliderValue = 0
-                updateAllAxis()
-            }, label: {
-                Text("Reset")
-            })
+            .frame(width: 500)
+            .padding(30)
+            .glassBackgroundEffect()
         }
+
         
-//        RealityView {content in
-//            if let scene = try? await Entity(named: "Plane", in: realityKitContentBundle) {
-//                clipBox = scene.findEntity(named: "clipBox")!
-//                clipBox.transform.translation = SIMD3<Float>(0, 1.3, -1.7)
-//                
-////                content.add(clipBox)
-//            }
-//        } update: { content in
-//            if let cube = content.entities.first?.findEntity(named: "clipBox") as? ModelEntity {
-//                print("CUBE")
-//                let event = content.subscribe(to: CollisionEvents.Began.self, on: cube) { ce in
-//                    print(ce.position)
-//                    print("Collision between \(ce.entityA.name) and \(ce.entityB.name) occurred")
-//                }
-//                print("after")
-//            }
-//        }
-//        .gesture(DragGesture().targetedToEntity(clipBox).onChanged{ value in
-//            let angle = sqrt(pow(value.translation.width, 2) + pow(value.translation.height, 2))
-//            rotation = Angle(degrees: Double(angle)) * 0.5
-//            let axisX = -value.translation.height / CGFloat(angle)
-//            let axisY = value.translation.width / CGFloat(angle)
-//            rotationAxis = (x: axisX, y: axisY, z: 0)
-//            let quaternion = simd_quatf(
-//                angle: Float(rotation.radians),
-//                axis: SIMD3<Float>(
-//                    x: Float(rotationAxis.x),
-//                    y: Float(rotationAxis.y),
-//                    z: Float(rotationAxis.z)
-//                )
-//            )
-//            clipBox.orientation = quaternion
-//        })
+        Rectangle()
+                   .frame(width: 100, height: 50) // Customize the size
+                   .foregroundColor(.blue)
+                   .offset(x: planePosition, y: 0)
+                   .gesture(
+                       DragGesture()
+                           .onChanged { value in
+                               // Update the plane position based on drag
+                               let newPosition = planePosition + value.translation.width
+                               planePosition = max(0, min(newPosition,100))
+                           }
+                   )
         
         RealityView {content in
             Task {
