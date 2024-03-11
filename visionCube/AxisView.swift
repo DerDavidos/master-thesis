@@ -21,6 +21,7 @@ struct AxisView: View {
     
     @State private var X: Float = 0
     @State private var Y: Float = 0
+    @State private var Z: Float = 0
     
     @State var clipBox = Entity()
     @State var rotater = Entity()
@@ -50,8 +51,9 @@ struct AxisView: View {
         loading = true
         for i in 0...axisList.materialEntity.count - 1 {
             try! axisList.materialEntity[i].material.setParameter(name: "smoothStep", value: MaterialParameters.Value.float(sliderValue))
-            try! axisList.materialEntity[i].material.setParameter(name: "x", value: MaterialParameters.Value.float(X))
-            try! axisList.materialEntity[i].material.setParameter(name: "y", value: MaterialParameters.Value.float(Y))
+            try! axisList.materialEntity[i].material.setParameter(name: "x", value: .float(X))
+            try! axisList.materialEntity[i].material.setParameter(name: "y", value: .float(Y))
+            try! axisList.materialEntity[i].material.setParameter(name: "z", value: .float(Z))
             axisList.materialEntity[i].entity.components.set(ModelComponent(
                 mesh: .generatePlane(width: 1, height: 1),
                 materials: [axisList.materialEntity[i].material]
@@ -64,8 +66,9 @@ struct AxisView: View {
         for i in 0...axisList.materialEntity.count - 1 {
             axisList.entity.addChild(axisList.materialEntity[i].entity)
             try! axisList.materialEntity[i].material.setParameter(name: "smoothStep", value: MaterialParameters.Value.float(0))
-            try! axisList.materialEntity[i].material.setParameter(name: "x", value: MaterialParameters.Value.float(X))
-            try! axisList.materialEntity[i].material.setParameter(name: "y", value: MaterialParameters.Value.float(Y))
+            try! axisList.materialEntity[i].material.setParameter(name: "x", value: .float(X))
+            try! axisList.materialEntity[i].material.setParameter(name: "y", value: .float(Y))
+            try! axisList.materialEntity[i].material.setParameter(name: "z", value: .float(Z))
             axisList.materialEntity[i].entity.components.set(ModelComponent(
                 mesh: .generatePlane(width: 1, height: 1),
                 materials: [axisList.materialEntity[i].material]
@@ -106,11 +109,18 @@ struct AxisView: View {
                 if (!editing && !loading) {
                     updateAllAxis()
                 }
+            }
+            Text("Z Value: \(Int(Z))")
+            Slider(value: $Z, in: 0...1) { editing in
+                if (!editing && !loading) {
+                    updateAllAxis()
+                }
             }.padding(10)
             Button(action: {
                 rotater.transform.rotation = simd_quatf(angle: 0, axis: SIMD3<Float>(0, 0, 0))
                 X = 0
                 Y = 0
+                Z = 0
                 sliderValue = 0
                 updateAllAxis()
             }, label: {
@@ -187,7 +197,8 @@ struct AxisView: View {
             rotation += Angle(degrees: Double(angle)) * 0.05
             let axisX = -value.translation.height / CGFloat(angle)
             let axisY = value.translation.width / CGFloat(angle)
-            rotationAxis = (x: axisX, y: axisY, z: 0)
+//            rotationAxis = (x: axisX, y: axisY, z: 0)
+            rotationAxis = (x: 0, y: 1, z: 0)
             let quaternion = simd_quatf(
                 angle: Float(rotation.radians),
                 axis: SIMD3<Float>(
