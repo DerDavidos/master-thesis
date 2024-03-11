@@ -197,8 +197,7 @@ struct AxisView: View {
             rotation += Angle(degrees: Double(angle)) * 0.05
             let axisX = -value.translation.height / CGFloat(angle)
             let axisY = value.translation.width / CGFloat(angle)
-//            rotationAxis = (x: axisX, y: axisY, z: 0)
-            rotationAxis = (x: 0, y: 1, z: 0)
+            rotationAxis = (x: axisX, y: axisY, z: 0)
             let quaternion = simd_quatf(
                 angle: Float(rotation.radians),
                 axis: SIMD3<Float>(
