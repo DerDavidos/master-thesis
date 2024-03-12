@@ -23,8 +23,11 @@ struct AxisView: View {
     @State private var Y: Float = 0
     @State private var Z: Float = 0
     
-    @State var clipBox = Entity()
+    @State var clipBoxX = Entity()
+    @State var clipBoxY = Entity()
+    @State var clipBoxZ = Entity()
     @State var rotater = Entity()
+    @State var root = Entity()
     @State var clipRotation: Angle = .zero
 
     @State var loading: Bool = true
@@ -104,58 +107,25 @@ struct AxisView: View {
                     }
                 }
                 GridRow {
-                    Text("X Value:")
-                    Slider(value: $X, in: 0...1) { editing in
-                        if (!editing && !loading) {
-                            updateAllAxis()
-                        }
-                    }
+                    Button(action: {
+                        rotater.transform.rotation = simd_quatf(angle: 0, axis: SIMD3<Float>(0, 0, 0))
+                        clipBoxZ.position.z = -0.55
+                        clipBoxX.position.x = -0.55
+                        clipBoxY.position.y = -0.55
+                        X = 0
+                        Y = 0
+                        Z = 0
+                        sliderValue = 0
+                        updateAllAxis()
+                    }, label: {
+                        Text("Reset")
+                    })
                 }
-                GridRow {
-                    Text("Y Value:")
-                    Slider(value: $Y, in: 0...1) { editing in
-                        if (!editing && !loading) {
-                            updateAllAxis()
-                        }
-                    }
-                }
-                GridRow {
-                    Text("Z Value:")
-                    Slider(value: $Z, in: 0...1) { editing in
-                        if (!editing && !loading) {
-                            updateAllAxis()
-                        }
-                    }
-                }
-                Button(action: {
-                    rotater.transform.rotation = simd_quatf(angle: 0, axis: SIMD3<Float>(0, 0, 0))
-                    X = 0
-                    Y = 0
-                    Z = 0
-                    sliderValue = 0
-                    updateAllAxis()
-                }, label: {
-                    Text("Reset")
-                })
-            }
-            .frame(width: 500)
+            }.frame(alignment: .center)
+            .frame(width: 500, alignment: .center)
             .padding(30)
             .glassBackgroundEffect()
         }
-
-        
-        Rectangle()
-                   .frame(width: 100, height: 50) // Customize the size
-                   .foregroundColor(.blue)
-                   .offset(x: planePosition, y: 0)
-                   .gesture(
-                       DragGesture()
-                           .onChanged { value in
-                               // Update the plane position based on drag
-                               let newPosition = planePosition + value.translation.width
-                               planePosition = max(0, min(newPosition,100))
-                           }
-                   )
         
         RealityView {content in
             Task {
@@ -163,27 +133,39 @@ struct AxisView: View {
             }
             
             if let scene = try? await Entity(named: "Plane", in: realityKitContentBundle) {
+                root = scene.findEntity(named: "root")!
                 rotater = scene.findEntity(named: "Rotater")!
                 rotater.components.set(InputTargetComponent())
                 rotater.generateCollisionShapes(recursive: false)
-                rotater.transform.translation = SIMD3<Float>(0, 1.6, -2)
+                root.transform.translation = SIMD3<Float>(0, 1.6, -2)
+                
+                clipBoxX = scene.findEntity(named: "clipBoxX")!
+                clipBoxX.components.set(InputTargetComponent())
+                clipBoxX.generateCollisionShapes(recursive: false)
+                clipBoxY = scene.findEntity(named: "clipBoxY")!
+                clipBoxZ = scene.findEntity(named: "clipBoxZ")!
+                
+                root.addChild(rotater)
+                root.addChild(clipBoxX)
+                root.addChild(clipBoxY)
+                root.addChild(clipBoxZ)
             }
             
             let axisRenderer: AxisRenderer = AxisRenderer()
             zPositiveEntities.materialEntity = await axisRenderer.getEntities(axis: "zPositive")
-            addEntities(allEntities: rotater, axisList: &zPositiveEntities)
+            addEntities(allEntities: root, axisList: &zPositiveEntities)
             zNegativeEntities.materialEntity = await axisRenderer.getEntities(axis: "zNegative")
-            addEntities(allEntities: rotater, axisList: &zNegativeEntities)
+            addEntities(allEntities: root, axisList: &zNegativeEntities)
             xPositiveEntities.materialEntity = await axisRenderer.getEntities(axis: "xPositive")
-            addEntities(allEntities: rotater, axisList: &xPositiveEntities)
+            addEntities(allEntities: root, axisList: &xPositiveEntities)
             xNegativeEntities.materialEntity = await axisRenderer.getEntities(axis: "xNegative")
-            addEntities(allEntities: rotater, axisList: &xNegativeEntities)
+            addEntities(allEntities: root, axisList: &xNegativeEntities)
             yPositiveEntities.materialEntity = await axisRenderer.getEntities(axis: "yPositive")
-            addEntities(allEntities: rotater, axisList: &yPositiveEntities)
+            addEntities(allEntities: root, axisList: &yPositiveEntities)
             yNegativeEntities.materialEntity = await axisRenderer.getEntities(axis: "yNegative")
-            addEntities(allEntities: rotater, axisList: &yNegativeEntities)
+            addEntities(allEntities: root, axisList: &yNegativeEntities)
             
-            content.add(rotater)
+            content.add(root)
             print("Loaded")
             loading = false
         }
@@ -201,8 +183,29 @@ struct AxisView: View {
                     z: Float(rotationAxis.z)
                 )
             )
-            rotater.orientation = quaternion
-            rotater.transform.translation = SIMD3<Float>(0, 1.6, -2)
+            root.orientation = quaternion
+            root.transform.translation = SIMD3<Float>(0, 1.6, -2)
+        })
+        .gesture(DragGesture().targetedToEntity(clipBoxX).onChanged{value in
+            let newPosition = clipBoxX.position.x + Float((value.translation.width + value.translation.height)/10000)
+            clipBoxX.position.x = max(-0.55, min(newPosition, 0.55))
+            X = max(-0.5, min(clipBoxX.position.x, 0.5)) + 0.5
+        }.onEnded{_ in
+            updateAllAxis()
+        })
+        .gesture(DragGesture().targetedToEntity(clipBoxY).onChanged{value in
+            let newPosition = clipBoxY.position.y + Float(-(value.translation.width + value.translation.height)/10000)
+            clipBoxY.position.y = max(-0.55, min(newPosition, 0.55))
+            Y = max(-0.5, min(clipBoxY.position.y, 0.5)) + 0.5
+        }.onEnded{_ in
+            updateAllAxis()
+        })
+        .gesture(DragGesture().targetedToEntity(clipBoxZ).onChanged{value in
+            let newPosition = clipBoxZ.position.z + Float(-(value.translation.width + value.translation.height)/10000)
+            clipBoxZ.position.z = max(-0.55, min(newPosition, 0.55))
+            Z = max(-0.5, min(clipBoxZ.position.z, 0.5)) + 0.5
+        }.onEnded{_ in
+           updateAllAxis()
         })
         .onAppear {
             Timer.scheduledTimer(withTimeInterval: 0.05, repeats: true) { _ in
@@ -212,34 +215,28 @@ struct AxisView: View {
                     }
                     
                     let viewMatrix = await visionProPose.getTransform()!
-                    let modelMatrix = rotater.transform.matrix
+                    let modelMatrix = root.transform.matrix
                     let modelViewMatrix = viewMatrix.inverse * modelMatrix
                     let viewVector: simd_float4 = matrix_multiply(simd_float4(0, 0, -1, 0), modelViewMatrix)
 
                     if (viewVector.z.magnitude > viewVector.x.magnitude && viewVector.z.magnitude > viewVector.y.magnitude) {
                         if (viewVector.z > 0) {
                             setEntities(entity: zPositiveEntities.entity)
-                            print("z pos")
                         } else {
                             setEntities(entity: zNegativeEntities.entity)
-                            print("z neg")
                         }
                     }
                     else if (viewVector.x.magnitude > viewVector.y.magnitude && viewVector.x.magnitude > viewVector.z.magnitude) {
                         if (viewVector.x > 0) {
-                            print("x pos")
                             setEntities(entity: xPositiveEntities.entity)
                         } else {
                             setEntities(entity: xNegativeEntities.entity)
-                            print("x neg")
                         }
                     }
                     else {
                         if (viewVector.y > 0) {
-                            print("y pos")
                             setEntities(entity: yPositiveEntities.entity)
                         } else {
-                            print("y neg")
                             setEntities(entity: yNegativeEntities.entity)
                         }
                     }
