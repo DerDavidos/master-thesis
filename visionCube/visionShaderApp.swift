@@ -3,6 +3,7 @@ import CompositorServices
 
 @main
 struct visionShaderApp: App {
+    @State private var axisModell = AxisModell()
     
     var body: some Scene {
     
@@ -11,8 +12,12 @@ struct visionShaderApp: App {
         }.windowStyle(.volumetric).defaultSize(width: 1500, height: 2000, depth: 1500)
 
         ImmersiveSpace(id: "AxisView") {
-            AxisView()
+            AxisView(axisModell: axisModell)
         }
+        
+        WindowGroup(id: "AxisControll") {
+            AxisControll(axisModell: axisModell)
+        }.windowStyle(.plain)
         
         ImmersiveSpace(id: "FullView") {
             CompositorLayer(configuration: ContentStageConfiguration()) { layerRenderer in

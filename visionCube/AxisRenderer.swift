@@ -9,7 +9,7 @@ import MobileCoreServices
 import ImageIO
 import MobileCoreServices
 
-let RESOURCE = "engine"
+let RESOURCE = "c60"
 
 struct MaterialEntity {
     var entity: Entity
@@ -17,16 +17,6 @@ struct MaterialEntity {
 }
 
 class AxisRenderer {
-    
-    @State var tran: Float = 0
-    
-    private var axisZPostive: [MaterialEntity] = []
-    private var axisZNegative: [MaterialEntity] = []
-    private var axisXPositive: [MaterialEntity] = []
-    private var axisXNegative: [MaterialEntity] = []
-    private var axisYPostive: [MaterialEntity] = []
-    private var axisYNegative: [MaterialEntity] = []
-    
     private var qVis: QVis? = nil
     
     func loadTexture() -> QVis{
@@ -36,19 +26,7 @@ class AxisRenderer {
         }
         return qVis!
     }
-    
-//            let subData = dataset.volume.data.enumerated().filter { $0.offset % width == id }.map { $0.element }
 
-//    func saveImage(image: CGImage, id: Int) {
-//                let fileManager = FileManager.default
-//                let directoryURL = fileManager.urls(for: .documentDirectory, in: .userDomainMask)[0]
-//                let resultFolderURL = directoryURL.appendingPathComponent("results")
-//                if !fileManager.fileExists(atPath: resultFolderURL.path) {
-//                    try? fileManager.createDirectory(at: resultFolderURL, withIntermediateDirectories: true, attributes: nil)
-//                }
-//                resultFolderURL.appendingPathComponent(String(id) + ".png")
-//    }
-    
     func writeCGImage(_ image: CGImage, to destinationURL: URL) -> Bool {
         guard let destination = CGImageDestinationCreateWithURL(destinationURL as CFURL, UTType.png.identifier as CFString, 1, nil) else { return false }
         CGImageDestinationAddImage(destination, image, nil)
@@ -160,8 +138,6 @@ class AxisRenderer {
             default:
                 fatalError("Unexpected value \(axis)")
             }
-
-           
            
             print("loading \(axis)")
             for layer in 0...layers - 2 {
@@ -228,3 +204,13 @@ class AxisRenderer {
         return await createEntities(axis: axis)
     }
 }
+
+//    func saveImage(image: CGImage, id: Int) -> Bool {
+//                let fileManager = FileManager.default
+//                let directoryURL = fileManager.urls(for: .documentDirectory, in: .userDomainMask)[0]
+//                let resultFolderURL = directoryURL.appendingPathComponent("results")
+//                if !fileManager.fileExists(atPath: resultFolderURL.path) {
+//                    try? fileManager.createDirectory(at: resultFolderURL, withIntermediateDirectories: true, attributes: nil)
+//                }
+//                resultFolderURL.appendingPathComponent(String(id) + ".png")
+//    }

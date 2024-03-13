@@ -4,13 +4,16 @@ import RealityKitContent
 import ARKit
 
 struct ContentView: View {
-    
+
     @State private var showAxisView = false
     @State private var showFullView = false
     @State private var immersiveSpaceIsShown = false
 
     @Environment(\.openImmersiveSpace) var openImmersiveSpace
     @Environment(\.dismissImmersiveSpace) var dismissImmersiveSpace
+    
+    @Environment(\.openWindow) var openWindow
+    @Environment(\.dismissWindow) var dismissWindow
     
     @FocusState private var isFocused: Bool
     
@@ -20,6 +23,8 @@ struct ContentView: View {
     let visionProPose = VisionProPositon()
 
     var body: some View {
+
+        
         VStack {
             VStack {
                 Grid(alignment: .leading, verticalSpacing: 30) {
@@ -37,6 +42,7 @@ struct ContentView: View {
                                         switch await openImmersiveSpace(id: "AxisView") {
                                         case .opened:
                                             immersiveSpaceIsShown = true
+                                            openWindow(id: "AxisControll")
                                         case .error, .userCancelled:
                                             fallthrough
                                         @unknown default:
@@ -45,6 +51,7 @@ struct ContentView: View {
                                         }
                                     } else if immersiveSpaceIsShown {
                                         await dismissImmersiveSpace()
+                                        dismissWindow(id: "AxisControll")
                                         immersiveSpaceIsShown = false
                                     }
                                 }
@@ -85,8 +92,4 @@ struct ContentView: View {
             .glassBackgroundEffect()
         }
     }
-}
-
-#Preview(windowStyle: .volumetric) {
-    ContentView()
 }
