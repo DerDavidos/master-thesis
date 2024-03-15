@@ -141,9 +141,7 @@ class AxisRenderer {
            
             print("loading \(axis)")
             for layer in 0...layers - 2 {
-                
                 let entity = Entity()
-
                 var sphereMaterial: ShaderGraphMaterial? = nil
                 
                 switch axis {
@@ -192,7 +190,6 @@ class AxisRenderer {
                     fatalError("Unexpected value \(axis)")}
                 
                 let materialEntity = MaterialEntity(entity: entity, material: sphereMaterial!)
-                
                 entities.append(materialEntity)
             }
         }

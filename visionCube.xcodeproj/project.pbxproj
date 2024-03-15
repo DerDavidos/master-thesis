@@ -10,9 +10,10 @@
 		630868282B8F589700D14763 /* FullView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 630868272B8F589700D14763 /* FullView.swift */; };
 		6308682D2B8F5A7D00D14763 /* shader.metal in Sources */ = {isa = PBXBuildFile; fileRef = 6308682C2B8F5A7D00D14763 /* shader.metal */; };
 		630868312B8F656600D14763 /* FullRenderer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 630868302B8F656600D14763 /* FullRenderer.swift */; };
+		63318D562BA30FBC004F8061 /* VolumeModell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63318D552BA30FBC004F8061 /* VolumeModell.swift */; };
 		6346945E2B7107720063817D /* AxisRenderer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6346945D2B7107720063817D /* AxisRenderer.swift */; };
 		6374FEA42B83811000F74D28 /* VisionProPosition.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6374FEA32B83811000F74D28 /* VisionProPosition.swift */; };
-		637F4EC52BA0BE2E0042A671 /* AxisControll.swift in Sources */ = {isa = PBXBuildFile; fileRef = 637F4EC42BA0BE2E0042A671 /* AxisControll.swift */; };
+		637F4EC52BA0BE2E0042A671 /* VolumeControll.swift in Sources */ = {isa = PBXBuildFile; fileRef = 637F4EC42BA0BE2E0042A671 /* VolumeControll.swift */; };
 		637F4EC72BA1A0CD0042A671 /* AxisModell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 637F4EC62BA1A0CD0042A671 /* AxisModell.swift */; };
 		638E69242B6AE81600DC2E98 /* Tesselation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 638E691D2B6AE81600DC2E98 /* Tesselation.swift */; };
 		638E69262B6AE81600DC2E98 /* CubeMath.swift in Sources */ = {isa = PBXBuildFile; fileRef = 638E691F2B6AE81600DC2E98 /* CubeMath.swift */; };
@@ -39,9 +40,10 @@
 		6308682C2B8F5A7D00D14763 /* shader.metal */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.metal; path = shader.metal; sourceTree = "<group>"; };
 		6308682E2B8F5A8B00D14763 /* shaderTypes.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = shaderTypes.h; sourceTree = "<group>"; };
 		630868302B8F656600D14763 /* FullRenderer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FullRenderer.swift; sourceTree = "<group>"; };
+		63318D552BA30FBC004F8061 /* VolumeModell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VolumeModell.swift; sourceTree = "<group>"; };
 		6346945D2B7107720063817D /* AxisRenderer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AxisRenderer.swift; sourceTree = "<group>"; };
 		6374FEA32B83811000F74D28 /* VisionProPosition.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VisionProPosition.swift; sourceTree = "<group>"; };
-		637F4EC42BA0BE2E0042A671 /* AxisControll.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AxisControll.swift; sourceTree = "<group>"; };
+		637F4EC42BA0BE2E0042A671 /* VolumeControll.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VolumeControll.swift; sourceTree = "<group>"; };
 		637F4EC62BA1A0CD0042A671 /* AxisModell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AxisModell.swift; sourceTree = "<group>"; };
 		638E691D2B6AE81600DC2E98 /* Tesselation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Tesselation.swift; sourceTree = "<group>"; };
 		638E691F2B6AE81600DC2E98 /* CubeMath.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CubeMath.swift; sourceTree = "<group>"; };
@@ -77,6 +79,26 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		63318D572BA30FCA004F8061 /* MixedView */ = {
+			isa = PBXGroup;
+			children = (
+				6374FEA32B83811000F74D28 /* VisionProPosition.swift */,
+				637F4EC62BA1A0CD0042A671 /* AxisModell.swift */,
+				63C245592B66CDC90037B3E1 /* AxisView.swift */,
+				6346945D2B7107720063817D /* AxisRenderer.swift */,
+			);
+			path = MixedView;
+			sourceTree = "<group>";
+		};
+		63318D582BA30FD2004F8061 /* FullView */ = {
+			isa = PBXGroup;
+			children = (
+				630868272B8F589700D14763 /* FullView.swift */,
+				630868302B8F656600D14763 /* FullRenderer.swift */,
+			);
+			path = FullView;
+			sourceTree = "<group>";
+		};
 		6346945F2B71A5490063817D /* dat */ = {
 			isa = PBXGroup;
 			children = (
@@ -129,13 +151,10 @@
 				638E692B2B6AE84900DC2E98 /* Cube */,
 				63C245552B66CDC90037B3E1 /* visionShaderApp.swift */,
 				63C245572B66CDC90037B3E1 /* ContentView.swift */,
-				6374FEA32B83811000F74D28 /* VisionProPosition.swift */,
-				637F4EC62BA1A0CD0042A671 /* AxisModell.swift */,
-				63C245592B66CDC90037B3E1 /* AxisView.swift */,
-				637F4EC42BA0BE2E0042A671 /* AxisControll.swift */,
-				6346945D2B7107720063817D /* AxisRenderer.swift */,
-				630868272B8F589700D14763 /* FullView.swift */,
-				630868302B8F656600D14763 /* FullRenderer.swift */,
+				63318D582BA30FD2004F8061 /* FullView */,
+				63318D572BA30FCA004F8061 /* MixedView */,
+				63318D552BA30FBC004F8061 /* VolumeModell.swift */,
+				637F4EC42BA0BE2E0042A671 /* VolumeControll.swift */,
 				63C2455B2B66CDCB0037B3E1 /* Assets.xcassets */,
 				63C245602B66CDCB0037B3E1 /* Info.plist */,
 				63C2455D2B66CDCB0037B3E1 /* Preview Content */,
@@ -241,6 +260,7 @@
 				6308682D2B8F5A7D00D14763 /* shader.metal in Sources */,
 				638E69242B6AE81600DC2E98 /* Tesselation.swift in Sources */,
 				638E69262B6AE81600DC2E98 /* CubeMath.swift in Sources */,
+				63318D562BA30FBC004F8061 /* VolumeModell.swift in Sources */,
 				638E69272B6AE81600DC2E98 /* Vecs.swift in Sources */,
 				630868282B8F589700D14763 /* FullView.swift in Sources */,
 				6374FEA42B83811000F74D28 /* VisionProPosition.swift in Sources */,
@@ -249,7 +269,7 @@
 				638E692A2B6AE81600DC2E98 /* Volumes.swift in Sources */,
 				630868312B8F656600D14763 /* FullRenderer.swift in Sources */,
 				63C245582B66CDC90037B3E1 /* ContentView.swift in Sources */,
-				637F4EC52BA0BE2E0042A671 /* AxisControll.swift in Sources */,
+				637F4EC52BA0BE2E0042A671 /* VolumeControll.swift in Sources */,
 				63C245562B66CDC90037B3E1 /* visionShaderApp.swift in Sources */,
 				637F4EC72BA1A0CD0042A671 /* AxisModell.swift in Sources */,
 				6346945E2B7107720063817D /* AxisRenderer.swift in Sources */,

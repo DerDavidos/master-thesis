@@ -266,6 +266,15 @@ def Xform "Root"
                     }
                 }
             )
+            float inputs:smoothWidth = 0.1 (
+                customData = {
+                    dictionary realitykit = {
+                        float2 positionInSubgraph = (294.42007, 15.430508)
+                        float2 sizeInSubgraph = (151, 53)
+                        int stackingOrderInSubgraph = 2659
+                    }
+                }
+            )
             float inputs:x = 0 (
                 customData = {
                     dictionary realitykit = {
@@ -364,6 +373,7 @@ def Xform "Root"
                         }
                     }
                 )
+                float inputs:smoothStepWidth.connect = </Root/placeHolder_Z_Pos/Material_Z.inputs:smoothWidth>
                 float inputs:v = 0 (
                     customData = {
                         dictionary realitykit = {
@@ -673,6 +683,15 @@ def Xform "Root"
                     }
                 }
             )
+            float inputs:smoothWidth = 0.1 (
+                customData = {
+                    dictionary realitykit = {
+                        float2 positionInSubgraph = (294.42007, 15.430508)
+                        float2 sizeInSubgraph = (151, 53)
+                        int stackingOrderInSubgraph = 2659
+                    }
+                }
+            )
             float inputs:x = 0 (
                 customData = {
                     dictionary realitykit = {
@@ -771,6 +790,7 @@ def Xform "Root"
                         }
                     }
                 )
+                float inputs:smoothStepWidth.connect = </Root/placeHolder_Z_Neg/Material_Z.inputs:smoothWidth>
                 float inputs:v = 0 (
                     customData = {
                         dictionary realitykit = {
@@ -1068,6 +1088,15 @@ def Xform "Root"
                     }
                 }
             )
+            float inputs:smoothWidth = 0.1 (
+                customData = {
+                    dictionary realitykit = {
+                        float2 positionInSubgraph = (294.42007, 15.430508)
+                        float2 sizeInSubgraph = (151, 53)
+                        int stackingOrderInSubgraph = 2659
+                    }
+                }
+            )
             float inputs:x = 0.4 (
                 customData = {
                     dictionary realitykit = {
@@ -1166,6 +1195,7 @@ def Xform "Root"
                         }
                     }
                 )
+                float inputs:smoothStepWidth.connect = </Root/placeHolder_X_Pos/Material_X.inputs:smoothWidth>
                 float inputs:v = 0 (
                     customData = {
                         dictionary realitykit = {
@@ -1476,6 +1506,15 @@ def Xform "Root"
                     }
                 }
             )
+            float inputs:smoothWidth = 0.1 (
+                customData = {
+                    dictionary realitykit = {
+                        float2 positionInSubgraph = (294.42007, 15.430508)
+                        float2 sizeInSubgraph = (151, 53)
+                        int stackingOrderInSubgraph = 2659
+                    }
+                }
+            )
             float inputs:x = 0.4 (
                 customData = {
                     dictionary realitykit = {
@@ -1574,6 +1613,7 @@ def Xform "Root"
                         }
                     }
                 )
+                float inputs:smoothStepWidth.connect = </Root/placeHolder_X_Neg/Material_X.inputs:smoothWidth>
                 float inputs:v = 0 (
                     customData = {
                         dictionary realitykit = {
@@ -1895,6 +1935,15 @@ def Xform "Root"
                     }
                 }
             )
+            float inputs:smoothWidth = 0.1 (
+                customData = {
+                    dictionary realitykit = {
+                        float2 positionInSubgraph = (294.42007, 15.430508)
+                        float2 sizeInSubgraph = (151, 53)
+                        int stackingOrderInSubgraph = 2659
+                    }
+                }
+            )
             float inputs:x = 0 (
                 customData = {
                     dictionary realitykit = {
@@ -1993,6 +2042,7 @@ def Xform "Root"
                         }
                     }
                 )
+                float inputs:smoothStepWidth.connect = </Root/placeHolder_Y_Pos/Material_Y.inputs:smoothWidth>
                 float inputs:v = 0 (
                     customData = {
                         dictionary realitykit = {
@@ -2284,9 +2334,18 @@ def Xform "Root"
             float inputs:smoothStep = 0 (
                 customData = {
                     dictionary realitykit = {
-                        float2 positionInSubgraph = (257.252, -28.70647)
+                        float2 positionInSubgraph = (286.17215, -74.88068)
                         float2 sizeInSubgraph = (144, 53)
-                        int stackingOrderInSubgraph = 1019
+                        int stackingOrderInSubgraph = 2648
+                    }
+                }
+            )
+            float inputs:smoothWidth = 0.1 (
+                customData = {
+                    dictionary realitykit = {
+                        float2 positionInSubgraph = (274.42007, -4.5694923)
+                        float2 sizeInSubgraph = (151, 53)
+                        int stackingOrderInSubgraph = 2658
                     }
                 }
             )
@@ -2388,6 +2447,7 @@ def Xform "Root"
                         }
                     }
                 )
+                float inputs:smoothStepWidth.connect = </Root/placeHolder_Y_Neg/Material_Y.inputs:smoothWidth>
                 float inputs:v = 0 (
                     customData = {
                         dictionary realitykit = {
@@ -2406,10 +2466,10 @@ def Xform "Root"
                     }
                 )
                 float outputs:return.connect = </Root/placeHolder_Y_Neg/Material_Y/transfer/Multiply_2.outputs:out>
-                float2 ui:nodegraph:node:pos = (513.6554, -39.10371)
+                float2 ui:nodegraph:node:pos = (532.27106, 14.515662)
                 float2 ui:nodegraph:node:size = (145, 145)
-                int ui:nodegraph:node:stackingOrder = 1425
-                string[] ui:nodegraph:realitykit:node:attributesShowingChildren = ["inputs:smoothStepWidth", "inputs:smoothStepWidth", "inputs:smoothStepStep", "inputs:smoothStepStep", "inputs:smoothStepStep", "inputs:smoothStepWidth", "inputs:smoothStepStep"]
+                int ui:nodegraph:node:stackingOrder = 2655
+                string[] ui:nodegraph:realitykit:node:attributesShowingChildren = ["inputs:smoothStepWidth", "inputs:smoothStepWidth", "inputs:smoothStepStep", "inputs:smoothStepStep", "inputs:smoothStepStep", "inputs:smoothStepWidth", "inputs:smoothStepStep", "inputs:smoothStepStep"]
                 float2 ui:nodegraph:realitykit:subgraphOutputs:pos = (1186.434, 51.35862)
                 float2 ui:nodegraph:realitykit:subgraphOutputs:size = (129.99855, 81)
                 int ui:nodegraph:realitykit:subgraphOutputs:stackingOrder = 889

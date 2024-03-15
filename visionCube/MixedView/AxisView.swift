@@ -13,16 +13,7 @@ struct AxisView: View {
     let visionProPose = VisionProPositon()
     var axisModell: AxisModell
     
-    func enableAxis(entity: Entity) {
-        for axis in axisModell.axises {
-            if (axis.entity == entity) {
-                axis.entity.isEnabled = true
-            } else {
-                axis.entity.isEnabled = false
-            }
-        }
-    }
-    
+
     var dragX: some Gesture {
         DragGesture().targetedToEntity(axisModell.clipBoxX).onChanged{value in
             let newPosition = axisModell.clipBoxY.position.x + Float(-(value.translation.width + value.translation.height)/5000)
@@ -62,23 +53,23 @@ struct AxisView: View {
         
         if (viewVector.z.magnitude > viewVector.x.magnitude && viewVector.z.magnitude > viewVector.y.magnitude) {
             if (viewVector.z > 0) {
-                enableAxis(entity: axisModell.zPositiveEntities.entity)
+                await axisModell.enableAxis(entity: axisModell.zPositiveEntities.entity)
             } else {
-                enableAxis(entity: axisModell.zNegativeEntities.entity)
+                await axisModell.enableAxis(entity: axisModell.zNegativeEntities.entity)
             }
         }
         else if (viewVector.x.magnitude > viewVector.y.magnitude && viewVector.x.magnitude > viewVector.z.magnitude) {
             if (viewVector.x > 0) {
-                enableAxis(entity: axisModell.xPositiveEntities.entity)
+                await axisModell.enableAxis(entity: axisModell.xPositiveEntities.entity)
             } else {
-                enableAxis(entity: axisModell.xNegativeEntities.entity)
+                await axisModell.enableAxis(entity: axisModell.xNegativeEntities.entity)
             }
         }
         else {
             if (viewVector.y > 0) {
-                enableAxis(entity: axisModell.yPositiveEntities.entity)
+                await axisModell.enableAxis(entity: axisModell.yPositiveEntities.entity)
             } else {
-                enableAxis(entity: axisModell.yNegativeEntities.entity)
+                await axisModell.enableAxis(entity: axisModell.yNegativeEntities.entity)
             }
         }
     }
@@ -98,6 +89,7 @@ struct AxisView: View {
             
             axisModell.loading = false
             axisModell.updateAllAxis()
+            print(axisModell.loading)
             print("Loaded")
         }
         .gesture(DragGesture().targetedToEntity(axisModell.rotater).onChanged{ value in

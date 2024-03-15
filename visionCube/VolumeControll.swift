@@ -1,7 +1,7 @@
 import Foundation
 import SwiftUI
 
-struct AxisControll: View {
+struct VolumeControll: View {
     
     var axisModell: AxisModell
     
@@ -15,7 +15,15 @@ struct AxisControll: View {
                 
                 GridRow {
                     Text("Transfer function:")
-                    Slider(value: $axisModell.transferValue, in: 0...1) { editing in
+                    Slider(value: $axisModell.volumeModell.transferValue, in: 0...1) { editing in
+                        if (!editing) {
+                            axisModell.updateAllAxis()
+                        }
+                    }
+                }
+                GridRow {
+                    Text("Transfer function2:")
+                    Slider(value: $axisModell.volumeModell.transferValue2, in: 0.1...1) { editing in
                         if (!editing) {
                             axisModell.updateAllAxis()
                         }

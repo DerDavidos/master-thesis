@@ -26,13 +26,29 @@ class AxisModell {
     
     var root: Entity?
     var rotater = Entity()
-    var transferValue: Float = 0
-    var rotation: Angle = .zero
 
+    var volumeModell: VolumeModell
+    
+    init(volumeModell: VolumeModell) {
+        self.volumeModell = volumeModell
+    }
+    
+    @MainActor
+    func enableAxis(entity: Entity) {
+        for axis in axises {
+            if (axis.entity == entity) {
+                axis.entity.isEnabled = true
+            } else {
+                axis.entity.isEnabled = false
+            }
+        }
+    }
+    
     func updateAllAxis() {
         if (loading) {
             return
         }
+        loading = true
         print("updating")
         updateAxis(axisList: &zNegativeEntities)
         updateAxis(axisList: &zPositiveEntities)
@@ -41,15 +57,16 @@ class AxisModell {
         updateAxis(axisList: &yNegativeEntities)
         updateAxis(axisList: &yPositiveEntities)
         print("updated")
+        loading = false
     }
     
-    func updateAxis(axisList: inout axisList) {
-        loading = true
+    fileprivate func updateAxis(axisList: inout axisList) {
         let X = max(-0.5, min(clipBoxX.position.x, 0.5)) + 0.5
         let Y = max(-0.5, min(clipBoxY.position.y, 0.5)) + 0.5
         let Z = max(-0.5, min(clipBoxZ.position.z, 0.5)) + 0.5
         for i in 0...axisList.materialEntity.count - 1 {
-            try! axisList.materialEntity[i].material.setParameter(name: "smoothStep", value: MaterialParameters.Value.float(transferValue))
+            try! axisList.materialEntity[i].material.setParameter(name: "smoothStep", value: MaterialParameters.Value.float(volumeModell.transferValue))
+            try! axisList.materialEntity[i].material.setParameter(name: "smoothWidth", value: MaterialParameters.Value.float(volumeModell.transferValue2))
             try! axisList.materialEntity[i].material.setParameter(name: "x", value: .float(X))
             try! axisList.materialEntity[i].material.setParameter(name: "y", value: .float(Y))
             try! axisList.materialEntity[i].material.setParameter(name: "z", value: .float(Z))
@@ -58,7 +75,6 @@ class AxisModell {
                 materials: [axisList.materialEntity[i].material]
             ))
         }
-        loading = false
     }
     
     func addEntities(root: Entity, axisList: inout axisList) {
@@ -86,8 +102,9 @@ class AxisModell {
         clipBoxX.isEnabled = false
         clipBoxY.isEnabled = false
         clipBoxZ.isEnabled = false
-        transferValue = 0
-        rotation = .zero
+        volumeModell.transferValue = 0
+        volumeModell.transferValue = 0.1
+        volumeModell.rotation = .zero
         
         rotate(X: 1, Y: 1)
         updateAllAxis()
@@ -95,15 +112,16 @@ class AxisModell {
     
     func rotate(X: CGFloat, Y: CGFloat) {
         let angle = sqrt(pow(Y, 2) + pow(X, 2))
-        rotation += Angle(degrees: Double(angle)) * 0.025
+        volumeModell.rotation += Angle(degrees: Double(angle)) * 0.025
         let axisX = X / CGFloat(angle)
         let axisY = Y / CGFloat(angle)
         let rotationAxis = (x: axisX, y: axisY, z: 0)
         let quaternion = simd_quatf(
-            angle: Float(rotation.radians),
+            angle: Float(volumeModell.rotation.radians),
             axis: SIMD3<Float>(x: Float(rotationAxis.x), y: Float(rotationAxis.y), z: Float(rotationAxis.z))
         )
         root!.orientation = quaternion
+        volumeModell.orientation = root!.transform.matrix
         root!.transform.translation = SIMD3<Float>(0, 1.6, -1.5)
     }
     

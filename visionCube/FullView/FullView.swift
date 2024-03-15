@@ -59,15 +59,16 @@ class FullView {
     var parameterBuffer: MTLBuffer?
     var vertCount: size_t = 0
     
-    var angle: Float = 0
     var smothStep: Float = 0
     var view = simd_float4x4()
     var model = simd_float4x4()
-    var clipBoxSize = simd_float3(0.5, 0.5, 0.7)
-    var clipBoxShift = simd_float3(0.5, 0.35, 0.3)
+    var clipBoxSize = simd_float3(1, 1, 1)
+    var clipBoxShift = simd_float3(0.5, 0.5, 0.5)
     var cube: Tesselation!
     var meshNeedsUpdate = true
     var volumeScale = makeScale(simd_float3(0.5, 0.5, 0.5))
+    
+    var volumeModell: VolumeModell
     
     struct Matrices {
         var modelViewProjection: simd_float4x4
@@ -83,7 +84,9 @@ class FullView {
         var maxBounds: simd_float3
     }
     
-    init(_ layerRenderer: LayerRenderer) {
+    init(_ layerRenderer: LayerRenderer, volumeModell: VolumeModell) {
+        self.volumeModell = volumeModell
+        
         self.layerRenderer = layerRenderer
         self.device = layerRenderer.device
         self.commandQueue = self.device.makeCommandQueue()!
@@ -139,12 +142,6 @@ class FullView {
     }
     
     func updateMatrices() {
-        angle += ANGLE_STEP
-        smothStep += SMOTH_STEP_STEP
-        if smothStep > 1 {
-            smothStep = SMOOTH_STEP_START
-        }
-        
         clipBoxSize.x = max(0.0, min(1.0, clipBoxSize.x))
         clipBoxSize.y = max(0.0, min(1.0, clipBoxSize.y))
         clipBoxSize.z = max(0.0, min(1.0, clipBoxSize.z))
@@ -157,7 +154,9 @@ class FullView {
         let maxBounds = clipBox * simd_float4(0.5, 0.5, 0.5, 1.0) + 0.5
         
         view = makeLookAt(vEye: simd_float3(0, 0, 3), vAt: simd_float3(0, 0, 0), vUp: simd_float3(0, 1, 0))
-        model = makeTranslate(simd_float3(0, 0, 1)) * makeXRotate(angleRadians: angle) * makeYRotate(angleRadians: angle * 2) * volumeScale
+        model = makeTranslate(simd_float3(0, 0, 1)) * makeXRotate(angleRadians: Float(volumeModell.rotation.radians)) * makeYRotate(angleRadians: Float(volumeModell.rotation.radians) * 2) * volumeScale
+//        model =  makeTranslate(simd_float3(0, 0, 1)) * volumeModell.orientation * volumeScale
+        
         let projection = makePerspective(fovRadians: 45.0 * Float.pi / 180.0, aspect: Float(500) / Float(500), znear: 0.03, zfar: 500.0)
         print(projection)
         let viewToTexture = makeTranslate(simd_float3(0.5, 0.5, 0.5)) * simd_inverse(view * model)
@@ -170,8 +169,8 @@ class FullView {
         // Set values in _pParamBuffer
         let paramData = parameterBuffer!.contents().bindMemory(to: RenderParams.self, capacity: 1)
         paramData.pointee.oversampling = OVERSAMPLING
-        paramData.pointee.smoothStepStart = smothStep
-        paramData.pointee.smoothStepWidth = SMOOTH_STEP_WIDTH
+        paramData.pointee.smoothStepStart = volumeModell.transferValue
+        paramData.pointee.smoothStepWidth = volumeModell.transferValue2
         paramData.pointee.cameraPosInTextureSpace = simd_make_float3(viewToTexture * simd_float4(0, 0, 0, 1))
         paramData.pointee.minBounds = simd_make_float3(minBounds)
         paramData.pointee.maxBounds = simd_make_float3(maxBounds)
