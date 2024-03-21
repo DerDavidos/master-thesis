@@ -1,6 +1,8 @@
 import SwiftUI
 import CompositorServices
 
+let RESOURCE = "c60"
+
 @main
 struct visionShaderApp: App {
     @State private var volumeModell: VolumeModell
@@ -8,7 +10,7 @@ struct visionShaderApp: App {
     
     init() {
         let volumeModell = VolumeModell()
-        axisModell = AxisModell(volumeModell: volumeModell)
+        self.axisModell = AxisModell(volumeModell: volumeModell)
         self.volumeModell = volumeModell
     }
     

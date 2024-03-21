@@ -9,8 +9,6 @@ import MobileCoreServices
 import ImageIO
 import MobileCoreServices
 
-let RESOURCE = "c60"
-
 struct MaterialEntity {
     var entity: Entity
     var material: ShaderGraphMaterial

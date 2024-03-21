@@ -11,7 +11,7 @@ struct VolumeControll: View {
         
         VStack {
             Spacer()
-            Grid( verticalSpacing: 30) {
+            Grid(verticalSpacing: 30) {
                 
                 GridRow {
                     Text("Transfer function:")

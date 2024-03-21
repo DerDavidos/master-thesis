@@ -61,15 +61,13 @@ class AxisModell {
     }
     
     fileprivate func updateAxis(axisList: inout axisList) {
-        let X = max(-0.5, min(clipBoxX.position.x, 0.5)) + 0.5
-        let Y = max(-0.5, min(clipBoxY.position.y, 0.5)) + 0.5
-        let Z = max(-0.5, min(clipBoxZ.position.z, 0.5)) + 0.5
+
         for i in 0...axisList.materialEntity.count - 1 {
             try! axisList.materialEntity[i].material.setParameter(name: "smoothStep", value: MaterialParameters.Value.float(volumeModell.transferValue))
             try! axisList.materialEntity[i].material.setParameter(name: "smoothWidth", value: MaterialParameters.Value.float(volumeModell.transferValue2))
-            try! axisList.materialEntity[i].material.setParameter(name: "x", value: .float(X))
-            try! axisList.materialEntity[i].material.setParameter(name: "y", value: .float(Y))
-            try! axisList.materialEntity[i].material.setParameter(name: "z", value: .float(Z))
+            try! axisList.materialEntity[i].material.setParameter(name: "x", value: .float(volumeModell.X))
+            try! axisList.materialEntity[i].material.setParameter(name: "y", value: .float(volumeModell.Y))
+            try! axisList.materialEntity[i].material.setParameter(name: "z", value: .float(volumeModell.Z))
             axisList.materialEntity[i].entity.components.set(ModelComponent(
                 mesh: .generatePlane(width: 1, height: 1),
                 materials: [axisList.materialEntity[i].material]
@@ -92,6 +90,8 @@ class AxisModell {
     }
     
     func reset() {
+        volumeModell.reset()
+        
         root!.findEntity(named: "Rotater")!.transform.rotation = simd_quatf(angle: 0, axis: SIMD3<Float>(0, 0, 0))
         clipBoxZ.position.z = -0.55
         clipBoxX.position.x = -0.55
@@ -102,9 +102,6 @@ class AxisModell {
         clipBoxX.isEnabled = false
         clipBoxY.isEnabled = false
         clipBoxZ.isEnabled = false
-        volumeModell.transferValue = 0
-        volumeModell.transferValue = 0.1
-        volumeModell.rotation = .zero
         
         rotate(X: 1, Y: 1)
         updateAllAxis()

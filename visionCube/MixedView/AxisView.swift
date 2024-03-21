@@ -18,6 +18,9 @@ struct AxisView: View {
         DragGesture().targetedToEntity(axisModell.clipBoxX).onChanged{value in
             let newPosition = axisModell.clipBoxY.position.x + Float(-(value.translation.width + value.translation.height)/5000)
             axisModell.clipBoxX.position.x = max(-0.55, min(newPosition, 0.55))
+            axisModell.volumeModell.X = max(-0.5, min(axisModell.clipBoxX.position.x, 0.5)) + 0.5
+           
+           
         }.onEnded{_ in
             axisModell.updateAllAxis()
         }
@@ -27,6 +30,7 @@ struct AxisView: View {
         DragGesture().targetedToEntity(axisModell.clipBoxY).onChanged{value in
             let newPosition = axisModell.clipBoxY.position.y + Float(-(value.translation.width + value.translation.height)/5000)
             axisModell.clipBoxY.position.y = max(-0.55, min(newPosition, 0.55))
+            axisModell.volumeModell.Y = max(-0.5, min(axisModell.clipBoxY.position.y, 0.5)) + 0.5
         }.onEnded{_ in
             axisModell.updateAllAxis()
         }
@@ -36,6 +40,7 @@ struct AxisView: View {
         DragGesture().targetedToEntity(axisModell.clipBoxZ).onChanged{value in
             let newPosition = axisModell.clipBoxZ.position.z + Float(-(value.translation.width + value.translation.height)/5000)
             axisModell.clipBoxZ.position.z = max(-0.55, min(newPosition, 0.55))
+            axisModell.volumeModell.Z = max(-0.5, min(axisModell.clipBoxZ.position.z, 0.5)) + 0.5
         }.onEnded{_ in
             axisModell.updateAllAxis()
         }

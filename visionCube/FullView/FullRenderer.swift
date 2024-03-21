@@ -4,6 +4,8 @@ import MetalKit
 import CompositorServices
 import SwiftUI
 
+//let RESOURCE = "engine"
+
 func buildMetalVertexDescriptor() -> MTLVertexDescriptor {
     let mtlVertexDescriptor = MTLVertexDescriptor()
 
@@ -52,7 +54,7 @@ func buildRenderPipelineWithDevice(device: MTLDevice, layerRenderer: LayerRender
 func loadTexture(device: MTLDevice,
                        textureName: String) throws -> MTLTexture {
     /// Load texture data with optimal parameters for sampling
-    let dataset = try QVis(filename: getFromResource(strFileName: "c60", ext: "dat"))
+    let dataset = try QVis(filename: getFromResource(strFileName: RESOURCE, ext: "dat"))
     
     let volumeTextureDesc = MTLTextureDescriptor()
     volumeTextureDesc.width = Int(dataset.volume.width)
