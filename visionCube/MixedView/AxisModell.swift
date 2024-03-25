@@ -7,8 +7,6 @@ import Accelerate
 
 @Observable
 class AxisModell {
-    var loading: Bool = true
-
     var axises: [axisList] = Array()
     var zPositiveEntities: axisList = axisList(entity: Entity(), materialEntity: [])
     var zNegativeEntities: axisList = axisList(entity: Entity(), materialEntity: [])
@@ -48,10 +46,9 @@ class AxisModell {
     }
     
     func updateAllAxis() {
-        if (loading) {
+        if (!volumeModell.axisLoaded) {
             return
         }
-        loading = true
         print("updating")
         updateAxis(axisList: &zNegativeEntities)
         updateAxis(axisList: &zPositiveEntities)
@@ -60,7 +57,6 @@ class AxisModell {
         updateAxis(axisList: &yNegativeEntities)
         updateAxis(axisList: &yPositiveEntities)
         print("updated")
-        loading = false
     }
     
     fileprivate func updateAxis(axisList: inout axisList) {

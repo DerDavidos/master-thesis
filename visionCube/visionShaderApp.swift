@@ -16,7 +16,7 @@ struct visionShaderApp: App {
     
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            ContentView(volumeModell: volumeModell)
         }.windowStyle(.volumetric).defaultSize(width: 1500, height: 500, depth: 1)
 
         ImmersiveSpace(id: "AxisView") {

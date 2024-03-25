@@ -6,7 +6,6 @@ import ARKit
 struct ContentView: View {
 
     @State private var showAxisView = false
-    @State private var controllsAreShown = false
     @State private var showFullView = false
     @State private var immersiveSpaceIsShown = false
 
@@ -18,15 +17,21 @@ struct ContentView: View {
     
     @FocusState private var isFocused: Bool
     
+    var volumeModell: VolumeModell
+    
     let session = ARKitSession()
     let worldInfo = WorldTrackingProvider()
 
     let visionProPose = VisionProPositon()
 
     var body: some View {
+        @Bindable var volumeModell = volumeModell
+    
+        
         VStack {
             VStack {
                 Grid(alignment: .leading, verticalSpacing: 30) {
+                    
                     GridRow {
                         Toggle("Show Axis View", isOn: $showAxisView)
                             .font(.extraLargeTitle)
@@ -37,14 +42,12 @@ struct ContentView: View {
                                             await dismissImmersiveSpace()
                                             immersiveSpaceIsShown = false
                                             showFullView = false
+                                        } else {
+                                            openWindow(id: "VolumeControll")
                                         }
                                         switch await openImmersiveSpace(id: "AxisView") {
                                         case .opened:
                                             immersiveSpaceIsShown = true
-                                            if (!controllsAreShown) {
-                                                openWindow(id: "VolumeControll")
-                                                controllsAreShown = true
-                                            }
                                         case .error, .userCancelled:
                                             fallthrough
                                         @unknown default:
@@ -54,7 +57,6 @@ struct ContentView: View {
                                     } else if immersiveSpaceIsShown {
                                         await dismissImmersiveSpace()
                                         dismissWindow(id: "VolumeControll")
-                                        controllsAreShown = false
                                         immersiveSpaceIsShown = false
                                     }
                                 }
@@ -71,14 +73,13 @@ struct ContentView: View {
                                             await dismissImmersiveSpace()
                                             immersiveSpaceIsShown = false
                                             showAxisView = false
+                                            volumeModell.axisLoaded = false
+                                        } else {
+                                            openWindow(id: "VolumeControll")
                                         }
                                         switch await openImmersiveSpace(id: "FullView") {
                                         case .opened:
                                             immersiveSpaceIsShown = true
-                                            if (!controllsAreShown) {
-                                                openWindow(id: "VolumeControll")
-                                                controllsAreShown = true
-                                            }
                                         case .error, .userCancelled:
                                             fallthrough
                                         @unknown default:
@@ -89,7 +90,6 @@ struct ContentView: View {
                                         await dismissImmersiveSpace()
                                         dismissWindow(id: "VolumeControll")
                                         immersiveSpaceIsShown = false
-                                        controllsAreShown = false
                                     }
                                 }
                             }

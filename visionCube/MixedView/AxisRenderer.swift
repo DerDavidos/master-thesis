@@ -25,12 +25,6 @@ class AxisRenderer {
         return qVis!
     }
 
-    func writeCGImage(_ image: CGImage, to destinationURL: URL) -> Bool {
-        guard let destination = CGImageDestinationCreateWithURL(destinationURL as CFURL, UTType.png.identifier as CFString, 1, nil) else { return false }
-        CGImageDestinationAddImage(destination, image, nil)
-        return CGImageDestinationFinalize(destination)
-    }
-    
     func getTexture(dataset: QVis, id: Int, axis: String) -> TextureResource {
         let width = Int(dataset.volume.width)
         let height = Int(dataset.volume.height)
@@ -57,13 +51,15 @@ class AxisRenderer {
             var j = width*height*id
             while j < width*height*(id+1) {
                 var columnData = Array(dataset.volume.data[(j)...(j + width-1)])
+                
                 if (axis == "zNegative") {
                     columnData = columnData.reversed()
                 }
                 imageData.append(contentsOf: columnData)
-                j = j + width
+                j += width
             }
             imageData = imageData.reversed()
+
         case "xPositive", "xNegative":
             imageWidth = depth
             imageHeight = height
@@ -114,7 +110,7 @@ class AxisRenderer {
         
         let provider = CGDataProvider(dataInfo: nil, data: imageRawPointer!, size: imageWidth*imageHeight) { _, _, _ in}
         image = CGImage(width: imageWidth, height: imageHeight, bitsPerComponent: bitsPerComponent, bitsPerPixel: bitsPerPixel, bytesPerRow: imageWidth, space: colorSpace, bitmapInfo: bitmapInfo, provider: provider!, decode: nil, shouldInterpolate: false, intent: renderingIntent)!
-        
+
         let textureResource = try! TextureResource.generate(from: image, options: TextureResource.CreateOptions(semantic: .color, mipmapsMode: .allocateAll))
         
         return textureResource
@@ -141,7 +137,6 @@ class AxisRenderer {
            
             print("loading \(axis)")
             for layer in 0...layers - 2 {
-//            for layer in 100...101 {
                 let entity = Entity()
                 var sphereMaterial: ShaderGraphMaterial? = nil
                 
@@ -201,14 +196,24 @@ class AxisRenderer {
     func getEntities(axis: String) async -> [MaterialEntity] {
         return await createEntities(axis: axis)
     }
+    
+    func writeCGImage(_ image: CGImage, to destinationURL: URL) -> Bool {
+        guard let destination = CGImageDestinationCreateWithURL(destinationURL as CFURL, UTType.png.identifier as CFString, 1, nil) else { return false }
+        CGImageDestinationAddImage(destination, image, nil)
+        return CGImageDestinationFinalize(destination)
+    }
+    
+    func saveImage(image: CGImage, id: Int) {
+        let fileManager = FileManager.default
+        let directoryURL = fileManager.urls(for: .documentDirectory, in: .userDomainMask)[0]
+        var resultFolderURL = directoryURL.appendingPathComponent("results")
+        if !fileManager.fileExists(atPath: resultFolderURL.path) {
+            try? fileManager.createDirectory(at: resultFolderURL, withIntermediateDirectories: true, attributes: nil)
+        }
+        resultFolderURL = resultFolderURL.appendingPathComponent(String(id) + ".png")
+        writeCGImage(image, to: resultFolderURL)
+        print(resultFolderURL)
+    }
 }
 
-//    func saveImage(image: CGImage, id: Int) -> Bool {
-//                let fileManager = FileManager.default
-//                let directoryURL = fileManager.urls(for: .documentDirectory, in: .userDomainMask)[0]
-//                let resultFolderURL = directoryURL.appendingPathComponent("results")
-//                if !fileManager.fileExists(atPath: resultFolderURL.path) {
-//                    try? fileManager.createDirectory(at: resultFolderURL, withIntermediateDirectories: true, attributes: nil)
-//                }
-//                resultFolderURL.appendingPathComponent(String(id) + ".png")
-//    }
+

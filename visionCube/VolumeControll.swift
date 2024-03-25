@@ -12,19 +12,18 @@ struct VolumeControll: View {
         VStack {
             Spacer()
             Grid(verticalSpacing: 30) {
-                
                 GridRow {
-                    Text("Transfer function:")
+                    Text("Step start:")
                     Slider(value: $axisModell.volumeModell.transferValue, in: 0...1) { editing in
-                        if (!editing) {
+                        if (!editing && axisModell.volumeModell.axisLoaded) {
                             axisModell.updateAllAxis()
                         }
                     }
                 }
                 GridRow {
-                    Text("Transfer function2:")
-                    Slider(value: $axisModell.volumeModell.transferValue2, in: 0.1...1) { editing in
-                        if (!editing) {
+                    Text("Step width:")
+                    Slider(value: $axisModell.volumeModell.transferValue2, in: 0.1...0.2) { editing in
+                        if (!editing && axisModell.volumeModell.axisLoaded) {
                             axisModell.updateAllAxis()
                         }
                     }

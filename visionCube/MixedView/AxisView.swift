@@ -49,7 +49,7 @@ struct AxisView: View {
     }
     
     fileprivate func updateSliceStack(rot: Rotation3D) async {
-        if (axisModell.loading) {
+        if (!axisModell.volumeModell.axisLoaded) {
             return
         }
            
@@ -95,7 +95,7 @@ struct AxisView: View {
             }
             content.add(axisModell.root!)
             
-            axisModell.loading = false
+            axisModell.volumeModell.axisLoaded = true
             axisModell.updateAllAxis()
             print("Loaded")
         }
@@ -107,13 +107,9 @@ struct AxisView: View {
         .gesture(manipulationGesture.onChanged{ value in
             scale = value.scale.width
             axisModell.rotate(rotation: value.rotation!.rotated(by: lastRotation))
-//            
-//            print(value.rotation!)
-//            print(value.rotation!.rotated(by: lastRotation))
-//            print()
             axisModell.translation += value.translation
         }.onEnded { value in
-            lastRotation = value.rotation!
+            lastRotation = value.rotation!.rotated(by: lastRotation)
         })
         .offset(x: axisModell.translation.x, y: axisModell.translation.y)
         .offset(z: axisModell.translation.z)

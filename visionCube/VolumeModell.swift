@@ -16,10 +16,12 @@ class VolumeModell {
     var Y: Float = 0.0
     var Z: Float = 0.0
     
+    var axisLoaded = false
+    
     func reset() {
         transferValue = 0
         transferValue2 = 0.1
-//        rotation = .zero
+        rotation = .identity
         
         X = 0
         Y = 0
