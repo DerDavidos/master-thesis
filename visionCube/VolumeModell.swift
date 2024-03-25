@@ -10,8 +10,7 @@ class VolumeModell {
     var transferValue: Float = 0
     var transferValue2: Float = 0.1
     
-    var rotation: Angle = .zero
-    var orientation: simd_float4x4 = simd_float4x4()
+    var rotation: Rotation3D = .identity
     
     var X: Float = 0.0
     var Y: Float = 0.0
@@ -20,7 +19,7 @@ class VolumeModell {
     func reset() {
         transferValue = 0
         transferValue2 = 0.1
-        rotation = .zero
+//        rotation = .zero
         
         X = 0
         Y = 0

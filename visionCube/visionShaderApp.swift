@@ -1,7 +1,7 @@
 import SwiftUI
 import CompositorServices
 
-let RESOURCE = "c60"
+let RESOURCE = "engine"
 
 @main
 struct visionShaderApp: App {

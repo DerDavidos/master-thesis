@@ -63,6 +63,7 @@ class AxisRenderer {
                 imageData.append(contentsOf: columnData)
                 j = j + width
             }
+            imageData = imageData.reversed()
         case "xPositive", "xNegative":
             imageWidth = depth
             imageHeight = height
@@ -75,31 +76,32 @@ class AxisRenderer {
                 if i >= dataset.volume.data.count {
                     i = id + (width*j)
                     j = j + 1
-                    if (axis == "xNegative") {
+                    if (axis == "xPositive") {
                         imageColumn = imageColumn.reversed()
                     }
                     imageData.append(contentsOf: imageColumn)
                     imageColumn = Array()
                 }
                 imageColumn.append(dataset.volume.data[i])
-                i = i + width * height
+                i += width * height
             }
+            imageData = imageData.reversed()
         case "yPositive", "yNegative":
             imageWidth = width
             imageHeight = depth
             imageData = Array()
-            var i = (id-height+1) * (-1) * width
+            var i = (id * width) + width * (height) * (depth - 1)
             if (axis == "yNegative") {
                 while imageData.count < width * depth {
                     imageData.append(contentsOf: dataset.volume.data[i...i+width-1].reversed())
-                    i = i + width * height
+                    i -= width * height
                 }
+                imageData = imageData.reversed()
             } else {
                 while imageData.count < width * depth {
                     imageData.append(contentsOf: dataset.volume.data[i...i+width-1])
-                    i = i + width * height
+                    i -= width * height
                 }
-                imageData = imageData.reversed()
             }
         default:
             fatalError("Unexpected value \(axis)")
@@ -139,6 +141,7 @@ class AxisRenderer {
            
             print("loading \(axis)")
             for layer in 0...layers - 2 {
+//            for layer in 100...101 {
                 let entity = Entity()
                 var sphereMaterial: ShaderGraphMaterial? = nil
                 
@@ -162,14 +165,14 @@ class AxisRenderer {
                     try? sphereMaterial?.setParameter(name: "Image", value: .textureResource(getTexture(dataset: dataset, id: layer, axis: axis)))
                     try? sphereMaterial?.setParameter(name: "XLayer", value: .float(Float(layer)/Float(layers)))
                     entity.transform.rotation = simd_quatf(angle: -.pi/2, axis: SIMD3<Float>(0, 1, 0))
-                    entity.transform.translation = SIMD3<Float>(Float(layers)/2/Float(layers) - Float(layer)/Float(layers), 0 , 0)
+                    entity.transform.translation = SIMD3<Float>(-Float(layers)/2/Float(layers) + Float(layer)/Float(layers), 0 , 0)
                 case "xNegative":
                     let sphereX = scene.findEntity(named: "placeHolder_X_Neg") as! ModelEntity
                     sphereMaterial = sphereX.model!.materials.first as? ShaderGraphMaterial
                     try? sphereMaterial?.setParameter(name: "Image", value: .textureResource(getTexture(dataset: dataset, id: layer, axis: axis)))
                     try? sphereMaterial?.setParameter(name: "XLayer", value: .float(Float(layer)/Float(layers)))
                     entity.transform.rotation = simd_quatf(angle: .pi/2, axis: SIMD3<Float>(0, 1, 0))
-                    entity.transform.translation = SIMD3<Float>(Float(layers)/2/Float(layers) - Float(layer)/Float(layers), 0 , 0)
+                    entity.transform.translation = SIMD3<Float>(-Float(layers)/2/Float(layers) + Float(layer)/Float(layers), 0 , 0)
                 case "yPositive":
                     let sphereY = scene.findEntity(named: "placeHolder_Y_Pos") as! ModelEntity
                     sphereMaterial = sphereY.model!.materials.first as? ShaderGraphMaterial

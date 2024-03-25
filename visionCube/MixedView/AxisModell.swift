@@ -27,7 +27,10 @@ class AxisModell {
     var root: Entity?
     var rotater = Entity()
 
+    var rotation: Rotation3D = .identity
     var volumeModell: VolumeModell
+    
+    var translation: Vector3D = Vector3D(x: 0, y: -1800, z: -2000)
     
     init(volumeModell: VolumeModell) {
         self.volumeModell = volumeModell
@@ -103,23 +106,18 @@ class AxisModell {
         clipBoxY.isEnabled = false
         clipBoxZ.isEnabled = false
         
-        rotate(X: 1, Y: 1)
+        translation = Vector3D(x: 0, y: -1800, z: -2000)
+        
+        rotate(rotation: .identity)
         updateAllAxis()
     }
     
-    func rotate(X: CGFloat, Y: CGFloat) {
-        let angle = sqrt(pow(Y, 2) + pow(X, 2))
-        volumeModell.rotation += Angle(degrees: Double(angle)) * 0.025
-        let axisX = X / CGFloat(angle)
-        let axisY = Y / CGFloat(angle)
-        let rotationAxis = (x: axisX, y: axisY, z: 0)
+    func rotate(rotation: Rotation3D) {
         let quaternion = simd_quatf(
-            angle: Float(volumeModell.rotation.radians),
-            axis: SIMD3<Float>(x: Float(rotationAxis.x), y: Float(rotationAxis.y), z: Float(rotationAxis.z))
+           rotation
         )
         root!.orientation = quaternion
-        volumeModell.orientation = root!.transform.matrix
-        root!.transform.translation = SIMD3<Float>(0, 1.6, -1.5)
+        volumeModell.rotation = rotation
     }
     
     @MainActor
@@ -157,7 +155,6 @@ class AxisModell {
         addEntities(root: root!, axisList: &yPositiveEntities)
         yNegativeEntities.materialEntity = await axisRenderer.getEntities(axis: "yNegative")
         addEntities(root: root!, axisList: &yNegativeEntities)
-
-        root!.transform.translation = SIMD3<Float>(0, 1.6, -1.5)
     }
 }
+
