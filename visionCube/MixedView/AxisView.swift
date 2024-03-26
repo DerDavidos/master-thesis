@@ -13,11 +13,9 @@ struct AxisView: View {
     let visionProPose = VisionProPositon()
     var axisModell: AxisModell
     
-    @State var lastRotation: Rotation3D = .identity
     @State var rotation: Rotation3D = .identity
     @State var scale: Double = 1
     
-
     var dragX: some Gesture {
         DragGesture(coordinateSpace: .local).targetedToEntity(axisModell.clipBoxX).onChanged{value in
             let newPosition = axisModell.clipBoxY.position.x + Float(-(value.translation.width)/5000)
@@ -81,7 +79,6 @@ struct AxisView: View {
         }
     }
 
-   
     var body: some View {
         @Bindable var axisModell = axisModell
        
@@ -106,10 +103,10 @@ struct AxisView: View {
 //        .scaleEffect(scale)
         .gesture(manipulationGesture.onChanged{ value in
             scale = value.scale.width
-            axisModell.rotate(rotation: value.rotation!.rotated(by: lastRotation))
+            axisModell.rotate(rotation: value.rotation!.rotated(by: axisModell.volumeModell.rotation))
             axisModell.translation += value.translation
         }.onEnded { value in
-            lastRotation = value.rotation!.rotated(by: lastRotation)
+            axisModell.volumeModell.rotation = value.rotation!.rotated(by: axisModell.volumeModell.rotation)
         })
         .offset(x: axisModell.translation.x, y: axisModell.translation.y)
         .offset(z: axisModell.translation.z)
