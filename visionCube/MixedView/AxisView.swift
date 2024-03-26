@@ -46,42 +46,52 @@ struct AxisView: View {
         }
     }
     
+    @MainActor
     fileprivate func updateSliceStack(rot: Rotation3D) async {
         if (!axisModell.volumeModell.axisLoaded) {
             return
         }
-           
-        let viewMatrix = await visionProPose.getTransform()!
-        let modelMatrix = await axisModell.root!.transform.matrix
-        let modelViewMatrix = viewMatrix.inverse * modelMatrix
-        let viewVector: simd_float4 = matrix_multiply(simd_float4(0, 0, -1, 0), modelViewMatrix)
+        
+        let viewMatrixInv = await visionProPose.getTransform()!
+        let modelMatrix = axisModell.root!.transform.matrix
+        
+        let modelViewMatrixInv = modelMatrix.inverse * viewMatrixInv
+//        let modelViewMatrix = viewMatrix * modelMatrix.inverse
+        
+        let viewVector = modelViewMatrixInv * simd_float4(0, 0, 0, 1)
+        
+        print(viewMatrixInv)
+        print(modelMatrix)
+        print()
         
         if (viewVector.z.magnitude > viewVector.x.magnitude && viewVector.z.magnitude > viewVector.y.magnitude) {
-            if (viewVector.z > 0) {
-                await axisModell.enableAxis(entity: axisModell.zPositiveEntities.entity)
+            if (viewVector.z < 0) {
+                axisModell.enableAxis(entity: axisModell.zPositiveEntities.entity)
             } else {
-                await axisModell.enableAxis(entity: axisModell.zNegativeEntities.entity)
+                axisModell.enableAxis(entity: axisModell.zNegativeEntities.entity)
             }
         }
         else if (viewVector.x.magnitude > viewVector.y.magnitude && viewVector.x.magnitude > viewVector.z.magnitude) {
-            if (viewVector.x > 0) {
-                await axisModell.enableAxis(entity: axisModell.xPositiveEntities.entity)
+            if (viewVector.x < 0) {
+                axisModell.enableAxis(entity: axisModell.xPositiveEntities.entity)
             } else {
-                await axisModell.enableAxis(entity: axisModell.xNegativeEntities.entity)
+                axisModell.enableAxis(entity: axisModell.xNegativeEntities.entity)
             }
         }
         else {
-            if (viewVector.y > 0) {
-                await axisModell.enableAxis(entity: axisModell.yPositiveEntities.entity)
+            if (viewVector.y < 0) {
+                axisModell.enableAxis(entity: axisModell.yPositiveEntities.entity)
             } else {
-                await axisModell.enableAxis(entity: axisModell.yNegativeEntities.entity)
+                axisModell.enableAxis(entity: axisModell.yNegativeEntities.entity)
             }
         }
     }
 
+
     var body: some View {
         @Bindable var axisModell = axisModell
-       
+
+        
         RealityView {content in
             Task {
                 await visionProPose.runArSession()
@@ -103,13 +113,13 @@ struct AxisView: View {
 //        .scaleEffect(scale)
         .gesture(manipulationGesture.onChanged{ value in
             scale = value.scale.width
-            axisModell.rotate(rotation: value.rotation!.rotated(by: axisModell.volumeModell.rotation))
-            axisModell.translation += value.translation
+            axisModell.updateTransformation(value)
         }.onEnded { value in
-            axisModell.volumeModell.rotation = value.rotation!.rotated(by: axisModell.volumeModell.rotation)
+            axisModell.volumeModell.rotation = axisModell.volumeModell.rotation.rotated(by: value.rotation!)
+            axisModell.translation += value.translation
         })
-        .offset(x: axisModell.translation.x, y: axisModell.translation.y)
-        .offset(z: axisModell.translation.z)
+//        .offset(x: axisModell.translation.x, y: axisModell.translation.y)
+//        .offset(z: axisModell.translation.z)
         .onAppear {
             Timer.scheduledTimer(withTimeInterval: 0.05, repeats: true) { _ in
                 Task {

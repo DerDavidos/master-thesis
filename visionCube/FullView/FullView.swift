@@ -158,7 +158,7 @@ class FullView {
         
         view = makeLookAt(vEye: simd_float3(0, 0, 3), vAt: simd_float3(0, 0, 0), vUp: simd_float3(0, 1, 0))
         model = makeTranslate(simd_float3(0, 0, 1.5))
-                * Transform(rotation: simd_quatf(volumeModell.rotation)).matrix
+        * Transform(rotation: simd_quatf(volumeModell.rotation)).matrix
                 * volumeScale
         
         let projection = makePerspective(fovRadians: 45.0 * Float.pi / 180.0, aspect: Float(500) / Float(500), znear: 0.03, zfar: 500.0)

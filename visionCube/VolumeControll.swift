@@ -39,17 +39,17 @@ struct VolumeControll: View {
                     Toggle("", isOn: $axisModell.clipBoxXEnabled)
                         .font(.extraLargeTitle)
                         .onChange(of: axisModell.clipBoxXEnabled) { _, newValue in
-                            axisModell.setClipPlane()
+                            axisModell.setClipPlanes()
                         }
                     Toggle("", isOn: $axisModell.clipBoxYEnabled)
                         .font(.extraLargeTitle)
                         .onChange(of: axisModell.clipBoxYEnabled) { _, newValue in
-                            axisModell.setClipPlane()
+                            axisModell.setClipPlanes()
                         }
                     Toggle("", isOn: $axisModell.clipBoxZEnabled)
                         .font(.extraLargeTitle)
                         .onChange(of: axisModell.clipBoxZEnabled) { _, newValue in
-                            axisModell.setClipPlane()
+                            axisModell.setClipPlanes()
                         }
                 }
                 

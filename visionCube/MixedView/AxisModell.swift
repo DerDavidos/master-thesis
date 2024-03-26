@@ -5,8 +5,16 @@ import RealityKitContent
 import ARKit
 import Accelerate
 
+let START_TRANSLATION = Vector3D(x: 0, y: -1800, z: -2000)
+
 @Observable
 class AxisModell {
+    var volumeModell: VolumeModell
+
+    var root: Entity?
+    
+    var rotater = Entity()
+    
     var axises: [axisList] = Array()
     var zPositiveEntities: axisList = axisList(entity: Entity(), materialEntity: [])
     var zNegativeEntities: axisList = axisList(entity: Entity(), materialEntity: [])
@@ -22,13 +30,7 @@ class AxisModell {
     var clipBoxYEnabled = false
     var clipBoxZEnabled = false
     
-    var root: Entity?
-    var rotater = Entity()
-
-    var rotation: Rotation3D = .identity
-    var volumeModell: VolumeModell
-    
-    var translation: Vector3D = Vector3D(x: 0, y: -1800, z: -2000)
+    var translation: Vector3D = START_TRANSLATION
     
     init(volumeModell: VolumeModell) {
         self.volumeModell = volumeModell
@@ -43,6 +45,14 @@ class AxisModell {
                 axis.entity.isEnabled = false
             }
         }
+    }
+    
+    func updateTransformation(_ value: AffineTransform3D) {
+        root!.orientation = simd_quatf(value.rotation!.rotated(by: volumeModell.rotation))
+        volumeModell.rotation = value.rotation!.rotated(by: volumeModell.rotation) // ???
+        root!.transform.translation.x = Float((translation.x + value.translation.x) / 1000)
+        root!.transform.translation.y = Float((translation.y + value.translation.y) / -1000)
+        root!.transform.translation.z = Float((translation.z + value.translation.z) / 1000)
     }
     
     func updateAllAxis() {
@@ -60,7 +70,6 @@ class AxisModell {
     }
     
     fileprivate func updateAxis(axisList: inout axisList) {
-
         for i in 0...axisList.materialEntity.count - 1 {
             try! axisList.materialEntity[i].material.setParameter(name: "smoothStep", value: MaterialParameters.Value.float(volumeModell.transferValue))
             try! axisList.materialEntity[i].material.setParameter(name: "smoothWidth", value: MaterialParameters.Value.float(volumeModell.transferValue2))
@@ -82,7 +91,7 @@ class AxisModell {
         axises.append(axisList)
     }
 
-    func setClipPlane() {
+    func setClipPlanes() {
         clipBoxX.isEnabled = clipBoxXEnabled
         clipBoxY.isEnabled = clipBoxYEnabled
         clipBoxZ.isEnabled = clipBoxZEnabled
@@ -91,30 +100,25 @@ class AxisModell {
     func reset() {
         volumeModell.reset()
         
-        root!.findEntity(named: "Rotater")!.transform.rotation = simd_quatf(angle: 0, axis: SIMD3<Float>(0, 0, 0))
         clipBoxZ.position.z = -0.55
         clipBoxX.position.x = -0.55
         clipBoxY.position.y = -0.55
         clipBoxXEnabled = false
         clipBoxYEnabled = false
         clipBoxZEnabled = false
-        clipBoxX.isEnabled = false
-        clipBoxY.isEnabled = false
-        clipBoxZ.isEnabled = false
+        setClipPlanes()
         
-        translation = Vector3D(x: 0, y: -1800, z: -2000)
-        
-        rotate(rotation: .identity)
+        updateTransformation(.identity)
         updateAllAxis()
     }
     
-    func rotate(rotation: Rotation3D) {
-        let quaternion = simd_quatf(
-           rotation
-        )
-        root!.orientation = quaternion
-        volumeModell.rotation = rotation
-    }
+//    func rotate(rotation: Rotation3D) {
+//        let quaternion = simd_quatf(
+//           rotation
+//        )
+//        root!.orientation = quaternion
+//        volumeModell.rotation = rotation
+//    }
     
     @MainActor
     func loadAllEntities() async {
@@ -151,6 +155,7 @@ class AxisModell {
         addEntities(root: root!, axisList: &yPositiveEntities)
         yNegativeEntities.materialEntity = await axisRenderer.getEntities(axis: "yNegative")
         addEntities(root: root!, axisList: &yNegativeEntities)
+        
+        updateTransformation(.identity)
     }
 }
-
