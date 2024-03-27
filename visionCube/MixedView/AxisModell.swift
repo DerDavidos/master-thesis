@@ -48,8 +48,7 @@ class AxisModell {
     }
     
     func updateTransformation(_ value: AffineTransform3D) {
-        root!.orientation = simd_quatf(value.rotation!.rotated(by: volumeModell.rotation))
-        volumeModell.rotation = value.rotation!.rotated(by: volumeModell.rotation) // ???
+        root!.orientation = simd_quatf(volumeModell.rotation.rotated(by: value.rotation!))
         root!.transform.translation.x = Float((translation.x + value.translation.x) / 1000)
         root!.transform.translation.y = Float((translation.y + value.translation.y) / -1000)
         root!.transform.translation.z = Float((translation.z + value.translation.z) / 1000)

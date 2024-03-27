@@ -87,10 +87,8 @@ struct AxisView: View {
         }
     }
 
-
     var body: some View {
         @Bindable var axisModell = axisModell
-
         
         RealityView {content in
             Task {
@@ -110,14 +108,14 @@ struct AxisView: View {
         .gesture(dragY)
         .gesture(dragZ)
         .rotation3DEffect(rotation)
-//        .scaleEffect(scale)
         .gesture(manipulationGesture.onChanged{ value in
-            scale = value.scale.width
+//            scale = value.scale.width
             axisModell.updateTransformation(value)
         }.onEnded { value in
             axisModell.volumeModell.rotation = axisModell.volumeModell.rotation.rotated(by: value.rotation!)
             axisModell.translation += value.translation
         })
+        //        .scaleEffect(scale)
 //        .offset(x: axisModell.translation.x, y: axisModell.translation.y)
 //        .offset(z: axisModell.translation.z)
         .onAppear {
