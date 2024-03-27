@@ -511,6 +511,15 @@
       [
         "D66134B1-3681-4A8E-AFE5-29F257229F3B",
         "Root",
+        "trim"
+      ],
+      {
+        "isExpanded" : true,
+        "isLocked" : false
+      },
+      [
+        "D66134B1-3681-4A8E-AFE5-29F257229F3B",
+        "Root",
         "Material",
         "transfer"
       ],

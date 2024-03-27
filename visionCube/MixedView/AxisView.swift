@@ -13,41 +13,45 @@ struct AxisView: View {
     let visionProPose = VisionProPositon()
     var axisModell: AxisModell
     
-    @State var rotation: Rotation3D = .identity
-    @State var scale: Double = 1
+    @State var lastX: Float = -0.55
+    @State var lastY: Float = -0.55
+    @State var lastZ: Float = -0.55
     
     var dragX: some Gesture {
         DragGesture(coordinateSpace: .local).targetedToEntity(axisModell.clipBoxX).onChanged{value in
-            let newPosition = axisModell.clipBoxY.position.x + Float(-(value.translation.width)/5000)
+            let newPosition = lastX + Float((value.translation.width)/2500)
             axisModell.clipBoxX.position.x = max(-0.55, min(newPosition, 0.55))
             axisModell.volumeModell.X = max(-0.5, min(axisModell.clipBoxX.position.x, 0.5)) + 0.5
         }.onEnded{_ in
+            lastX = axisModell.clipBoxX.position.x
             axisModell.updateAllAxis()
         }
     }
     
     var dragY: some Gesture {
         DragGesture(coordinateSpace: .local).targetedToEntity(axisModell.clipBoxY).onChanged{value in
-            let newPosition = axisModell.clipBoxY.position.y + Float(-(value.translation.height)/5000)
+            let newPosition = lastY + Float(-(value.translation.height)/2500)
             axisModell.clipBoxY.position.y = max(-0.55, min(newPosition, 0.55))
             axisModell.volumeModell.Y = max(-0.5, min(axisModell.clipBoxY.position.y, 0.5)) + 0.5
         }.onEnded{_ in
+            lastY = axisModell.clipBoxY.position.y
             axisModell.updateAllAxis()
         }
     }
     
     var dragZ: some Gesture {
         DragGesture(coordinateSpace: .local).targetedToEntity(axisModell.clipBoxZ).onChanged{value in
-            let newPosition = axisModell.clipBoxZ.position.z + Float(-(value.translation.width)/5000)
+            let newPosition = lastZ + Float(-(value.translation.width)/2500)
             axisModell.clipBoxZ.position.z = max(-0.55, min(newPosition, 0.55))
             axisModell.volumeModell.Z = max(-0.5, min(axisModell.clipBoxZ.position.z, 0.5)) + 0.5
         }.onEnded{_ in
+            lastZ = axisModell.clipBoxZ.position.z
             axisModell.updateAllAxis()
         }
     }
     
     @MainActor
-    fileprivate func updateSliceStack(rot: Rotation3D) async {
+    fileprivate func updateSliceStack() async {
         if (!axisModell.volumeModell.axisLoaded) {
             return
         }
@@ -56,42 +60,30 @@ struct AxisView: View {
         let modelMatrix = axisModell.root!.transform.matrix
         
         let modelViewMatrixInv = modelMatrix.inverse * viewMatrixInv
-//        let modelViewMatrix = viewMatrix * modelMatrix.inverse
         
         let viewVector = modelViewMatrixInv * simd_float4(0, 0, 0, 1)
         
-//        print(viewMatrixInv)
-//        print(modelMatrix)
-//        print()
-        
         if (viewVector.z.magnitude > viewVector.x.magnitude && viewVector.z.magnitude > viewVector.y.magnitude) {
             if (viewVector.z > 0) {
-                print("z positive")
                 axisModell.enableAxis(entity: axisModell.zPositiveEntities.entity)
             } else {
-                print("z negative")
                 axisModell.enableAxis(entity: axisModell.zNegativeEntities.entity)
             }
         }
         else if (viewVector.x.magnitude > viewVector.y.magnitude && viewVector.x.magnitude > viewVector.z.magnitude) {
             if (viewVector.x > 0) {
-                print("x positve")
                 axisModell.enableAxis(entity: axisModell.xPositiveEntities.entity)
             } else {
-                print("x negative")
                 axisModell.enableAxis(entity: axisModell.xNegativeEntities.entity)
             }
         }
         else {
             if (viewVector.y > 0) {
-                print("y positive")
                 axisModell.enableAxis(entity: axisModell.yPositiveEntities.entity)
             } else {
-                print("y negative")
                 axisModell.enableAxis(entity: axisModell.yNegativeEntities.entity)
             }
         }
-        print()
     }
 
     var body: some View {
@@ -114,26 +106,21 @@ struct AxisView: View {
         .gesture(dragX)
         .gesture(dragY)
         .gesture(dragZ)
-        .rotation3DEffect(rotation)
         .gesture(manipulationGesture.onChanged{ value in
-//            scale = value.scale.width
             axisModell.updateTransformation(value)
         }.onEnded { value in
             axisModell.volumeModell.rotation = axisModell.volumeModell.rotation.rotated(by: value.rotation!)
             axisModell.translation += value.translation
+//            axisModell.volumeModell.scale = axisModell.root!.scale.x
         })
-        //        .scaleEffect(scale)
-//        .offset(x: axisModell.translation.x, y: axisModell.translation.y)
-//        .offset(z: axisModell.translation.z)
         .onAppear {
             Timer.scheduledTimer(withTimeInterval: 0.05, repeats: true) { _ in
                 Task {
-                    await updateSliceStack(rot: rotation)
+                    await updateSliceStack()
                 }
             }
         }
     }
-        
 }
 
 var manipulationGesture: some Gesture<AffineTransform3D> {
@@ -161,4 +148,3 @@ extension SimultaneousGesture<
         return (translation, size, rotation)
     }
 }
-

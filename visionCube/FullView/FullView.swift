@@ -65,7 +65,6 @@ class FullView {
     var model = simd_float4x4()
     var clipBoxSize = simd_float3(1, 1, 1)
     var clipBoxShift = simd_float3(0, 0, 0)
-    var volumeScale = makeScale(simd_float3(0.5, 0.5, 0.5))
     
     var cube: Tesselation!
     var meshNeedsUpdate = true
@@ -159,7 +158,7 @@ class FullView {
         view = makeLookAt(vEye: simd_float3(0, 0, 3), vAt: simd_float3(0, 0, 0), vUp: simd_float3(0, 1, 0))
         model = makeTranslate(simd_float3(0, 0, 1.5))
         * Transform(rotation: simd_quatf(volumeModell.rotation)).matrix
-                * volumeScale
+        * makeScale(simd_float3(volumeModell.scale/2, volumeModell.scale/2, volumeModell.scale/2))
         
         let projection = makePerspective(fovRadians: 45.0 * Float.pi / 180.0, aspect: Float(500) / Float(500), znear: 0.03, zfar: 500.0)
         let viewToTexture = makeTranslate(simd_float3(0.5, 0.5, 0.5)) * simd_inverse(view * model)
@@ -286,6 +285,7 @@ class FullView {
     
     func renderLoop() {
         buildBuffers()
+        print("buffers build")
         cube = Tesselation.genBrick(center: Vec3(x: 0, y: 0, z: 0), size: Vec3(x: 1, y: 1, z: 1), texScale: Vec3(x: 1, y: 1, z: 1) ).unpack()
         while true {
             if layerRenderer.state == .invalidated {

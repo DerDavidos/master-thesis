@@ -27,11 +27,9 @@ struct ContentView: View {
     var body: some View {
         @Bindable var volumeModell = volumeModell
     
-        
         VStack {
             VStack {
                 Grid(alignment: .leading, verticalSpacing: 30) {
-                    
                     GridRow {
                         Toggle("Show Axis View", isOn: $showAxisView)
                             .font(.extraLargeTitle)

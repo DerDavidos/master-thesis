@@ -52,7 +52,7 @@ class AxisRenderer {
             while j < width*height*(id+1) {
                 var columnData = Array(dataset.volume.data[(j)...(j + width-1)])
                 
-                if (axis == "zNegative") {
+                if (axis == "zPositive") {
                     columnData = columnData.reversed()
                 }
                 imageData.append(contentsOf: columnData)
@@ -72,7 +72,7 @@ class AxisRenderer {
                 if i >= dataset.volume.data.count {
                     i = id + (width*j)
                     j = j + 1
-                    if (axis == "xPositive") {
+                    if (axis == "xNegative") {
                         imageColumn = imageColumn.reversed()
                     }
                     imageData.append(contentsOf: imageColumn)
@@ -87,7 +87,7 @@ class AxisRenderer {
             imageHeight = depth
             imageData = Array()
             var i = (id * width) + width * (height) * (depth - 1)
-            if (axis == "yNegative") {
+            if (axis == "yPositive") {
                 while imageData.count < width * depth {
                     imageData.append(contentsOf: dataset.volume.data[i...i+width-1].reversed())
                     i -= width * height
@@ -211,7 +211,7 @@ class AxisRenderer {
             try? fileManager.createDirectory(at: resultFolderURL, withIntermediateDirectories: true, attributes: nil)
         }
         resultFolderURL = resultFolderURL.appendingPathComponent(String(id) + ".png")
-        writeCGImage(image, to: resultFolderURL)
+        var _ = writeCGImage(image, to: resultFolderURL)
         print(resultFolderURL)
     }
 }
