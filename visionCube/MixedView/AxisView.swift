@@ -60,31 +60,38 @@ struct AxisView: View {
         
         let viewVector = modelViewMatrixInv * simd_float4(0, 0, 0, 1)
         
-        print(viewMatrixInv)
-        print(modelMatrix)
-        print()
+//        print(viewMatrixInv)
+//        print(modelMatrix)
+//        print()
         
         if (viewVector.z.magnitude > viewVector.x.magnitude && viewVector.z.magnitude > viewVector.y.magnitude) {
-            if (viewVector.z < 0) {
+            if (viewVector.z > 0) {
+                print("z positive")
                 axisModell.enableAxis(entity: axisModell.zPositiveEntities.entity)
             } else {
+                print("z negative")
                 axisModell.enableAxis(entity: axisModell.zNegativeEntities.entity)
             }
         }
         else if (viewVector.x.magnitude > viewVector.y.magnitude && viewVector.x.magnitude > viewVector.z.magnitude) {
-            if (viewVector.x < 0) {
+            if (viewVector.x > 0) {
+                print("x positve")
                 axisModell.enableAxis(entity: axisModell.xPositiveEntities.entity)
             } else {
+                print("x negative")
                 axisModell.enableAxis(entity: axisModell.xNegativeEntities.entity)
             }
         }
         else {
-            if (viewVector.y < 0) {
+            if (viewVector.y > 0) {
+                print("y positive")
                 axisModell.enableAxis(entity: axisModell.yPositiveEntities.entity)
             } else {
+                print("y negative")
                 axisModell.enableAxis(entity: axisModell.yNegativeEntities.entity)
             }
         }
+        print()
     }
 
     var body: some View {
