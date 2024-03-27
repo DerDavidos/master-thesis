@@ -1,7 +1,7 @@
 import SwiftUI
 import CompositorServices
 
-let RESOURCE = "engine"
+let RESOURCE = "c60"
 
 @main
 struct visionShaderApp: App {
@@ -17,7 +17,8 @@ struct visionShaderApp: App {
     var body: some Scene {
         WindowGroup {
             ContentView(volumeModell: volumeModell)
-        }.windowStyle(.volumetric).defaultSize(width: 1500, height: 500, depth: 1)
+        }.windowStyle(.plain)
+            .defaultSize(width: 1500, height: 500)
 
         ImmersiveSpace(id: "AxisView") {
             AxisView(axisModell: axisModell)
@@ -25,7 +26,8 @@ struct visionShaderApp: App {
         
         WindowGroup(id: "VolumeControll") {
             VolumeControll(axisModell: axisModell)
-        }.windowStyle(.plain).defaultSize(width: 550, height: 500)
+        }.windowStyle(.plain)
+            .defaultSize(width: 550, height: 500)
         
         ImmersiveSpace(id: "FullView") {
             CompositorLayer(configuration: ContentStageConfiguration()) { layerRenderer in
