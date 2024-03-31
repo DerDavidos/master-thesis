@@ -83,8 +83,8 @@
 			isa = PBXGroup;
 			children = (
 				6374FEA32B83811000F74D28 /* VisionProPosition.swift */,
-				637F4EC62BA1A0CD0042A671 /* AxisModell.swift */,
 				63C245592B66CDC90037B3E1 /* AxisView.swift */,
+				637F4EC62BA1A0CD0042A671 /* AxisModell.swift */,
 				6346945D2B7107720063817D /* AxisRenderer.swift */,
 			);
 			path = MixedView;

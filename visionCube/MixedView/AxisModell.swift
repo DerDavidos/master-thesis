@@ -6,6 +6,7 @@ import ARKit
 import Accelerate
 
 let START_TRANSLATION = Vector3D(x: 0, y: -1800, z: -2000)
+//let START_TRANSLATION = Vector3D(x: 0, y: 0, z: 0)
 
 @Observable
 class AxisModell {

@@ -1,7 +1,7 @@
 import SwiftUI
 import CompositorServices
 
-let RESOURCE = "c60"
+let RESOURCE = "bonsai"
 
 @main
 struct visionShaderApp: App {
@@ -19,10 +19,10 @@ struct visionShaderApp: App {
             ContentView(volumeModell: volumeModell)
         }.windowStyle(.plain)
             .defaultSize(width: 1500, height: 500)
-
+        
         ImmersiveSpace(id: "AxisView") {
             AxisView(axisModell: axisModell)
-        }
+        }.immersionStyle(selection: .constant(.mixed), in: .mixed)
         
         WindowGroup(id: "VolumeControll") {
             VolumeControll(axisModell: axisModell)
