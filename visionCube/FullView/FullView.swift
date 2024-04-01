@@ -156,7 +156,10 @@ class FullView {
         let maxBounds = clipBox * simd_float4(0.5, 0.5, 0.5, 1.0) + 0.5
         
         view = makeLookAt(vEye: simd_float3(0, 0, 3), vAt: simd_float3(0, 0, 0), vUp: simd_float3(0, 1, 0))
-        model = makeTranslate(simd_float3(0, 0, 1.5))
+        
+        model =
+        makeTranslate(
+            simd_float3(Float(volumeModell.translation.x) / 2000, Float(volumeModell.translation.y) / -2000 - 0.9, Float(volumeModell.translation.z) / 2000 + 2.25))
         * Transform(rotation: simd_quatf(volumeModell.rotation)).matrix
         * makeScale(simd_float3(volumeModell.scale/2, volumeModell.scale/2, volumeModell.scale/2))
         

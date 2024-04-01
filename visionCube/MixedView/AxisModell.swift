@@ -5,9 +5,6 @@ import RealityKitContent
 import ARKit
 import Accelerate
 
-let START_TRANSLATION = Vector3D(x: 0, y: -1800, z: -2000)
-//let START_TRANSLATION = Vector3D(x: 0, y: 0, z: 0)
-
 @Observable
 class AxisModell {
     var volumeModell: VolumeModell
@@ -31,8 +28,6 @@ class AxisModell {
     var clipBoxYEnabled = false
     var clipBoxZEnabled = false
     
-    var translation: Vector3D = START_TRANSLATION
-    
     init(volumeModell: VolumeModell) {
         self.volumeModell = volumeModell
     }
@@ -51,9 +46,9 @@ class AxisModell {
     func updateTransformation(_ value: AffineTransform3D) {
         root!.orientation = simd_quatf(volumeModell.rotation.rotated(by: value.rotation!))
         
-        root!.transform.translation.x = Float((translation.x + value.translation.x) / 1000)
-        root!.transform.translation.y = Float((translation.y + value.translation.y) / -1000)
-        root!.transform.translation.z = Float((translation.z + value.translation.z) / 1000)
+        root!.transform.translation.x = Float((volumeModell.translation.x + value.translation.x) / 1000)
+        root!.transform.translation.y = Float((volumeModell.translation.y + value.translation.y) / -1000)
+        root!.transform.translation.z = Float((volumeModell.translation.z + value.translation.z) / 1000)
         
 //        var scale: Float = Float(value.scale.width * value.scale.height * value.scale.depth)
 //        if scale > 1 { scale = (scale - 1) * 0.05 + 1 }

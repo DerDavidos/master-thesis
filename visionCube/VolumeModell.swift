@@ -5,6 +5,9 @@ import RealityKitContent
 import ARKit
 import Accelerate
 
+let START_TRANSLATION = Vector3D(x: 0, y: -1800, z: -2000)
+//let START_TRANSLATION = Vector3D(x: 0, y: 0, z: 0)
+
 @Observable
 class VolumeModell {
     var transferValue: Float = 0
@@ -20,6 +23,8 @@ class VolumeModell {
     
     var scale: Float = 1.0
     
+    var translation: Vector3D = START_TRANSLATION
+    
     func reset() {
         transferValue = 0
         transferValue2 = 0.1
@@ -29,6 +34,8 @@ class VolumeModell {
         
         X = 0
         Y = 0
-        Z = 0   
+        Z = 0
+        
+        translation = START_TRANSLATION
     }
 }

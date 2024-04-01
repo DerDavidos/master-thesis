@@ -110,7 +110,7 @@ struct AxisView: View {
             axisModell.updateTransformation(value)
         }.onEnded { value in
             axisModell.volumeModell.rotation = axisModell.volumeModell.rotation.rotated(by: value.rotation!)
-            axisModell.translation += value.translation
+            axisModell.volumeModell.translation += value.translation
 //            axisModell.volumeModell.scale = axisModell.root!.scale.x
         })
         .onAppear {
