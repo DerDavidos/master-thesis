@@ -129,13 +129,13 @@ class FullView {
     }
     
     func updateMatrices(drawable: LayerRenderer.Drawable,  deviceAnchor: DeviceAnchor?) {
-        clipBoxSize.x = 1 - volumeModell.X
-        clipBoxSize.y = 1 - volumeModell.Y
-        clipBoxSize.z = 1 - volumeModell.Z
+        clipBoxSize.x = 1 - volumeModell.XClip
+        clipBoxSize.y = 1 - volumeModell.YClip
+        clipBoxSize.z = 1 - volumeModell.ZClip
         
-        clipBoxShift.x = volumeModell.X / 2
-        clipBoxShift.y = volumeModell.Y / 2
-        clipBoxShift.z = volumeModell.Z / 2
+        clipBoxShift.x = volumeModell.XClip / 2
+        clipBoxShift.y = volumeModell.YClip / 2
+        clipBoxShift.z = volumeModell.ZClip / 2
    
         let clipBox = makeTranslate(clipBoxShift) * makeScale(clipBoxSize)
         let minBounds = clipBox * simd_float4(-0.5, -0.5, -0.5, 1.0) + 0.5

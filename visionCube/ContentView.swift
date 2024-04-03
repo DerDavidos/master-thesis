@@ -24,79 +24,57 @@ struct ContentView: View {
 
     let visionProPose = VisionProPositon()
 
+    @MainActor
+    func updateView(viewActive: Bool, viewName : String ) async {
+        if viewActive {
+            if immersiveSpaceIsShown {
+                await dismissImmersiveSpace()
+            } else {
+                openWindow(id: "VolumeControll")
+            }
+            switch await openImmersiveSpace(id: viewName) {
+            case .opened:
+                immersiveSpaceIsShown = true
+            case .error, .userCancelled:
+                fallthrough
+            @unknown default:
+                immersiveSpaceIsShown = false
+            }
+        } else {
+            await dismissImmersiveSpace()
+            dismissWindow(id: "VolumeControll")
+            immersiveSpaceIsShown = false
+        }
+    }
+    
     var body: some View {
         @Bindable var volumeModell = volumeModell
     
-        VStack {
-            VStack {
-                Grid(alignment: .leading, verticalSpacing: 30) {
-                    GridRow {
-                        Toggle("Show Axis View", isOn: $showAxisView)
-                            .font(.extraLargeTitle)
-                            .onChange(of: showAxisView) { _, newValue in
-                                Task {
-                                    if newValue {
-                                        if immersiveSpaceIsShown {
-                                            await dismissImmersiveSpace()
-                                            immersiveSpaceIsShown = false
-                                            showFullView = false
-                                        } else {
-                                            openWindow(id: "VolumeControll")
-                                        }
-                                        switch await openImmersiveSpace(id: "AxisView") {
-                                        case .opened:
-                                            immersiveSpaceIsShown = true
-                                        case .error, .userCancelled:
-                                            fallthrough
-                                        @unknown default:
-                                            immersiveSpaceIsShown = false
-                                            showAxisView = false
-                                        }
-                                    } else if immersiveSpaceIsShown {
-                                        await dismissImmersiveSpace()
-                                        dismissWindow(id: "VolumeControll")
-                                        immersiveSpaceIsShown = false
-                                    }
-                                }
-                            }
-                    }.padding(10)
-                    Spacer().frame(height: 30)
-                    GridRow {
-                        Toggle("Show Full View", isOn: $showFullView)
-                            .font(.extraLargeTitle)
-                            .onChange(of: showFullView) { _, newValue in
-                                Task {
-                                    if newValue {
-                                        if immersiveSpaceIsShown {
-                                            await dismissImmersiveSpace()
-                                            immersiveSpaceIsShown = false
-                                            showAxisView = false
-                                            volumeModell.axisLoaded = false
-                                        } else {
-                                            openWindow(id: "VolumeControll")
-                                        }
-                                        switch await openImmersiveSpace(id: "FullView") {
-                                        case .opened:
-                                            immersiveSpaceIsShown = true
-                                        case .error, .userCancelled:
-                                            fallthrough
-                                        @unknown default:
-                                            immersiveSpaceIsShown = false
-                                            showFullView = false
-                                        }
-                                    } else if immersiveSpaceIsShown {
-                                        await dismissImmersiveSpace()
-                                        dismissWindow(id: "VolumeControll")
-                                        immersiveSpaceIsShown = false
-                                    }
-                                }
-                            }
-                    }.padding(10)
+        
+        RealityView { _ in }
+        .onChange(of: showAxisView) { _, showAxisView in
+            Task {
+                if showAxisView {
+                    showFullView = false
                 }
-            }.frame(alignment: .center)
-            .frame(width: 800, alignment: .center)
-            .padding(30)
-            .glassBackgroundEffect()
+                await updateView(viewActive: showAxisView, viewName: "AxisView")
+            }
+        }
+        .onChange(of: showFullView) { _, showFullView in
+            Task {
+                if showFullView {
+                    showAxisView = false
+                }
+                await updateView(viewActive: showFullView, viewName: "FullView")
+            }
+        }
+        .toolbar {
+            ToolbarItemGroup(placement: .bottomOrnament) {
+                VStack (spacing: 12) {
+                    Toggle("     Axis View     ", isOn: $showAxisView).font(/*@START_MENU_TOKEN@*/.title/*@END_MENU_TOKEN@*/)
+                    Toggle("     Full View     ", isOn: $showFullView).font(.title)
+                }.frame(width: 300, height: 150)
+            }
         }
     }
 }

@@ -15,9 +15,9 @@ class VolumeModell {
     
     var rotation: Rotation3D = .identity
     
-    var X: Float = 0.0
-    var Y: Float = 0.0
-    var Z: Float = 0.0
+    var XClip: Float = 0.0
+    var YClip: Float = 0.0
+    var ZClip: Float = 0.0
     
     var axisLoaded = false
     
@@ -32,9 +32,9 @@ class VolumeModell {
         
         scale = 1.0
         
-        X = 0
-        Y = 0
-        Z = 0
+        XClip = 0
+        YClip = 0
+        ZClip = 0
         
         translation = START_TRANSLATION
     }

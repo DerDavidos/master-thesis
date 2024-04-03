@@ -74,9 +74,9 @@ class AxisModell {
         for i in 0...axisList.materialEntity.count - 1 {
             try! axisList.materialEntity[i].material.setParameter(name: "smoothStep", value: MaterialParameters.Value.float(volumeModell.step))
             try! axisList.materialEntity[i].material.setParameter(name: "smoothWidth", value: MaterialParameters.Value.float(volumeModell.shift))
-            try! axisList.materialEntity[i].material.setParameter(name: "x", value: .float(volumeModell.X))
-            try! axisList.materialEntity[i].material.setParameter(name: "y", value: .float(volumeModell.Y))
-            try! axisList.materialEntity[i].material.setParameter(name: "z", value: .float(volumeModell.Z))
+            try! axisList.materialEntity[i].material.setParameter(name: "x", value: .float(volumeModell.XClip))
+            try! axisList.materialEntity[i].material.setParameter(name: "y", value: .float(volumeModell.YClip))
+            try! axisList.materialEntity[i].material.setParameter(name: "z", value: .float(volumeModell.ZClip))
             axisList.materialEntity[i].entity.components.set(ModelComponent(
                 mesh: .generatePlane(width: 1, height: 1),
                 materials: [axisList.materialEntity[i].material]
@@ -124,12 +124,11 @@ class AxisModell {
         rotater.generateCollisionShapes(recursive: false)
         root!.addChild(rotater)
 
-        clipBoxX =  scene.findEntity(named: "clipBoxX")!
-        clipBoxX.isEnabled = false
+        clipBoxX = scene.findEntity(named: "clipBoxX")!
         clipBoxY = scene.findEntity(named: "clipBoxY")!
-        clipBoxY.isEnabled = false
         clipBoxZ = scene.findEntity(named: "clipBoxZ")!
-        clipBoxZ.isEnabled = false
+        setClipPlanes()
+        
         root!.addChild(clipBoxX)
         root!.addChild(clipBoxY)
         root!.addChild(clipBoxZ)
