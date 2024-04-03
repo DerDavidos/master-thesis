@@ -70,10 +70,6 @@ half4 fragment fragmentMain( v2f in [[stage_in]],
         result = under(current, result);
         if (result.a > 0.95) break;
     } while (inBounds(currentPoint,renderParams));
-    
-    if (result.a < 0.01) {
-        return half4(0.0);
-    }
-    
+
     return half4( result );
 }

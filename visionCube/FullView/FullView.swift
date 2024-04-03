@@ -10,10 +10,18 @@ import RealityKitContent
 import ARKit
 import Accelerate
 
+
 let maxBuffersInFlight = 10
 
 enum RendererError: Error {
     case badVertexDescriptor
+}
+
+extension LayerRenderer.Clock.Instant.Duration {
+    var timeInterval: TimeInterval {
+        let nanoseconds = TimeInterval(components.attoseconds / 1_000_000_000)
+        return TimeInterval(components.seconds) + (nanoseconds / TimeInterval(NSEC_PER_SEC))
+    }
 }
 
 struct ContentStageConfiguration: CompositorLayerConfiguration {
@@ -31,12 +39,6 @@ struct ContentStageConfiguration: CompositorLayerConfiguration {
     }
 }
 
-extension LayerRenderer.Clock.Instant.Duration {
-    var timeInterval: TimeInterval {
-        let nanoseconds = TimeInterval(components.attoseconds / 1_000_000_000)
-        return TimeInterval(components.seconds) + (nanoseconds / TimeInterval(NSEC_PER_SEC))
-    }
-}
 
 let OVERSAMPLING: Float = 8.0
 
@@ -116,22 +118,6 @@ class FullView {
         worldTracking = WorldTrackingProvider()
         arSession = ARKitSession()
     }
-    
-    func startRenderLoop() {
-        Task {
-            do {
-                try await arSession.run([worldTracking])
-            } catch {
-                fatalError("Failed to initialize ARSession")
-            }
-            
-            let renderThread = Thread {
-                self.renderLoop()
-            }
-            renderThread.name = "Render Thread"
-            renderThread.start()
-        }
-    }
 
     func buildBuffers() {
         print("buildBuffers")
@@ -142,7 +128,7 @@ class FullView {
         parameterBuffer = device.makeBuffer(length: paramDataSize)
     }
     
-    func updateMatrices() {
+    func updateMatrices(drawable: LayerRenderer.Drawable,  deviceAnchor: DeviceAnchor?) {
         clipBoxSize.x = 1 - volumeModell.X
         clipBoxSize.y = 1 - volumeModell.Y
         clipBoxSize.z = 1 - volumeModell.Z
@@ -155,11 +141,13 @@ class FullView {
         let minBounds = clipBox * simd_float4(-0.5, -0.5, -0.5, 1.0) + 0.5
         let maxBounds = clipBox * simd_float4(0.5, 0.5, 0.5, 1.0) + 0.5
         
-        view = makeLookAt(vEye: simd_float3(0, 0, 3), vAt: simd_float3(0, 0, 0), vUp: simd_float3(0, 1, 0))
-        
+        let simdDeviceAnchor = deviceAnchor?.originFromAnchorTransform ?? matrix_identity_float4x4
+        view = (simdDeviceAnchor * drawable.views[0].transform).inverse
+
+        let translate = simd_float3(Float(volumeModell.translation.x) / 1000, Float(volumeModell.translation.y) / -1000, Float(volumeModell.translation.z) / 1000)
+
         model =
-        makeTranslate(
-            simd_float3(Float(volumeModell.translation.x) / 2000, Float(volumeModell.translation.y) / -2000 - 0.9, Float(volumeModell.translation.z) / 2000 + 2.25))
+        makeTranslate(translate)
         * Transform(rotation: simd_quatf(volumeModell.rotation)).matrix
         * makeScale(simd_float3(volumeModell.scale/2, volumeModell.scale/2, volumeModell.scale/2))
         
@@ -172,8 +160,8 @@ class FullView {
         
         let paramData = parameterBuffer!.contents().bindMemory(to: RenderParams.self, capacity: 1)
         paramData.pointee.oversampling = OVERSAMPLING
-        paramData.pointee.smoothStepStart = volumeModell.transferValue
-        paramData.pointee.smoothStepWidth = volumeModell.transferValue2
+        paramData.pointee.smoothStepStart = volumeModell.step
+        paramData.pointee.smoothStepWidth = volumeModell.shift
         paramData.pointee.cameraPosInTextureSpace = simd_make_float3(viewToTexture * simd_float4(0, 0, 0, 1))
         paramData.pointee.minBounds = simd_make_float3(minBounds)
         paramData.pointee.maxBounds = simd_make_float3(maxBounds)
@@ -213,9 +201,7 @@ class FullView {
         
         frame.startUpdate()
         
-        // Perform frame independent work
-        updateMatrices()
-        clipCubeToNearplane()
+
         
         frame.endUpdate()
         
@@ -226,8 +212,10 @@ class FullView {
             fatalError("Failed to create command buffer")
         }
         
+        // Perform frame independent work
         guard let drawable = frame.queryDrawable() else { return }
         
+
         _ = inFlightSemaphore.wait(timeout: DispatchTime.distantFuture)
         
         frame.startSubmission()
@@ -241,6 +229,10 @@ class FullView {
         commandBuffer.addCompletedHandler { (_ commandBuffer)-> Swift.Void in
             semaphore.signal()
         }
+        
+        updateMatrices(drawable: drawable, deviceAnchor: deviceAnchor)
+        clipCubeToNearplane()
+        
         
         let renderPassDescriptor = MTLRenderPassDescriptor()
         renderPassDescriptor.colorAttachments[0].texture = drawable.colorTextures[0]
@@ -284,6 +276,22 @@ class FullView {
         commandBuffer.commit()
         
         frame.endSubmission()
+    }
+    
+    func startRenderLoop() {
+        Task {
+            do {
+                try await arSession.run([worldTracking])
+            } catch {
+                fatalError("Failed to initialize ARSession")
+            }
+            
+            let renderThread = Thread {
+                self.renderLoop()
+            }
+            renderThread.name = "Render Thread"
+            renderThread.start()
+        }
     }
     
     func renderLoop() {

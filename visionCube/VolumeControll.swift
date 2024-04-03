@@ -13,16 +13,16 @@ struct VolumeControll: View {
             Spacer()
             Grid(verticalSpacing: 30) {
                 GridRow {
-                    Text("Step start:")
-                    Slider(value: $axisModell.volumeModell.transferValue, in: 0...1) { editing in
+                    Text("Step:")
+                    Slider(value: $axisModell.volumeModell.step, in: 0...1) { editing in
                         if (!editing && axisModell.volumeModell.axisLoaded) {
                             axisModell.updateAllAxis()
                         }
                     }
                 }
                 GridRow {
-                    Text("Step width:")
-                    Slider(value: $axisModell.volumeModell.transferValue2, in: 0.1...0.2) { editing in
+                    Text("Shift:")
+                    Slider(value: $axisModell.volumeModell.shift, in: 0.1...0.2) { editing in
                         if (!editing && axisModell.volumeModell.axisLoaded) {
                             axisModell.updateAllAxis()
                         }

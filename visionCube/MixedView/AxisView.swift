@@ -60,9 +60,8 @@ struct AxisView: View {
         let modelMatrix = axisModell.root!.transform.matrix
         
         let modelViewMatrixInv = modelMatrix.inverse * viewMatrixInv
-        
         let viewVector = modelViewMatrixInv * simd_float4(0, 0, 0, 1)
-        
+
         if (viewVector.z.magnitude > viewVector.x.magnitude && viewVector.z.magnitude > viewVector.y.magnitude) {
             if (viewVector.z > 0) {
                 axisModell.enableAxis(entity: axisModell.zPositiveEntities.entity)
