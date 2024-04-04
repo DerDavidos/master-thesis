@@ -25,6 +25,8 @@ class VolumeModell {
     
     var translation: Vector3D = START_TRANSLATION
     
+    var loading = false
+    
     func reset() {
         step = 0
         shift = 0.1

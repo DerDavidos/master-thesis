@@ -19,6 +19,9 @@ struct ContentView: View {
 
     @MainActor
     func updateView(viewActive: Bool, viewName : String ) async {
+        if volumeModell.loading {
+            return
+        }
         if viewActive {
             if immersiveSpaceIsShown {
                 await dismissImmersiveSpace()
@@ -70,6 +73,7 @@ struct ContentView: View {
                     Toggle("     Axis View     ", isOn: $showAxisView).font(/*@START_MENU_TOKEN@*/.title/*@END_MENU_TOKEN@*/)
                     Toggle("     Full View     ", isOn: $showFullView).font(.title)
                 }.frame(width: 300, height: 150)
+                .opacity(volumeModell.loading ? 0.0 : 1.0)
             }
         }
         .onAppear {
@@ -77,5 +81,6 @@ struct ContentView: View {
                 await visionProPose.runArSession()
             }
         }
+       
     }
 }

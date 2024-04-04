@@ -118,6 +118,7 @@ class AxisModell {
     
     @MainActor
     func loadAllEntities() async {
+        volumeModell.loading = true
         let scene = try! await Entity(named: "Plane", in: realityKitContentBundle)
         
         root = scene.findEntity(named: "root")!
@@ -152,5 +153,6 @@ class AxisModell {
         addEntities(root: root!, axisList: &yNegativeEntities)
         
         updateTransformation(.identity)
+        volumeModell.loading = false
     }
 }
