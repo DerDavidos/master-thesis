@@ -1,7 +1,7 @@
 import SwiftUI
 import CompositorServices
 
-let RESOURCE = "c60"
+let RESOURCE = "tooth"
 
 @main
 struct visionShaderApp: App {
@@ -37,7 +37,7 @@ struct visionShaderApp: App {
                 let fullView = FullView(layerRenderer, volumeModell: volumeModell)
                 fullView.startRenderLoop()
                 layerRenderer.onSpatialEvent = { eventCollection in
-
+//                    print(eventCollection)
                 }
             }
         }.immersionStyle(selection: .constant(.full), in: .full)

@@ -10,7 +10,7 @@ struct ContentView: View {
     @Environment(\.openWindow) var openWindow
     @Environment(\.dismissWindow) var dismissWindow
 
-    @State private var showAxisView = false
+    @State private var showAxisView = true
     @State private var showFullView = false
     @State private var immersiveSpaceIsShown = false
 
@@ -70,17 +70,20 @@ struct ContentView: View {
         .toolbar {
             ToolbarItemGroup(placement: .bottomOrnament) {
                 VStack (spacing: 12) {
-                    Toggle("     Axis View     ", isOn: $showAxisView).font(/*@START_MENU_TOKEN@*/.title/*@END_MENU_TOKEN@*/)
-                    Toggle("     Full View     ", isOn: $showFullView).font(.title)
+                    Toggle("     Axis View     ", isOn: $showAxisView).font(.largeTitle)
+                    Toggle("     Full View     ", isOn: $showFullView).font(.largeTitle)
                 }.frame(width: 300, height: 150)
-                .opacity(volumeModell.loading ? 0.0 : 1.0)
+                    .opacity(volumeModell.loading ? 0.0 : 1.0)
             }
         }
         .onAppear {
             Task {
                 await visionProPose.runArSession()
+                await updateView(viewActive: showAxisView, viewName: "AxisView")
             }
         }
-       
+        .onDisappear {
+            exit(0)
+        }
     }
 }

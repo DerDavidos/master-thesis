@@ -11,6 +11,11 @@ struct axisList {
 
 struct AxisView: View {
 
+    init(axisModell: AxisModell, visionProPose: VisionProPositon) {
+        self.axisModell = axisModell
+        self.visionProPose = visionProPose
+    }
+    
     var axisModell: AxisModell
     
     var visionProPose: VisionProPositon

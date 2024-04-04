@@ -114,12 +114,12 @@ class FullView {
         view = (simdDeviceAnchor * drawable.views[0].transform).inverse
        
         var translate = simd_float3(Float(volumeModell.translation.x) / 1000, Float(volumeModell.translation.y) / -1000, Float(volumeModell.translation.z) / 1000)
-
-        // If Axis view was not started before
-        if view == simd_float4x4([[1.0, 0.0, 0.0, 0.0], [0.0, 1.0, 0.0, 0.0], [0.0, 0.0, 1.0, 0.0], [0.0, 0.0, 0.0, 1.0]]) {
-            translate.y -= 1.6
-        }
         
+        // If Axis view was not started before
+//        if !volumeModell.axisLoaded {
+//
+//        }
+
         model =
         makeTranslate(translate)
         * Transform(rotation: simd_quatf(volumeModell.rotation)).matrix
