@@ -42,6 +42,7 @@ func buildRenderPipelineWithDevice(device: MTLDevice, layerRenderer: LayerRender
     pipelineDescriptor.vertexFunction = vertexFunction
     pipelineDescriptor.fragmentFunction = fragmentFunction
     pipelineDescriptor.vertexDescriptor = mtlVertexDescriptor
+    pipelineDescriptor.isAlphaToCoverageEnabled = true
 
     pipelineDescriptor.colorAttachments[0].pixelFormat = layerRenderer.configuration.colorFormat
     pipelineDescriptor.depthAttachmentPixelFormat = layerRenderer.configuration.depthFormat
