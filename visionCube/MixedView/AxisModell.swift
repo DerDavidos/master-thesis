@@ -44,6 +44,9 @@ class AxisModell {
     }
     
     func updateTransformation(_ value: AffineTransform3D) {
+        if root == nil {
+            return
+        }
         root!.orientation = simd_quatf(volumeModell.rotation.rotated(by: value.rotation!))
         
         root!.transform.translation.x = Float((volumeModell.translation.x + value.translation.x) / 1000)

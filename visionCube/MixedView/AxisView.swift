@@ -10,8 +10,10 @@ struct axisList {
 }
 
 struct AxisView: View {
-    let visionProPose = VisionProPositon()
+
     var axisModell: AxisModell
+    
+    var visionProPose: VisionProPositon
     
     @State var lastX: Float = -0.55
     @State var lastY: Float = -0.55
@@ -89,10 +91,7 @@ struct AxisView: View {
         @Bindable var axisModell = axisModell
         
         RealityView {content in
-            Task {
-                await visionProPose.runArSession()
-            }
-            
+  
             if (axisModell.root == nil) {
                 await axisModell.loadAllEntities()
             }

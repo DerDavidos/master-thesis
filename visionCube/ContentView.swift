@@ -4,25 +4,18 @@ import RealityKitContent
 import ARKit
 
 struct ContentView: View {
-
-    @State private var showAxisView = false
-    @State private var showFullView = false
-    @State private var immersiveSpaceIsShown = false
-
     @Environment(\.openImmersiveSpace) var openImmersiveSpace
     @Environment(\.dismissImmersiveSpace) var dismissImmersiveSpace
     
     @Environment(\.openWindow) var openWindow
     @Environment(\.dismissWindow) var dismissWindow
-    
-    @FocusState private var isFocused: Bool
-    
-    var volumeModell: VolumeModell
-    
-    let session = ARKitSession()
-    let worldInfo = WorldTrackingProvider()
 
-    let visionProPose = VisionProPositon()
+    @State private var showAxisView = false
+    @State private var showFullView = false
+    @State private var immersiveSpaceIsShown = false
+
+    var volumeModell: VolumeModell
+    var visionProPose: VisionProPositon
 
     @MainActor
     func updateView(viewActive: Bool, viewName : String ) async {
@@ -42,14 +35,17 @@ struct ContentView: View {
             }
         } else {
             await dismissImmersiveSpace()
-            dismissWindow(id: "VolumeControll")
             immersiveSpaceIsShown = false
+            if !showAxisView && !showFullView {
+                dismissWindow(id: "VolumeControll")
+            }
         }
+        
+        print(immersiveSpaceIsShown)
     }
     
     var body: some View {
         @Bindable var volumeModell = volumeModell
-    
         
         RealityView { _ in }
         .onChange(of: showAxisView) { _, showAxisView in
@@ -74,6 +70,11 @@ struct ContentView: View {
                     Toggle("     Axis View     ", isOn: $showAxisView).font(/*@START_MENU_TOKEN@*/.title/*@END_MENU_TOKEN@*/)
                     Toggle("     Full View     ", isOn: $showFullView).font(.title)
                 }.frame(width: 300, height: 150)
+            }
+        }
+        .onAppear {
+            Task {
+                await visionProPose.runArSession()
             }
         }
     }

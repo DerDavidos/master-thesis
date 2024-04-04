@@ -10,36 +10,7 @@ import RealityKitContent
 import ARKit
 import Accelerate
 
-
 let maxBuffersInFlight = 10
-
-enum RendererError: Error {
-    case badVertexDescriptor
-}
-
-extension LayerRenderer.Clock.Instant.Duration {
-    var timeInterval: TimeInterval {
-        let nanoseconds = TimeInterval(components.attoseconds / 1_000_000_000)
-        return TimeInterval(components.seconds) + (nanoseconds / TimeInterval(NSEC_PER_SEC))
-    }
-}
-
-struct ContentStageConfiguration: CompositorLayerConfiguration {
-    func makeConfiguration(capabilities: LayerRenderer.Capabilities, configuration: inout LayerRenderer.Configuration) {
-        configuration.depthFormat = .depth32Float
-        configuration.colorFormat = .bgra8Unorm_srgb
-    
-        let foveationEnabled = capabilities.supportsFoveation
-        configuration.isFoveationEnabled = foveationEnabled
-        
-        let options: LayerRenderer.Capabilities.SupportedLayoutsOptions = foveationEnabled ? [.foveationEnabled] : []
-        let supportedLayouts = capabilities.supportedLayouts(options: options)
-        
-        configuration.layout = supportedLayouts.contains(.layered) ? .layered : .dedicated
-    }
-}
-
-
 let OVERSAMPLING: Float = 8.0
 
 class FullView {
@@ -51,7 +22,6 @@ class FullView {
     var texture: MTLTexture
 
     let inFlightSemaphore = DispatchSemaphore(value: maxBuffersInFlight)
-    var rotation: Float = 0
 
     let arSession: ARKitSession
     let worldTracking: WorldTrackingProvider
@@ -62,7 +32,6 @@ class FullView {
     var parameterBuffer: MTLBuffer?
     var vertCount: size_t = 0
     
-    var smothStep: Float = 0
     var view = simd_float4x4()
     var model = simd_float4x4()
     var clipBoxSize = simd_float3(1, 1, 1)
@@ -143,9 +112,14 @@ class FullView {
         
         let simdDeviceAnchor = deviceAnchor?.originFromAnchorTransform ?? matrix_identity_float4x4
         view = (simdDeviceAnchor * drawable.views[0].transform).inverse
+       
+        var translate = simd_float3(Float(volumeModell.translation.x) / 1000, Float(volumeModell.translation.y) / -1000, Float(volumeModell.translation.z) / 1000)
 
-        let translate = simd_float3(Float(volumeModell.translation.x) / 1000, Float(volumeModell.translation.y) / -1000, Float(volumeModell.translation.z) / 1000)
-
+        // If Axis view was not started before
+        if view == simd_float4x4([[1.0, 0.0, 0.0, 0.0], [0.0, 1.0, 0.0, 0.0], [0.0, 0.0, 1.0, 0.0], [0.0, 0.0, 0.0, 1.0]]) {
+            translate.y -= 1.6
+        }
+        
         model =
         makeTranslate(translate)
         * Transform(rotation: simd_quatf(volumeModell.rotation)).matrix
