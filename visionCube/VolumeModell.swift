@@ -11,7 +11,7 @@ let START_TRANSLATION = Vector3D(x: 0, y: -1800, z: -2000)
 @Observable
 class VolumeModell {
     var step: Float = 0
-    var shift: Float = 0.1
+    var shift: Float = 0
     
     var rotation: Rotation3D = .identity
     
@@ -26,6 +26,7 @@ class VolumeModell {
     var translation: Vector3D = START_TRANSLATION
     
     var loading = false
+    var axisView = false
     
     func reset() {
         step = 0

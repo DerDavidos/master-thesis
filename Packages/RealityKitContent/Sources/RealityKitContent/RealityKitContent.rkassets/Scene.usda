@@ -2135,9 +2135,9 @@ def Xform "Root"
         float inputs:smoothStepStep = 0.1 (
             customData = {
                 dictionary realitykit = {
-                    float2 positionInSubgraph = (68.12109, 86.62109)
-                    float2 sizeInSubgraph = (172.5, 53)
-                    int stackingOrderInSubgraph = 891
+                    float2 positionInSubgraph = (162.59349, 89.00902)
+                    float2 sizeInSubgraph = (173, 53)
+                    int stackingOrderInSubgraph = 928
                 }
             }
         )
@@ -2145,9 +2145,9 @@ def Xform "Root"
         float inputs:smoothStepWidth = 0.1 (
             customData = {
                 dictionary realitykit = {
-                    float2 positionInSubgraph = (212.77861, 222.0645)
-                    float2 sizeInSubgraph = (179.5, 53)
-                    int stackingOrderInSubgraph = 891
+                    float2 positionInSubgraph = (163.65129, 200.30899)
+                    float2 sizeInSubgraph = (180, 53)
+                    int stackingOrderInSubgraph = 928
                 }
             }
         )
@@ -2155,9 +2155,9 @@ def Xform "Root"
         float inputs:v = 0 (
             customData = {
                 dictionary realitykit = {
-                    float2 positionInSubgraph = (237.01299, 13.295502)
+                    float2 positionInSubgraph = (229.9507, -18.70273)
                     float2 sizeInSubgraph = (98, 53)
-                    int stackingOrderInSubgraph = 889
+                    int stackingOrderInSubgraph = 928
                 }
             }
         )
@@ -2175,7 +2175,7 @@ def Xform "Root"
         int ui:nodegraph:node:stackingOrder = 3034
         string[] ui:nodegraph:realitykit:node:attributesShowingChildren = ["inputs:smoothStepWidth", "inputs:smoothStepWidth", "inputs:smoothStepStep", "inputs:smoothStepStep", "inputs:smoothStepStep", "inputs:smoothStepWidth", "inputs:smoothStepStep"]
         float2 ui:nodegraph:realitykit:subgraphOutputs:pos = (1186.434, 51.35862)
-        float2 ui:nodegraph:realitykit:subgraphOutputs:size = (128.5, 81)
+        float2 ui:nodegraph:realitykit:subgraphOutputs:size = (129.89673, 81)
         int ui:nodegraph:realitykit:subgraphOutputs:stackingOrder = 889
 
         def Shader "Multiply_1"
@@ -2186,7 +2186,7 @@ def Xform "Root"
             float inputs:in2.connect = </Root/transfer/Clamp.outputs:out>
             float outputs:out
             float2 ui:nodegraph:node:pos = (809, 26)
-            float2 ui:nodegraph:node:size = (60, 36)
+            float2 ui:nodegraph:node:size = (61, 36)
             int ui:nodegraph:node:stackingOrder = 887
             string[] ui:nodegraph:realitykit:node:attributesShowingChildren = ["inputs:in1", "inputs:in2"]
         }
@@ -2195,11 +2195,11 @@ def Xform "Root"
         {
             uniform token info:id = "ND_subtract_float"
             float inputs:in1.connect = </Root/transfer.inputs:v>
-            float inputs:in2.connect = </Root/transfer.inputs:smoothStepStep>
+            float inputs:in2.connect = </Root/transfer.inputs:smoothStepWidth>
             float outputs:out
-            float2 ui:nodegraph:node:pos = (348.25, 86.5)
-            float2 ui:nodegraph:node:size = (61.5, 36)
-            int ui:nodegraph:node:stackingOrder = 884
+            float2 ui:nodegraph:node:pos = (409.98773, 41.660812)
+            float2 ui:nodegraph:node:size = (63, 36)
+            int ui:nodegraph:node:stackingOrder = 928
         }
 
         def Shader "Clamp"
@@ -2210,7 +2210,7 @@ def Xform "Root"
             float inputs:low
             float outputs:out
             float2 ui:nodegraph:node:pos = (673.5, 116.5)
-            float2 ui:nodegraph:node:size = (91, 145)
+            float2 ui:nodegraph:node:size = (92, 145)
             int ui:nodegraph:node:stackingOrder = 884
             string[] ui:nodegraph:realitykit:node:attributesShowingChildren = ["inputs:in", "inputs:in"]
         }
@@ -2222,7 +2222,7 @@ def Xform "Root"
             float inputs:in2.connect = </Root/transfer/Clamp.outputs:out>
             float outputs:out
             float2 ui:nodegraph:node:pos = (929.75, 114)
-            float2 ui:nodegraph:node:size = (60, 36)
+            float2 ui:nodegraph:node:size = (61, 36)
             int ui:nodegraph:node:stackingOrder = 884
             string[] ui:nodegraph:realitykit:node:attributesShowingChildren = ["inputs:in1"]
         }
@@ -2231,10 +2231,10 @@ def Xform "Root"
         {
             uniform token info:id = "ND_divide_float"
             float inputs:in1.connect = </Root/transfer/Subtract.outputs:out>
-            float inputs:in2.connect = </Root/transfer.inputs:smoothStepWidth>
+            float inputs:in2.connect = </Root/transfer/Subtract_2.outputs:out>
             float outputs:out
             float2 ui:nodegraph:node:pos = (537.25, 116.5)
-            float2 ui:nodegraph:node:size = (61.5, 36)
+            float2 ui:nodegraph:node:size = (63, 36)
             int ui:nodegraph:node:stackingOrder = 884
         }
 
@@ -2245,7 +2245,7 @@ def Xform "Root"
             float inputs:in2.connect = </Root/transfer/Multiply_1.outputs:out>
             float outputs:out
             float2 ui:nodegraph:node:pos = (929.75, 18)
-            float2 ui:nodegraph:node:size = (61.5, 36)
+            float2 ui:nodegraph:node:size = (63, 36)
             int ui:nodegraph:node:stackingOrder = 884
         }
 
@@ -2256,8 +2256,19 @@ def Xform "Root"
             float inputs:in2.connect = </Root/transfer/Multiply.outputs:out>
             float outputs:out
             float2 ui:nodegraph:node:pos = (1050.5, 38)
-            float2 ui:nodegraph:node:size = (60, 36)
+            float2 ui:nodegraph:node:size = (61, 36)
             int ui:nodegraph:node:stackingOrder = 884
+        }
+
+        def Shader "Subtract_2"
+        {
+            uniform token info:id = "ND_subtract_float"
+            float inputs:in1.connect = </Root/transfer.inputs:smoothStepStep>
+            float inputs:in2.connect = </Root/transfer.inputs:smoothStepWidth>
+            float outputs:out
+            float2 ui:nodegraph:node:pos = (386.47845, 172.61801)
+            float2 ui:nodegraph:node:size = (63, 36)
+            int ui:nodegraph:node:stackingOrder = 928
         }
     }
 }

@@ -43,8 +43,8 @@ struct ContentView: View {
                 dismissWindow(id: "VolumeControll")
             }
         }
-        
-        print(immersiveSpaceIsShown)
+
+        volumeModell.axisView = showAxisView
     }
     
     var body: some View {

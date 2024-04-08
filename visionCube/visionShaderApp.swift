@@ -1,7 +1,7 @@
 import SwiftUI
 import CompositorServices
 
-let RESOURCE = "tooth"
+let RESOURCE = "bonsai"
 
 @main
 struct visionShaderApp: App {

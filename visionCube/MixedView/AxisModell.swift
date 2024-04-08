@@ -60,7 +60,7 @@ class AxisModell {
     }
     
     func updateAllAxis() {
-        if (!volumeModell.axisLoaded) {
+        if ((!volumeModell.axisLoaded) || !volumeModell.axisView) {
             return
         }
         print("updating")
