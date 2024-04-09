@@ -21,13 +21,6 @@ struct Volume {
         normals = []
     }
     
-    mutating func normalizeScale() {
-        maxSize = max(width, max(height, depth))
-        let extend = scale * Vec3(x: Float(width), y: Float(height), z: Float(depth)) / Float(maxSize)
-        let m = max(extend.x, max(extend.y, extend.z))
-        scale = scale / m
-    }
-    
     func toString() -> String {
         var result = "width: \(width)\n"
         result += "height: \(height)\n"

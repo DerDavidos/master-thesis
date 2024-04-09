@@ -12,29 +12,32 @@ import MobileCoreServices
 struct MaterialEntity {
     var entity: Entity
     var material: ShaderGraphMaterial
+    var width: Float
+    var height: Float
 }
 
 class AxisRenderer {
-    private var dataset: QVis! = nil
     private var depth: Int
     private var height: Int
     private var width: Int
     
+    private var maxValue: Float
     private var abstand: Float
     
-    init(qVis: QVis? = nil) {
-        print("Loading \(RESOURCE)...")
-        self.dataset = try! QVis(filename: getFromResource(strFileName: RESOURCE, ext: "dat"))
+    private var dataset: QVis!
+    
+    init(dataset: QVis) {
+        self.dataset = dataset
         
         self.depth = Int(dataset.volume.depth)
         self.height = Int(dataset.volume.height)
         self.width = Int(dataset.volume.width)
         
-        self.abstand = Float(min(Float(1)/Float(depth), Float(1)/Float(height), Float(1)/Float(width)))
+        self.maxValue = Float(max(depth, height, width))
+        self.abstand = 1/maxValue
     }
 
     func getTexture(id: Int, axis: String) -> TextureResource {
-
         let bitsPerComponent = 8
         let bitsPerPixel = 8
         let colorSpace = CGColorSpaceCreateDeviceGray()
@@ -143,52 +146,69 @@ class AxisRenderer {
                 let entity = Entity()
                 var sphereMaterial: ShaderGraphMaterial? = nil
                 let offset = Float(layer) * abstand
+                var pWidth: Float = Float(layers)
+                var pHeight: Float = Float(layers)
+                
+                let startPos = -abstand * Float(layers) / 2
+                
                 switch axis {
                 case "zNegative":
                     let sphere = scene.findEntity(named: "placeHolder_Z_Negative") as! ModelEntity
                     sphereMaterial = sphere.model!.materials.first as? ShaderGraphMaterial
                     try? sphereMaterial?.setParameter(name: "Image", value: .textureResource(getTexture(id: layer, axis: axis)))
                     try? sphereMaterial?.setParameter(name: "ZLayer", value: .float(Float(layer)/Float(layers)))
-                    entity.transform.translation = SIMD3<Float>(0, 0 , -Float(layers)/2/Float(layers) + offset)
+                    entity.transform.translation = SIMD3<Float>(0, 0 , startPos  + offset)
                     entity.transform.rotation = simd_quatf(angle: .pi, axis: SIMD3<Float>(0, 1, 0))
+                    pWidth = Float(width) / maxValue
+                    pHeight = Float(height) / maxValue
                 case "zPositive":
                     let sphere = scene.findEntity(named: "placeHolder_Z_Positive") as! ModelEntity
                     sphereMaterial = sphere.model!.materials.first as? ShaderGraphMaterial
                     try? sphereMaterial?.setParameter(name: "Image", value: .textureResource(getTexture(id: layer, axis: axis)))
                     try? sphereMaterial?.setParameter(name: "ZLayer", value: .float(Float(layer)/Float(layers)))
-                    entity.transform.translation = SIMD3<Float>(0, 0 , -Float(layers)/2/Float(layers) + offset)
+                    entity.transform.translation = SIMD3<Float>(0, 0 , startPos + offset)
+                    pWidth = Float(width) / maxValue
+                    pHeight = Float(height) / maxValue
                 case "xPositive":
                     let sphereX = scene.findEntity(named: "placeHolder_X_Positive") as! ModelEntity
                     sphereMaterial = sphereX.model!.materials.first as? ShaderGraphMaterial
                     try? sphereMaterial?.setParameter(name: "Image", value: .textureResource(getTexture(id: layer, axis: axis)))
                     try? sphereMaterial?.setParameter(name: "XLayer", value: .float(Float(layer)/Float(layers)))
                     entity.transform.rotation = simd_quatf(angle: .pi/2, axis: SIMD3<Float>(0, 1, 0))
-                    entity.transform.translation = SIMD3<Float>(-Float(layers)/2/Float(layers) + offset, 0 , 0)
+                    entity.transform.translation = SIMD3<Float>(startPos + offset, 0 , 0)
+                    pWidth = Float(depth) / maxValue
+                    pHeight = Float(height) / maxValue
                 case "xNegative":
                     let sphereX = scene.findEntity(named: "placeHolder_X_Negative") as! ModelEntity
                     sphereMaterial = sphereX.model!.materials.first as? ShaderGraphMaterial
                     try? sphereMaterial?.setParameter(name: "Image", value: .textureResource(getTexture(id: layer, axis: axis)))
                     try? sphereMaterial?.setParameter(name: "XLayer", value: .float(Float(layer)/Float(layers)))
                     entity.transform.rotation = simd_quatf(angle: -.pi/2, axis: SIMD3<Float>(0, 1, 0))
-                    entity.transform.translation = SIMD3<Float>(-Float(layers)/2/Float(layers) + offset, 0 , 0)
+                    entity.transform.translation = SIMD3<Float>(startPos + offset, 0 , 0)
+                    pWidth = Float(depth) / maxValue
+                    pHeight = Float(height) / maxValue
                 case "yPositive":
                     let sphereY = scene.findEntity(named: "placeHolder_Y_Positive") as! ModelEntity
                     sphereMaterial = sphereY.model!.materials.first as? ShaderGraphMaterial
                     try? sphereMaterial?.setParameter(name: "Image", value: .textureResource(getTexture(id: layer, axis: axis)))
                     try? sphereMaterial?.setParameter(name: "YLayer", value: .float(Float(layer)/Float(layers)))
                     entity.transform.rotation = simd_quatf(angle: -.pi/2, axis: SIMD3<Float>(1, 0, 0))
-                    entity.transform.translation = SIMD3<Float>(0, -Float(layers)/2/Float(layers) + offset, 0)
+                    entity.transform.translation = SIMD3<Float>(0, startPos + offset, 0)
+                    pWidth = Float(width) / maxValue
+                    pHeight = Float(depth) / maxValue
                 case "yNegative":
                     let sphereY = scene.findEntity(named: "placeHolder_Y_Negative") as! ModelEntity
                     sphereMaterial = sphereY.model!.materials.first as? ShaderGraphMaterial
                     try? sphereMaterial?.setParameter(name: "Image", value: .textureResource(getTexture(id: layer, axis: axis)))
                     try? sphereMaterial?.setParameter(name: "YLayer", value: .float(Float(layer)/Float(layers)))
                     entity.transform.rotation = simd_quatf(angle: .pi/2, axis: SIMD3<Float>(1, 0, 0))
-                    entity.transform.translation = SIMD3<Float>(0, -Float(layers)/2/Float(layers) + offset, 0)
+                    entity.transform.translation = SIMD3<Float>(0, startPos + offset, 0)
+                    pWidth = Float(width) / maxValue
+                    pHeight = Float(depth) / maxValue
                 default:
                     fatalError("Unexpected value \(axis)")}
                 
-                let materialEntity = MaterialEntity(entity: entity, material: sphereMaterial!)
+                let materialEntity = MaterialEntity(entity: entity, material: sphereMaterial!, width: pWidth, height: pHeight)
                 entities.append(materialEntity)
             }
         }

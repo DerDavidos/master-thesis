@@ -53,10 +53,8 @@ func buildRenderPipelineWithDevice(device: MTLDevice, layerRenderer: LayerRender
 }
 
 func loadTexture(device: MTLDevice,
-                       textureName: String) throws -> MTLTexture {
+                       dataset: QVis) throws -> MTLTexture {
     /// Load texture data with optimal parameters for sampling
-    let dataset = try QVis(filename: getFromResource(strFileName: RESOURCE, ext: "dat"))
-    
     let volumeTextureDesc = MTLTextureDescriptor()
     volumeTextureDesc.width = Int(dataset.volume.width)
     volumeTextureDesc.height = Int(dataset.volume.height)

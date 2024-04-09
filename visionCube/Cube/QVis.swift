@@ -75,16 +75,7 @@ class QVis {
                     volume.width = width
                     volume.height = height
                     volume.depth = depth
-                } else if l.id == "slicethickness" {
-                    let t = l.value.components(separatedBy: " ")
-                    if t.count != 3 {
-                        throw QVisFileException(message: "invalid slicethickness tag")
-                    }
-                    guard let x = Float(t[0]), let y = Float(t[1]), let z = Float(t[2]) else {
-                        throw QVisFileException(message: "invalid slicethickness tag")
-                    }
-                    volume.scale = Vec3(x: x, y: y, z: z)
-                    volume.normalizeScale()
+                    volume.maxSize = max(width, max(height, depth))
                 } else if l.id == "format" {
                     if l.value != "char" && l.value != "uchar" && l.value != "byte" {
                         needsConversion = true

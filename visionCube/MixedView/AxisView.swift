@@ -4,11 +4,6 @@ import RealityKitContent
 import ARKit
 import Accelerate
 
-struct axisList {
-    var entity: Entity
-    var materialEntity: [MaterialEntity]
-}
-
 struct AxisView: View {
 
     init(axisModell: AxisModell, visionProPose: VisionProPositon) {

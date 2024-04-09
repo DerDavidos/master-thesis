@@ -5,6 +5,12 @@ import RealityKitContent
 import ARKit
 import Accelerate
 
+struct axisList {
+    var entity: Entity
+    var materialEntity: [MaterialEntity]
+
+}
+
 @Observable
 class AxisModell {
     var volumeModell: VolumeModell
@@ -63,6 +69,7 @@ class AxisModell {
         if ((!volumeModell.axisLoaded) || !volumeModell.axisView) {
             return
         }
+        volumeModell.loading = true
         print("updating")
         updateAxis(axisList: &zNegativeEntities)
         updateAxis(axisList: &zPositiveEntities)
@@ -71,6 +78,7 @@ class AxisModell {
         updateAxis(axisList: &yNegativeEntities)
         updateAxis(axisList: &yPositiveEntities)
         print("updated")
+        volumeModell.loading = false
     }
     
     fileprivate func updateAxis(axisList: inout axisList) {
@@ -81,7 +89,7 @@ class AxisModell {
             try! axisList.materialEntity[i].material.setParameter(name: "y", value: .float(volumeModell.YClip))
             try! axisList.materialEntity[i].material.setParameter(name: "z", value: .float(volumeModell.ZClip))
             axisList.materialEntity[i].entity.components.set(ModelComponent(
-                mesh: .generatePlane(width: 1, height: 1),
+                mesh: .generatePlane(width: axisList.materialEntity[i].width, height: axisList.materialEntity[i].height),
                 materials: [axisList.materialEntity[i].material]
             ))
         }
@@ -137,7 +145,7 @@ class AxisModell {
         root!.addChild(clipBoxY)
         root!.addChild(clipBoxZ)
 
-        let axisRenderer: AxisRenderer = AxisRenderer()
+        let axisRenderer: AxisRenderer = AxisRenderer(dataset: volumeModell.dataset)
         zPositiveEntities.materialEntity = await axisRenderer.createEntities(axis: "zPositive")
         addEntities(root: root!, axisList: &zPositiveEntities)
         zNegativeEntities.materialEntity = await axisRenderer.createEntities(axis: "zNegative")

@@ -18,7 +18,7 @@ struct VolumeControll: View {
                         if (!editing && axisModell.volumeModell.axisLoaded) {
                             axisModell.updateAllAxis()
                         }
-                    }
+                    }.opacity(axisModell.volumeModell.loading ? 0.0 : 1.0)
                 }
                 GridRow {
                     Text("Shift:")
@@ -26,7 +26,7 @@ struct VolumeControll: View {
                         if (!editing && axisModell.volumeModell.axisLoaded) {
                             axisModell.updateAllAxis()
                         }
-                    }
+                    }.opacity(axisModell.volumeModell.loading ? 0.0 : 1.0)
                 }
                 
                 GridRow {

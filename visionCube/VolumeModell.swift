@@ -10,7 +10,7 @@ let START_TRANSLATION = Vector3D(x: 0, y: -1800, z: -2000)
 
 @Observable
 class VolumeModell {
-    var step: Float = 0
+    var step: Float = 0.5
     var shift: Float = 0
     
     var rotation: Rotation3D = .identity
@@ -28,9 +28,15 @@ class VolumeModell {
     var loading = false
     var axisView = false
     
+    var dataset: QVis!
+    
+    init() {
+        dataset = try! QVis(filename: getFromResource(strFileName: RESOURCE, ext: "dat"))
+    }
+    
     func reset() {
-        step = 0
-        shift = 0.1
+        step = 0.5
+        shift = 0
         rotation = .identity
         
         scale = 1.0

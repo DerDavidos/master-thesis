@@ -79,7 +79,7 @@ class FullView {
         self.depthState = device.makeDepthStencilState(descriptor:depthStateDescriptor)!
 
         do {
-            texture = try loadTexture(device: device, textureName: "ColorMap")
+            texture = try loadTexture(device: device, dataset: volumeModell.dataset)
         } catch {
             fatalError("Unable to load texture. Error info: \(error)")
         }
@@ -99,7 +99,7 @@ class FullView {
     
     func updateMatrices(drawable: LayerRenderer.Drawable,  deviceAnchor: DeviceAnchor?) {
         let translate = simd_float3(Float(volumeModell.translation.x) / 1000, Float(volumeModell.translation.y) / -1000, Float(volumeModell.translation.z) / 1000)
-        let scale = SIMD3<Float>(volumeModell.scale,volumeModell.scale,volumeModell.scale)
+        let scale = SIMD3<Float>(volumeModell.scale * Float(volumeModell.dataset.volume.width), volumeModell.scale * Float(volumeModell.dataset.volume.height), volumeModell.scale * Float(volumeModell.dataset.volume.depth)) / Float(volumeModell.dataset.volume.maxSize)
         
         let modelMatrix = Transform(scale: scale, rotation: simd_quatf(volumeModell.rotation), translation: translate).matrix
         
