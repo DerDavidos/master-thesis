@@ -10,7 +10,7 @@ struct ContentView: View {
     @Environment(\.openWindow) var openWindow
     @Environment(\.dismissWindow) var dismissWindow
 
-    @State private var showAxisView = true
+    @State private var showAxisView = false
     @State private var showFullView = false
     @State private var immersiveSpaceIsShown = false
 

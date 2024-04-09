@@ -98,6 +98,23 @@ class FullView {
     }
     
     func updateMatrices(drawable: LayerRenderer.Drawable,  deviceAnchor: DeviceAnchor?) {
+        let translate = simd_float3(Float(volumeModell.translation.x) / 1000, Float(volumeModell.translation.y) / -1000, Float(volumeModell.translation.z) / 1000)
+        let scale = SIMD3<Float>(volumeModell.scale,volumeModell.scale,volumeModell.scale)
+        
+        let modelMatrix = Transform(scale: scale, rotation: simd_quatf(volumeModell.rotation), translation: translate).matrix
+        
+        let simdDeviceAnchor = deviceAnchor?.originFromAnchorTransform ?? matrix_identity_float4x4
+        let view = drawable.views[0]
+        let viewMatrix: simd_float4x4 = (simdDeviceAnchor * view.transform).inverse
+        
+        let projection: simd_float4x4 = simd_float4x4(ProjectiveTransform3D(leftTangent: Double(view.tangents[0]),
+                                               rightTangent: Double(view.tangents[1]),
+                                               topTangent: Double(view.tangents[2]),
+                                               bottomTangent: Double(view.tangents[3]),
+                                               nearZ: Double(drawable.depthRange.y),
+                                               farZ: Double(drawable.depthRange.x),
+                                                                            reverseZ: true))
+        
         clipBoxSize.x = 1 - volumeModell.XClip
         clipBoxSize.y = 1 - volumeModell.YClip
         clipBoxSize.z = 1 - volumeModell.ZClip
@@ -106,31 +123,15 @@ class FullView {
         clipBoxShift.y = volumeModell.YClip / 2
         clipBoxShift.z = volumeModell.ZClip / 2
    
-        let clipBox = makeTranslate(clipBoxShift) * makeScale(clipBoxSize)
+        let clipBox = Transform(scale: clipBoxSize, translation: clipBoxShift).matrix
         let minBounds = clipBox * simd_float4(-0.5, -0.5, -0.5, 1.0) + 0.5
         let maxBounds = clipBox * simd_float4(0.5, 0.5, 0.5, 1.0) + 0.5
         
-        let simdDeviceAnchor = deviceAnchor?.originFromAnchorTransform ?? matrix_identity_float4x4
-        view = (simdDeviceAnchor * drawable.views[0].transform).inverse
-       
-        var translate = simd_float3(Float(volumeModell.translation.x) / 1000, Float(volumeModell.translation.y) / -1000, Float(volumeModell.translation.z) / 1000)
-        
-        // If Axis view was not started before
-//        if !volumeModell.axisLoaded {
-//
-//        }
-
-        model =
-        makeTranslate(translate)
-        * Transform(rotation: simd_quatf(volumeModell.rotation)).matrix
-        * makeScale(simd_float3(volumeModell.scale/2, volumeModell.scale/2, volumeModell.scale/2))
-        
-        let projection = makePerspective(fovRadians: 45.0 * Float.pi / 180.0, aspect: Float(500) / Float(500), znear: 0.03, zfar: 500.0)
-        let viewToTexture = makeTranslate(simd_float3(0.5, 0.5, 0.5)) * simd_inverse(view * model)
+        let viewToTexture = Transform(translation: SIMD3<Float>(0.5, 0.5,0.5)).matrix * simd_inverse(viewMatrix * modelMatrix)
         
         let pMatrixData = matrixBuffer!.contents().bindMemory(to: Matrices.self, capacity: 1)
         pMatrixData.pointee.clip = clipBox
-        pMatrixData.pointee.modelViewProjection = projection * view * model * clipBox
+        pMatrixData.pointee.modelViewProjection = projection * viewMatrix * modelMatrix * clipBox
         
         let paramData = parameterBuffer!.contents().bindMemory(to: RenderParams.self, capacity: 1)
         paramData.pointee.oversampling = OVERSAMPLING
@@ -174,9 +175,7 @@ class FullView {
         guard let frame = layerRenderer.queryNextFrame() else { return }
         
         frame.startUpdate()
-        
-
-        
+    
         frame.endUpdate()
         
         guard let timing = frame.predictTiming() else { return }
@@ -206,7 +205,6 @@ class FullView {
         
         updateMatrices(drawable: drawable, deviceAnchor: deviceAnchor)
         clipCubeToNearplane()
-        
         
         let renderPassDescriptor = MTLRenderPassDescriptor()
         renderPassDescriptor.colorAttachments[0].texture = drawable.colorTextures[0]
