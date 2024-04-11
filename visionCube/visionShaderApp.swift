@@ -1,7 +1,7 @@
 import SwiftUI
 import CompositorServices
 
-let RESOURCE = "engine"
+let RESOURCE = "bonsai"
 
 @main
 struct visionShaderApp: App {
@@ -36,9 +36,6 @@ struct visionShaderApp: App {
             CompositorLayer(configuration: ContentStageConfiguration()) { layerRenderer in
                 let fullView = FullView(layerRenderer, volumeModell: volumeModell)
                 fullView.startRenderLoop()
-                layerRenderer.onSpatialEvent = { eventCollection in
-//                    print(eventCollection)
-                }
             }
         }.immersionStyle(selection: .constant(.full), in: .full)
     }

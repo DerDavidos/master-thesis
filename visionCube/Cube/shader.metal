@@ -21,7 +21,7 @@ struct RenderParams {
 };
 
 float4 transferFunction(float v, RenderParams params) {
-    v = clamp((v - params.smoothStepWidth) / (params.smoothStepStart - params.smoothStepWidth), 0.0, 1.0);
+    v = clamp((v - params.smoothStepWidth) / (params.smoothStepStart), 0.0, 1.0);
     return float4(v*v * (3-2*v));
 }
 

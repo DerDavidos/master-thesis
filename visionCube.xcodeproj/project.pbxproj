@@ -11,6 +11,7 @@
 		6308682D2B8F5A7D00D14763 /* shader.metal in Sources */ = {isa = PBXBuildFile; fileRef = 6308682C2B8F5A7D00D14763 /* shader.metal */; };
 		630868312B8F656600D14763 /* FullRenderer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 630868302B8F656600D14763 /* FullRenderer.swift */; };
 		63318D562BA30FBC004F8061 /* VolumeModell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63318D552BA30FBC004F8061 /* VolumeModell.swift */; };
+		6341A35B2BC7DA1000866E81 /* test.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6341A35A2BC7DA1000866E81 /* test.swift */; };
 		6346945E2B7107720063817D /* AxisRenderer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6346945D2B7107720063817D /* AxisRenderer.swift */; };
 		6374FEA42B83811000F74D28 /* VisionProPosition.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6374FEA32B83811000F74D28 /* VisionProPosition.swift */; };
 		637F4EC52BA0BE2E0042A671 /* VolumeControll.swift in Sources */ = {isa = PBXBuildFile; fileRef = 637F4EC42BA0BE2E0042A671 /* VolumeControll.swift */; };
@@ -42,6 +43,7 @@
 		6308682E2B8F5A8B00D14763 /* shaderTypes.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = shaderTypes.h; sourceTree = "<group>"; };
 		630868302B8F656600D14763 /* FullRenderer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FullRenderer.swift; sourceTree = "<group>"; };
 		63318D552BA30FBC004F8061 /* VolumeModell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VolumeModell.swift; sourceTree = "<group>"; };
+		6341A35A2BC7DA1000866E81 /* test.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = test.swift; sourceTree = "<group>"; };
 		6346945D2B7107720063817D /* AxisRenderer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AxisRenderer.swift; sourceTree = "<group>"; };
 		6374FEA32B83811000F74D28 /* VisionProPosition.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VisionProPosition.swift; sourceTree = "<group>"; };
 		637F4EC42BA0BE2E0042A671 /* VolumeControll.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VolumeControll.swift; sourceTree = "<group>"; };
@@ -97,6 +99,7 @@
 			children = (
 				630868272B8F589700D14763 /* FullView.swift */,
 				630868302B8F656600D14763 /* FullRenderer.swift */,
+				6341A35A2BC7DA1000866E81 /* test.swift */,
 			);
 			path = FullView;
 			sourceTree = "<group>";
@@ -263,6 +266,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				6308682D2B8F5A7D00D14763 /* shader.metal in Sources */,
+				6341A35B2BC7DA1000866E81 /* test.swift in Sources */,
 				638E69242B6AE81600DC2E98 /* Tesselation.swift in Sources */,
 				63318D562BA30FBC004F8061 /* VolumeModell.swift in Sources */,
 				638E69272B6AE81600DC2E98 /* Vecs.swift in Sources */,

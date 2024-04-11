@@ -11,7 +11,7 @@ import ARKit
 import Accelerate
 
 let maxBuffersInFlight = 10
-let OVERSAMPLING: Float = 8.0
+let OVERSAMPLING: Float = 1.0
 
 class FullView {
     public let device: MTLDevice
@@ -41,6 +41,8 @@ class FullView {
     var meshNeedsUpdate = true
    
     var volumeModell: VolumeModell
+    
+    var handTracking: HandTrackingProvider
     
     struct Matrices {
         var modelViewProjection: simd_float4x4
@@ -86,6 +88,11 @@ class FullView {
         
         worldTracking = WorldTrackingProvider()
         arSession = ARKitSession()
+        
+        handTracking = HandTrackingProvider()
+        print(HandTrackingProvider.isSupported)
+        
+        DragGesture()
     }
 
     func buildBuffers() {
@@ -202,6 +209,8 @@ class FullView {
         commandBuffer.addCompletedHandler { (_ commandBuffer)-> Swift.Void in
             semaphore.signal()
         }
+        
+        print(handTracking.latestAnchors.leftHand?.handSkeleton)
         
         updateMatrices(drawable: drawable, deviceAnchor: deviceAnchor)
         clipCubeToNearplane()
