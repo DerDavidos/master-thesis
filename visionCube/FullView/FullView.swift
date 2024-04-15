@@ -11,7 +11,6 @@ import ARKit
 import Accelerate
 
 let maxBuffersInFlight = 10
-let OVERSAMPLING: Float = 1.0
 
 class FullView {
     public let device: MTLDevice
@@ -42,8 +41,6 @@ class FullView {
    
     var volumeModell: VolumeModell
     
-    var handTracking: HandTrackingProvider
-    
     struct Matrices {
         var modelViewProjection: simd_float4x4
         var clip: simd_float4x4
@@ -51,7 +48,7 @@ class FullView {
     
     struct RenderParams {
         var smoothStepStart: Float
-        var smoothStepWidth: Float
+        var smoothStepShift: Float
         var oversampling: Float
         var cameraPosInTextureSpace: simd_float3
         var minBounds: simd_float3
@@ -88,11 +85,6 @@ class FullView {
         
         worldTracking = WorldTrackingProvider()
         arSession = ARKitSession()
-        
-        handTracking = HandTrackingProvider()
-        print(HandTrackingProvider.isSupported)
-        
-        DragGesture()
     }
 
     func buildBuffers() {
@@ -142,8 +134,8 @@ class FullView {
         
         let paramData = parameterBuffer!.contents().bindMemory(to: RenderParams.self, capacity: 1)
         paramData.pointee.oversampling = OVERSAMPLING
-        paramData.pointee.smoothStepStart = volumeModell.step
-        paramData.pointee.smoothStepWidth = volumeModell.shift
+        paramData.pointee.smoothStepStart = volumeModell.smoothStepStart
+        paramData.pointee.smoothStepShift = volumeModell.smoothStepShift
         paramData.pointee.cameraPosInTextureSpace = simd_make_float3(viewToTexture * simd_float4(0, 0, 0, 1))
         paramData.pointee.minBounds = simd_make_float3(minBounds)
         paramData.pointee.maxBounds = simd_make_float3(maxBounds)
@@ -209,8 +201,6 @@ class FullView {
         commandBuffer.addCompletedHandler { (_ commandBuffer)-> Swift.Void in
             semaphore.signal()
         }
-        
-        print(handTracking.latestAnchors.leftHand?.handSkeleton)
         
         updateMatrices(drawable: drawable, deviceAnchor: deviceAnchor)
         clipCubeToNearplane()

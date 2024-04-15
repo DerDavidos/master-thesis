@@ -13,7 +13,7 @@ struct Matrices {
 
 struct RenderParams {
     float smoothStepStart;
-    float smoothStepWidth;
+    float smoothStepShift;
     float oversampling;
     float3 cameraPosInTextureSpace;
     float3 minBounds;
@@ -21,8 +21,8 @@ struct RenderParams {
 };
 
 float4 transferFunction(float v, RenderParams params) {
-    v = clamp((v - params.smoothStepWidth) / (params.smoothStepStart), 0.0, 1.0);
-    return float4(v*v * (3-2*v));
+    v = clamp((v - params.smoothStepStart) / (params.smoothStepShift), 0.0, 1.0);
+    return float4(v * v * (3-2*v));
 }
 
 float4 under(float4 current, float4 last) {

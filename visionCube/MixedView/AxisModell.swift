@@ -83,8 +83,8 @@ class AxisModell {
     
     fileprivate func updateAxis(axisList: inout axisList) {
         for i in 0...axisList.materialEntity.count - 1 {
-            try! axisList.materialEntity[i].material.setParameter(name: "smoothStep", value: MaterialParameters.Value.float(volumeModell.step))
-            try! axisList.materialEntity[i].material.setParameter(name: "smoothWidth", value: MaterialParameters.Value.float(volumeModell.shift))
+            try! axisList.materialEntity[i].material.setParameter(name: "smoothStepStart", value: MaterialParameters.Value.float(volumeModell.smoothStepStart))
+            try! axisList.materialEntity[i].material.setParameter(name: "smoothStepShift", value: MaterialParameters.Value.float(volumeModell.smoothStepShift))
             try! axisList.materialEntity[i].material.setParameter(name: "x", value: .float(volumeModell.XClip))
             try! axisList.materialEntity[i].material.setParameter(name: "y", value: .float(volumeModell.YClip))
             try! axisList.materialEntity[i].material.setParameter(name: "z", value: .float(volumeModell.ZClip))

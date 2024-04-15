@@ -13,8 +13,8 @@ struct VolumeControll: View {
             Spacer()
             Grid(verticalSpacing: 30) {
                 GridRow {
-                    Text("Step:")
-                    Slider(value: $axisModell.volumeModell.step, in: 0...1) { editing in
+                    Text("Start:")
+                    Slider(value: $axisModell.volumeModell.smoothStepStart, in: 0...1) { editing in
                         if (!editing && axisModell.volumeModell.axisLoaded) {
                             axisModell.updateAllAxis()
                         }
@@ -22,7 +22,7 @@ struct VolumeControll: View {
                 }
                 GridRow {
                     Text("Shift:")
-                    Slider(value: $axisModell.volumeModell.shift, in: 0...1) { editing in
+                    Slider(value: $axisModell.volumeModell.smoothStepShift, in: 0...1) { editing in
                         if (!editing && axisModell.volumeModell.axisLoaded) {
                             axisModell.updateAllAxis()
                         }
@@ -59,6 +59,10 @@ struct VolumeControll: View {
                     }, label: {
                         Text("Reset")
                     })
+                }
+                
+                GridRow {
+                    
                 }
                 
             }.frame(alignment: .center)

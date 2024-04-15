@@ -4,8 +4,6 @@ import MetalKit
 import CompositorServices
 import SwiftUI
 
-//let RESOURCE = "engine"
-
 func buildMetalVertexDescriptor() -> MTLVertexDescriptor {
     let mtlVertexDescriptor = MTLVertexDescriptor()
 

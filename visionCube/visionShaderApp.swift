@@ -2,6 +2,7 @@ import SwiftUI
 import CompositorServices
 
 let RESOURCE = "bonsai"
+let OVERSAMPLING: Float = 1
 
 @main
 struct visionShaderApp: App {

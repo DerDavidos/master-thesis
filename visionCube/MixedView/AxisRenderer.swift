@@ -208,6 +208,9 @@ class AxisRenderer {
                 default:
                     fatalError("Unexpected value \(axis)")}
                 
+                try? sphereMaterial?.setParameter(name: "samples", value: .float(Float(layer)))
+                try? sphereMaterial?.setParameter(name: "oversampling", value: .float(Float(OVERSAMPLING)))
+                
                 let materialEntity = MaterialEntity(entity: entity, material: sphereMaterial!, width: pWidth, height: pHeight)
                 entities.append(materialEntity)
             }
