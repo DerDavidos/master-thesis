@@ -59,7 +59,7 @@ struct AxisView: View {
         }
         
         let viewMatrixInv = await visionProPose.getTransform()!
-        let modelMatrix = axisModell.root!.transform.matrix
+        let modelMatrix = axisModell.volumeModell.root!.transform.matrix
         
         let modelViewMatrixInv = modelMatrix.inverse * viewMatrixInv
         let viewVector = modelViewMatrixInv * simd_float4(0, 0, 0, 1)
@@ -87,15 +87,17 @@ struct AxisView: View {
         }
     }
 
+
+    
     var body: some View {
         @Bindable var axisModell = axisModell
         
         RealityView {content in
   
-            if (axisModell.root == nil) {
+            if (axisModell.volumeModell.root == nil) {
                 await axisModell.loadAllEntities()
             }
-            content.add(axisModell.root!)
+            content.add(axisModell.volumeModell.root!)
             
             axisModell.volumeModell.axisLoaded = true
             axisModell.updateAllAxis()
@@ -105,10 +107,10 @@ struct AxisView: View {
         .gesture(dragY)
         .gesture(dragZ)
         .gesture(manipulationGesture.onChanged{ value in
-            axisModell.updateTransformation(value)
+            axisModell.volumeModell.updateTransformation(value)
         }.onEnded { value in
             axisModell.volumeModell.rotation = axisModell.volumeModell.rotation.rotated(by: value.rotation!)
-            axisModell.volumeModell.translation += value.translation
+            axisModell.volumeModell.lastTranslation += SIMD3<Float>(makeToOtherCordinate(vector: SIMD3<Float>(value.translation.vector)))
 //            axisModell.volumeModell.scale = axisModell.root!.scale.x
         })
         .onAppear {
@@ -146,3 +148,7 @@ extension SimultaneousGesture<
         return (translation, size, rotation)
     }
 }
+
+func makeToOtherCordinate(vector: SIMD3<Float>) -> SIMD3<Float> {
+    return simd_float3(vector.x / 1000, vector.y / -1000, vector.z / 1000)
+    }

@@ -5,7 +5,7 @@ import RealityKitContent
 import ARKit
 import Accelerate
 
-let START_TRANSLATION = Vector3D(x: 0, y: -1800, z: -2000)
+let START_TRANSLATION = SIMD3<Float>(x: 0, y: 1.8, z: -2)
 //let START_TRANSLATION = Vector3D(x: 0, y: 0, z: 0)
 
 @Observable
@@ -23,12 +23,15 @@ class VolumeModell {
     
     var scale: Float = 1.0
     
-    var translation: Vector3D = START_TRANSLATION
+    var lastTranslation: SIMD3<Float> = SIMD3<Float>(0, 1.8, -2)
     
     var loading = false
     var axisView = false
     
     var dataset: QVis!
+    
+    var root: Entity?
+//    var lastTrans: simd_float4x4 = simd_float4x4([[0.0, 0.0, 0.0, 0.0], [0.0, 0.0, 0.0, 0.0], [0.0, 0.0, 0.0, 0.0], [0.0, 0, 0.0, 0.0]])
     
     init() {
         dataset = try! QVis(filename: getFromResource(strFileName: RESOURCE, ext: "dat"))
@@ -45,6 +48,28 @@ class VolumeModell {
         YClip = 0
         ZClip = 0
         
-        translation = START_TRANSLATION
+//        updateTranslation(translation: START_TRANSLATION)
+    }
+    
+    func updateTranslation(translation: SIMD3<Float>) {
+        if root == nil {
+            return
+        }
+        root!.transform.translation.x = Float((lastTranslation.x + translation.x))
+        root!.transform.translation.y = Float((lastTranslation.y + translation.y))
+        root!.transform.translation.z = Float((lastTranslation.z + translation.z))
+    }
+    
+    func updateTransformation(_ value: AffineTransform3D!) {
+        if root == nil {
+            return
+        }
+        root!.orientation = simd_quatf(rotation.rotated(by: value.rotation!))
+        
+        updateTranslation(translation: makeToOtherCordinate(vector: SIMD3<Float>(value.translation.vector)))
+        //        var scale: Float = Float(value.scale.width * value.scale.height * value.scale.depth)
+        //        if scale > 1 { scale = (scale - 1) * 0.05 + 1 }
+        //        scale *= Float(volumeModell.scale)
+        //        volumeModell.root!.scale = SIMD3<Float>(scale, scale, scale)
     }
 }

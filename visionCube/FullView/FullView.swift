@@ -97,11 +97,11 @@ class FullView {
     }
     
     func updateMatrices(drawable: LayerRenderer.Drawable,  deviceAnchor: DeviceAnchor?) {
-        let translate = simd_float3(Float(volumeModell.translation.x) / 1000, Float(volumeModell.translation.y) / -1000, Float(volumeModell.translation.z) / 1000)
+        let translate = (volumeModell.root?.transform.translation)!
         let scale = SIMD3<Float>(volumeModell.scale * Float(volumeModell.dataset.volume.width), volumeModell.scale * Float(volumeModell.dataset.volume.height), volumeModell.scale * Float(volumeModell.dataset.volume.depth)) / Float(volumeModell.dataset.volume.maxSize)
         
         let modelMatrix = Transform(scale: scale, rotation: simd_quatf(volumeModell.rotation), translation: translate).matrix
-        
+    
         let simdDeviceAnchor = deviceAnchor?.originFromAnchorTransform ?? matrix_identity_float4x4
         let view = drawable.views[0]
         let viewMatrix: simd_float4x4 = (simdDeviceAnchor * view.transform).inverse
@@ -113,7 +113,7 @@ class FullView {
                                                nearZ: Double(drawable.depthRange.y),
                                                farZ: Double(drawable.depthRange.x),
                                                                             reverseZ: true))
-        
+//        print(projection)//simd_float4x4([[1.0, 0.0, 0.0, 0.0], [0.0, 1.3339844, 0.0, 0.0], [0.0, 0.0, 0.0, -1.0], [0.0, 0.0, 0.1, 0.0]])
         clipBoxSize.x = 1 - volumeModell.XClip
         clipBoxSize.y = 1 - volumeModell.YClip
         clipBoxSize.z = 1 - volumeModell.ZClip
@@ -131,7 +131,11 @@ class FullView {
         let pMatrixData = matrixBuffer!.contents().bindMemory(to: Matrices.self, capacity: 1)
         pMatrixData.pointee.clip = clipBox
         pMatrixData.pointee.modelViewProjection = projection * viewMatrix * modelMatrix * clipBox
-        
+//        print(projection)
+//        print(viewMatrix)
+//        print(modelMatrix)
+//        print()
+
         let paramData = parameterBuffer!.contents().bindMemory(to: RenderParams.self, capacity: 1)
         paramData.pointee.oversampling = OVERSAMPLING
         paramData.pointee.smoothStepStart = volumeModell.smoothStepStart

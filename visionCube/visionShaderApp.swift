@@ -1,7 +1,7 @@
 import SwiftUI
 import CompositorServices
 
-let RESOURCE = "bonsai"
+let RESOURCE = "c60"
 let OVERSAMPLING: Float = 1
 
 @main
