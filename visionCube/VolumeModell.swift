@@ -31,13 +31,16 @@ class VolumeModell {
     var dataset: QVis!
     
     var root: Entity?
-//    var lastTrans: simd_float4x4 = simd_float4x4([[0.0, 0.0, 0.0, 0.0], [0.0, 0.0, 0.0, 0.0], [0.0, 0.0, 0.0, 0.0], [0.0, 0, 0.0, 0.0]])
+
+    var selectedVolume = ""
     
     init() {
-        dataset = try! QVis(filename: getFromResource(strFileName: RESOURCE, ext: "dat"))
+        dataset = try! QVis(filename: getFromResource(strFileName: listRawFiles(at: Bundle.main.resourcePath!).first!, ext: "dat"))
     }
     
-    func reset() {
+    func reset(selectedVolume: String) {
+        dataset = try! QVis(filename: getFromResource(strFileName: selectedVolume, ext: "dat"))
+        
         smoothStepStart = 0.5
         smoothStepShift = 0.5
         rotation = .identity

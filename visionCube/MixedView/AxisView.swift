@@ -87,8 +87,6 @@ struct AxisView: View {
         }
     }
 
-
-    
     var body: some View {
         @Bindable var axisModell = axisModell
         
@@ -98,7 +96,7 @@ struct AxisView: View {
                 await axisModell.loadAllEntities()
             }
             content.add(axisModell.volumeModell.root!)
-            
+
             axisModell.volumeModell.axisLoaded = true
             axisModell.updateAllAxis()
             print("Loaded")
@@ -117,6 +115,7 @@ struct AxisView: View {
             Timer.scheduledTimer(withTimeInterval: 0.05, repeats: true) { _ in
                 Task {
                     await updateSliceStack()
+                    
                 }
             }
         }
@@ -152,3 +151,4 @@ extension SimultaneousGesture<
 func makeToOtherCordinate(vector: SIMD3<Float>) -> SIMD3<Float> {
     return simd_float3(vector.x / 1000, vector.y / -1000, vector.z / 1000)
     }
+

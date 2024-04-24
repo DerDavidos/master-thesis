@@ -41,6 +41,8 @@ class FullView {
    
     var volumeModell: VolumeModell
     
+    var volumeName: String
+    
     struct Matrices {
         var modelViewProjection: simd_float4x4
         var clip: simd_float4x4
@@ -57,7 +59,7 @@ class FullView {
     
     init(_ layerRenderer: LayerRenderer, volumeModell: VolumeModell) {
         self.volumeModell = volumeModell
-        
+        self.volumeName = volumeModell.selectedVolume
         self.layerRenderer = layerRenderer
         self.device = layerRenderer.device
         self.commandQueue = self.device.makeCommandQueue()!
@@ -176,6 +178,10 @@ class FullView {
     func renderFrame() {
         /// Per frame updates hare
         guard let frame = layerRenderer.queryNextFrame() else { return }
+        
+        if (volumeName != volumeModell.selectedVolume) {
+            texture = try! loadTexture(device: device, dataset: volumeModell.dataset)
+        }
         
         frame.startUpdate()
     

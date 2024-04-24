@@ -1,8 +1,26 @@
 import Foundation
 import SwiftUI
 
-struct VolumeControll: View {
+func listRawFiles(at directoryPath: String) -> [String] {
+  do {
+    let fileManager = FileManager.default
+    let items = try fileManager.contentsOfDirectory(atPath: directoryPath)
     
+    var rawFiles: [String] = []
+    for item in items {
+      if item.hasSuffix(".raw") {
+          rawFiles.append(item.split(separator: ".").first!.description)
+      }
+    }
+    return rawFiles
+  } catch {
+    print("Error getting directory contents: \(error)")
+    return []
+  }
+}
+
+struct VolumeControll: View {
+
     var axisModell: AxisModell
     
     var body: some View {
@@ -53,20 +71,34 @@ struct VolumeControll: View {
                         }
                 }
                 
+                NavigationStack {
+                    Form {
+                        Section {
+                            Picker("Volume", selection: $axisModell.volumeModell.selectedVolume) {
+                                ForEach(listRawFiles(at: Bundle.main.resourcePath!), id: \.self) {
+                                    Text($0)
+                                }
+                            }.onChange(of: axisModell.volumeModell.selectedVolume) {
+                                Task {
+                                    await axisModell.reset(selectedVolume: axisModell.volumeModell.selectedVolume)
+                                }
+                            }
+                        }
+                    }
+                }
+                
                 GridRow {
                     Button(action: {
-                        axisModell.reset()
+                        Task {
+                            await axisModell.reset(selectedVolume: axisModell.volumeModell.selectedVolume)
+                        }
                     }, label: {
                         Text("Reset")
                     })
                 }
                 
-                GridRow {
-                    
-                }
-                
             }.frame(alignment: .center)
-                .frame(width: 500, alignment: .center)
+                .frame(width: 500, height: 400, alignment: .center)
                 .padding(30)
                 .glassBackgroundEffect()
         }
