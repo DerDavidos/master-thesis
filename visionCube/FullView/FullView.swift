@@ -105,17 +105,7 @@ class FullView {
         let modelMatrix = Transform(scale: scale, rotation: simd_quatf(volumeModell.rotation), translation: translate).matrix
     
         let simdDeviceAnchor = deviceAnchor?.originFromAnchorTransform ?? matrix_identity_float4x4
-        let view = drawable.views[0]
-        let viewMatrix: simd_float4x4 = (simdDeviceAnchor * view.transform).inverse
         
-        let projection: simd_float4x4 = simd_float4x4(ProjectiveTransform3D(leftTangent: Double(view.tangents[0]),
-                                               rightTangent: Double(view.tangents[1]),
-                                               topTangent: Double(view.tangents[2]),
-                                               bottomTangent: Double(view.tangents[3]),
-                                               nearZ: Double(drawable.depthRange.y),
-                                               farZ: Double(drawable.depthRange.x),
-                                                                            reverseZ: true))
-//        print(projection)//simd_float4x4([[1.0, 0.0, 0.0, 0.0], [0.0, 1.3339844, 0.0, 0.0], [0.0, 0.0, 0.0, -1.0], [0.0, 0.0, 0.1, 0.0]])
         clipBoxSize.x = 1 - volumeModell.XClip
         clipBoxSize.y = 1 - volumeModell.YClip
         clipBoxSize.z = 1 - volumeModell.ZClip
@@ -123,25 +113,42 @@ class FullView {
         clipBoxShift.x = volumeModell.XClip / 2
         clipBoxShift.y = volumeModell.YClip / 2
         clipBoxShift.z = volumeModell.ZClip / 2
-   
         let clipBox = Transform(scale: clipBoxSize, translation: clipBoxShift).matrix
         let minBounds = clipBox * simd_float4(-0.5, -0.5, -0.5, 1.0) + 0.5
         let maxBounds = clipBox * simd_float4(0.5, 0.5, 0.5, 1.0) + 0.5
         
-        let viewToTexture = Transform(translation: SIMD3<Float>(0.5, 0.5,0.5)).matrix * simd_inverse(viewMatrix * modelMatrix)
-        
+        func projection(forView: Int) -> simd_float4x4 {
+            
+            let view = drawable.views[forView]
+            let viewMatrix: simd_float4x4 = (simdDeviceAnchor * view.transform).inverse
+           
+            let projection: simd_float4x4 = simd_float4x4(ProjectiveTransform3D(leftTangent: Double(view.tangents[0]),
+                                                                                rightTangent: Double(view.tangents[1]),
+                                                                                topTangent: Double(view.tangents[2]),
+                                                                                bottomTangent: Double(view.tangents[3]),
+                                                                                nearZ: Double(drawable.depthRange.y),
+                                                                                farZ: Double(drawable.depthRange.x),
+                                                                                reverseZ: true))
+            
+                return projection * viewMatrix * modelMatrix * clipBox
+        }
+     
         let pMatrixData = matrixBuffer!.contents().bindMemory(to: Matrices.self, capacity: 1)
         pMatrixData.pointee.clip = clipBox
-        pMatrixData.pointee.modelViewProjection = projection * viewMatrix * modelMatrix * clipBox
-//        print(projection)
-//        print(viewMatrix)
-//        print(modelMatrix)
-//        print()
+        pMatrixData.pointee.modelViewProjection = projection(forView: 0)
+//        if drawable.views.count > 1 {
+//            pMatrixData.pointee.modelViewProjection = projection(forView: 1)
+//        }
 
         let paramData = parameterBuffer!.contents().bindMemory(to: RenderParams.self, capacity: 1)
         paramData.pointee.oversampling = OVERSAMPLING
         paramData.pointee.smoothStepStart = volumeModell.smoothStepStart
         paramData.pointee.smoothStepShift = volumeModell.smoothStepShift
+        
+        let view = drawable.views[0]
+        let viewMatrix: simd_float4x4 = (simdDeviceAnchor * view.transform).inverse
+        let viewToTexture = Transform(translation: SIMD3<Float>(0.5, 0.5,0.5)).matrix * simd_inverse(viewMatrix * modelMatrix)
+        
         paramData.pointee.cameraPosInTextureSpace = simd_make_float3(viewToTexture * simd_float4(0, 0, 0, 1))
         paramData.pointee.minBounds = simd_make_float3(minBounds)
         paramData.pointee.maxBounds = simd_make_float3(maxBounds)
@@ -168,10 +175,10 @@ class FullView {
         let vertexDataSize = MemoryLayout<Float>.stride * verts.count
         
         if vertexBuffer == nil || vertexBuffer!.length < vertexDataSize {
-            vertexBuffer = device.makeBuffer(length: vertexDataSize)
+            vertexBuffer = device.makeBuffer(length: vertexDataSize * 2)
         }
         
-        vertexBuffer!.contents().copyMemory(from: verts, byteCount: vertexDataSize)
+        vertexBuffer!.contents().copyMemory(from: verts, byteCount: vertexDataSize * 2)
         vertCount = verts.count / 4
     }
     
@@ -248,6 +255,15 @@ class FullView {
         renderEncoder.setFragmentBuffer(parameterBuffer, offset: 0, index: 0)
         renderEncoder.setCullMode(.back)
         renderEncoder.setFrontFacing(.counterClockwise)
+        
+        if drawable.views.count > 1 {
+            var viewMappings = (0..<drawable.views.count).map {
+                MTLVertexAmplificationViewMapping(viewportArrayIndexOffset: UInt32($0),
+                                                  renderTargetArrayIndexOffset: UInt32($0))
+            }
+            renderEncoder.setVertexAmplificationCount(viewports.count, viewMappings: &viewMappings)
+        }
+        
         renderEncoder.drawPrimitives(type: MTLPrimitiveType.triangle, vertexStart: 0, vertexCount: vertCount)
         renderEncoder.popDebugGroup()
         renderEncoder.endEncoding()

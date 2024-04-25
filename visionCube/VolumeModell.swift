@@ -35,7 +35,8 @@ class VolumeModell {
     var selectedVolume = ""
     
     init() {
-        dataset = try! QVis(filename: getFromResource(strFileName: listRawFiles(at: Bundle.main.resourcePath!).first!, ext: "dat"))
+        selectedVolume = listRawFiles(at: Bundle.main.resourcePath!).first!
+        dataset = try! QVis(filename: getFromResource(strFileName: selectedVolume, ext: "dat"))
     }
     
     func reset(selectedVolume: String) {

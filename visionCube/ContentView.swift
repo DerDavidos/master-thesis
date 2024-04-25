@@ -47,17 +47,6 @@ struct ContentView: View {
         }
 
         volumeModell.axisView = showAxisView
-
-        if (!immersiveSpaceIsShown) {
-            let newTranslation = Transform(matrix: await (visionProPose.getTransform()!
-                                       - simd_float4x4([[1.0, 0.0, 0.0, 0.0], [0.0, 1.0, 0.0, 0.0], [0.0, 0.0, 1.0, 0.0],
-                                                        [0.0, await Transform(matrix: visionProPose.getTransform()!).translation.y, 0.0, 1.0]])) * -1)
-                .translation
-            
-            volumeModell.lastTranslation += newTranslation
-            volumeModell.updateTranslation(translation: .zero)
-        }
-
     }
     
     var body: some View {

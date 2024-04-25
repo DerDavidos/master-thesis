@@ -58,10 +58,14 @@ struct AxisView: View {
             return
         }
         
-        let viewMatrixInv = await visionProPose.getTransform()!
+        var viewMatrixInv = await visionProPose.getTransform()
+        if (viewMatrixInv == nil) {
+            return
+        }
+        
         let modelMatrix = axisModell.volumeModell.root!.transform.matrix
         
-        let modelViewMatrixInv = modelMatrix.inverse * viewMatrixInv
+        let modelViewMatrixInv = modelMatrix.inverse * viewMatrixInv!
         let viewVector = modelViewMatrixInv * simd_float4(0, 0, 0, 1)
 
         if (viewVector.z.magnitude > viewVector.x.magnitude && viewVector.z.magnitude > viewVector.y.magnitude) {
@@ -150,5 +154,4 @@ extension SimultaneousGesture<
 
 func makeToOtherCordinate(vector: SIMD3<Float>) -> SIMD3<Float> {
     return simd_float3(vector.x / 1000, vector.y / -1000, vector.z / 1000)
-    }
-
+}

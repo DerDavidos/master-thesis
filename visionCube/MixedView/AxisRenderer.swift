@@ -208,7 +208,7 @@ class AxisRenderer {
                 default:
                     fatalError("Unexpected value \(axis)")}
                 
-                try? material?.setParameter(name: "samples", value: .float(Float(layer)))
+                try? material?.setParameter(name: "samples", value: .float(Float(min(depth, width, height))))
                 try? material?.setParameter(name: "oversampling", value: .float(Float(OVERSAMPLING)))
                 
                 let materialEntity = MaterialEntity(entity: entity, material: material!, width: pWidth, height: pHeight)
