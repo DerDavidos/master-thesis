@@ -99,7 +99,10 @@ class FullView {
     }
     
     func updateMatrices(drawable: LayerRenderer.Drawable,  deviceAnchor: DeviceAnchor?) {
-        let translate = (volumeModell.root?.transform.translation)!
+        let translate = Transform().translation
+        if (volumeModell.root != nil) {
+            let translate = (volumeModell.root?.transform.translation)!
+        }
         let scale = SIMD3<Float>(volumeModell.scale * Float(volumeModell.dataset.volume.width), volumeModell.scale * Float(volumeModell.dataset.volume.height), volumeModell.scale * Float(volumeModell.dataset.volume.depth)) / Float(volumeModell.dataset.volume.maxSize)
         
         let modelMatrix = Transform(scale: scale, rotation: simd_quatf(volumeModell.rotation), translation: translate).matrix
