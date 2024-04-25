@@ -18,7 +18,6 @@ struct visionShaderApp: App {
     }
     
     var body: some Scene {
- 
         WindowGroup {
             ContentView(volumeModell: volumeModell, visionProPose: visionProPose)
         }.windowStyle(.plain)

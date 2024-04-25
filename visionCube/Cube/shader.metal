@@ -1,4 +1,5 @@
 #include "metal_stdlib"
+#include "shaderTypes.h"
 using namespace metal;
 
 struct v2f {
@@ -6,21 +7,7 @@ struct v2f {
     float3 entryPoint;
 };
 
-struct Matrices {
-    float4x4 modelViewProjection;
-    float4x4 clip;
-};
-
-struct RenderParams {
-    float smoothStepStart;
-    float smoothStepShift;
-    float oversampling;
-    float3 cameraPosInTextureSpace;
-    float3 minBounds;
-    float3 maxBounds;
-};
-
-float4 transferFunction(float v, RenderParams params) {
+float4 transferFunction(float v, ShaderRenderParamaters params) {
     v = clamp((v - params.smoothStepStart) / (params.smoothStepShift), 0.0, 1.0);
     return float4(v * v * (3-2*v));
 }
@@ -31,14 +18,14 @@ float4 under(float4 current, float4 last) {
     return last;
 }
 
-bool inBounds(float3 pos, RenderParams params) {
+bool inBounds(float3 pos, ShaderRenderParamaters params) {
     return pos.x >= params.minBounds.x && pos.y >= params.minBounds.y && pos.z >= params.minBounds.z &&
     pos.x <= params.maxBounds.x && pos.y <= params.maxBounds.y && pos.z <= params.maxBounds.z;
 }
 
 v2f vertex vertexMain( uint vertexId [[vertex_id]],
                       device const float4* position [[buffer(0)]],
-                      device const Matrices& matrices [[buffer(1)]])
+                      device const shaderMatrices& matrices [[buffer(1)]])
 {
     v2f o;
     o.position = matrices.modelViewProjection * position[ vertexId ];
@@ -48,7 +35,7 @@ v2f vertex vertexMain( uint vertexId [[vertex_id]],
 
 half4 fragment fragmentMain( v2f in [[stage_in]],
                             texture3d< half, access::sample > volume [[texture(0)]],
-                            device const RenderParams& renderParams [[buffer(0)]])
+                            device const ShaderRenderParamaters& renderParams [[buffer(0)]])
 {
     constexpr sampler s( address::clamp_to_border, filter::linear );
     float3 voxelCount = float3(volume.get_width(), volume.get_height(), volume.get_depth());
