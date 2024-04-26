@@ -240,7 +240,7 @@ class FullView {
         renderPassDescriptor.colorAttachments[0].texture = drawable.colorTextures[0]
         renderPassDescriptor.colorAttachments[0].loadAction = .clear
         renderPassDescriptor.colorAttachments[0].storeAction = .store
-        renderPassDescriptor.colorAttachments[0].clearColor = MTLClearColor(red: 5.0, green: 0.0, blue: 0.0, alpha: 5.0)
+        renderPassDescriptor.colorAttachments[0].clearColor = MTLClearColor(red: 0.63, green: 0.8, blue: 0.9, alpha: 0.0)
         renderPassDescriptor.depthAttachment.texture = drawable.depthTextures[0]
         renderPassDescriptor.depthAttachment.loadAction = .clear
         renderPassDescriptor.depthAttachment.storeAction = .store

@@ -60,10 +60,5 @@ typedef struct
 {
     struct ShaderRenderParamaters params[2];
 } ParamsArray;
-
-//typedef struct
-//{
-//    Uniforms RenderParams[2];
-//} UniformsArray;
 #endif /* ShaderTypes_h */
 
