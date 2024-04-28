@@ -58,7 +58,7 @@ struct AxisView: View {
             return
         }
         
-        var viewMatrixInv = await visionProPose.getTransform()
+        let viewMatrixInv = await visionProPose.getTransform()
         if (viewMatrixInv == nil) {
             return
         }
@@ -84,6 +84,7 @@ struct AxisView: View {
         }
         else {
             if (viewVector.y > 0) {
+                print("y pos")
                 axisModell.enableAxis(entity: axisModell.yPositiveEntities.entity)
             } else {
                 axisModell.enableAxis(entity: axisModell.yNegativeEntities.entity)

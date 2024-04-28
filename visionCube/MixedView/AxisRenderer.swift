@@ -37,7 +37,7 @@ class AxisRenderer {
         self.abstand = 1/maxValue
     }
 
-    func getTexture(id: Int, axis: String) -> TextureResource {
+    func getTexture(id: Float, axis: String) -> TextureResource {
         let bitsPerComponent = 8
         let bitsPerPixel = 8
         let colorSpace = CGColorSpaceCreateDeviceGray()
@@ -50,21 +50,39 @@ class AxisRenderer {
         var image: CGImage
         var imageData: Array<UInt8>
         
+        let id_0 = Int(floor(id))
+        let id_1 = Int(ceil(id))
+        var id_0_weigth = id - Float(id_0)
+        if (id_0_weigth == 0) {
+            id_0_weigth = 1
+        }
+        let id_1_weigth = Float(id_1) - id
         switch axis {
             
         case "zPositive", "zNegative":
             imageWidth = width
             imageHeight = height
             imageData = Array()
-            var j = width*height*id
-            while j < width*height*(id+1) {
-                var columnData = Array(dataset.volume.data[(j)...(j + width-1)])
-                
+            var j_0 = width*height*id_0
+            var j_1 = width*height*id_1
+            while j_0 < width*height*(id_0 + 1) {
+                var columnData: Array<UInt8> = Array()
+                var index0 = j_0
+                var index1 = j_1
+                while index0 <= (j_0 + width-1) {
+                    let pixel_0 = UInt16(Float(dataset.volume.data[index0]) * id_0_weigth)
+                    let pixel_1 = UInt16(Float(dataset.volume.data[index1]) * id_1_weigth)
+                    columnData.append(UInt8(pixel_0 + pixel_1))
+                    index0 += 1
+                    index1 += 1
+                }
+
                 if (axis == "zPositive") {
                     columnData = columnData.reversed()
                 }
                 imageData.append(contentsOf: columnData)
-                j += width
+                j_0 += width
+                j_1 += width
             }
             imageData = imageData.reversed()
 
@@ -74,11 +92,13 @@ class AxisRenderer {
             imageData = Array()
             var imageColumn: Array<UInt8>
             imageColumn = Array()
-            var i = id
+            var index0 = id_0
+            var index1 = id_1
             var j = 0
             while imageData.count < depth * height {
-                if i >= dataset.volume.data.count {
-                    i = id + (width*j)
+                if index0 >= dataset.volume.data.count {
+                    index0 = id_0 + (width*j)
+                    index1 = id_1 + (width*j)
                     j = j + 1
                     if (axis == "xNegative") {
                         imageColumn = imageColumn.reversed()
@@ -86,25 +106,47 @@ class AxisRenderer {
                     imageData.append(contentsOf: imageColumn)
                     imageColumn = Array()
                 }
-                imageColumn.append(dataset.volume.data[i])
-                i += width * height
+                let pixel_0 = UInt16(Float(dataset.volume.data[index0]) * id_0_weigth)
+                let pixel_1 = UInt16(Float(dataset.volume.data[index1]) * id_1_weigth)
+                imageColumn.append(UInt8(pixel_0 + pixel_1))
+                index0 += width * height
+                index1 += width * height
             }
             imageData = imageData.reversed()
         case "yPositive", "yNegative":
             imageWidth = width
             imageHeight = depth
             imageData = Array()
-            var i = (id * width) + width * (height) * (depth - 1)
+            var i_0 = (id_0 * width) + width * (height) * (depth - 1)
+            var i_1 = (id_1 * width) + width * (height) * (depth - 1)
             if (axis == "yPositive") {
                 while imageData.count < width * depth {
-                    imageData.append(contentsOf: dataset.volume.data[i...i+width-1].reversed())
-                    i -= width * height
+                    var index0 = i_0 + width - 1
+                    var index1 = i_1 + width - 1
+                    while index0 >= i_0 {
+                        let pixel_0 = UInt16(Float(dataset.volume.data[index0]) * id_0_weigth)
+                        let pixel_1 = UInt16(Float(dataset.volume.data[index1]) * id_1_weigth)
+                        imageData.append(UInt8(pixel_0 + pixel_1))
+                        index0 -= 1
+                        index1 -= 1
+                    }
+                    i_0 -= width * height
+                    i_1 -= width * height
                 }
                 imageData = imageData.reversed()
             } else {
                 while imageData.count < width * depth {
-                    imageData.append(contentsOf: dataset.volume.data[i...i+width-1])
-                    i -= width * height
+                    var index0 = i_0
+                    var index1 = i_1
+                    while index0 <= (i_0 + width - 1) {
+                        let pixel_0 = UInt16(Float(dataset.volume.data[index0]) * id_0_weigth)
+                        let pixel_1 = UInt16(Float(dataset.volume.data[index1]) * id_1_weigth)
+                        imageData.append(UInt8(pixel_0 + pixel_1))
+                        index0 += 1
+                        index1 += 1
+                    }
+                    i_0 -= width * height
+                    i_1 -= width * height
                 }
             }
         default:
@@ -142,7 +184,7 @@ class AxisRenderer {
             }
            
             print("loading \(axis)")
-            for layer in 0...layers - 2 {
+            for layer in stride(from: 0.0, through: Float(layers - 3), by: 1/OVERSAMPLING) {
                 let entity = Entity()
                 var material: ShaderGraphMaterial? = nil
                 let offset = Float(layer) * abstand
@@ -164,7 +206,7 @@ class AxisRenderer {
                 case "zPositive":
                     let sphere = scene.findEntity(named: "placeHolder_Z_Positive") as! ModelEntity
                     material = sphere.model!.materials.first as? ShaderGraphMaterial
-                    try? material?.setParameter(name: "Image", value: .textureResource(getTexture(id: layer, axis: axis)))
+                    try? material?.setParameter(name: "Image", value: .textureResource(getTexture(id: Float(layer), axis: axis)))
                     try? material?.setParameter(name: "ZLayer", value: .float(Float(layer)/Float(layers)))
                     entity.transform.translation = SIMD3<Float>(0, 0 , startPos + offset)
                     pWidth = Float(width) / maxValue
@@ -172,7 +214,7 @@ class AxisRenderer {
                 case "xPositive":
                     let sphereX = scene.findEntity(named: "placeHolder_X_Positive") as! ModelEntity
                     material = sphereX.model!.materials.first as? ShaderGraphMaterial
-                    try? material?.setParameter(name: "Image", value: .textureResource(getTexture(id: layer, axis: axis)))
+                    try? material?.setParameter(name: "Image", value: .textureResource(getTexture(id: Float(layer), axis: axis)))
                     try? material?.setParameter(name: "XLayer", value: .float(Float(layer)/Float(layers)))
                     entity.transform.rotation = simd_quatf(angle: .pi/2, axis: SIMD3<Float>(0, 1, 0))
                     entity.transform.translation = SIMD3<Float>(startPos + offset, 0 , 0)
@@ -181,7 +223,7 @@ class AxisRenderer {
                 case "xNegative":
                     let sphereX = scene.findEntity(named: "placeHolder_X_Negative") as! ModelEntity
                     material = sphereX.model!.materials.first as? ShaderGraphMaterial
-                    try? material?.setParameter(name: "Image", value: .textureResource(getTexture(id: layer, axis: axis)))
+                    try? material?.setParameter(name: "Image", value: .textureResource(getTexture(id: Float(layer), axis: axis)))
                     try? material?.setParameter(name: "XLayer", value: .float(Float(layer)/Float(layers)))
                     entity.transform.rotation = simd_quatf(angle: -.pi/2, axis: SIMD3<Float>(0, 1, 0))
                     entity.transform.translation = SIMD3<Float>(startPos + offset, 0 , 0)
@@ -190,7 +232,7 @@ class AxisRenderer {
                 case "yPositive":
                     let sphereY = scene.findEntity(named: "placeHolder_Y_Positive") as! ModelEntity
                     material = sphereY.model!.materials.first as? ShaderGraphMaterial
-                    try? material?.setParameter(name: "Image", value: .textureResource(getTexture(id: layer, axis: axis)))
+                    try? material?.setParameter(name: "Image", value: .textureResource(getTexture(id: Float(layer), axis: axis)))
                     try? material?.setParameter(name: "YLayer", value: .float(Float(layer)/Float(layers)))
                     entity.transform.rotation = simd_quatf(angle: -.pi/2, axis: SIMD3<Float>(1, 0, 0))
                     entity.transform.translation = SIMD3<Float>(0, startPos + offset, 0)
@@ -199,7 +241,7 @@ class AxisRenderer {
                 case "yNegative":
                     let sphereY = scene.findEntity(named: "placeHolder_Y_Negative") as! ModelEntity
                     material = sphereY.model!.materials.first as? ShaderGraphMaterial
-                    try? material?.setParameter(name: "Image", value: .textureResource(getTexture(id: layer, axis: axis)))
+                    try? material?.setParameter(name: "Image", value: .textureResource(getTexture(id: Float(layer), axis: axis)))
                     try? material?.setParameter(name: "YLayer", value: .float(Float(layer)/Float(layers)))
                     entity.transform.rotation = simd_quatf(angle: .pi/2, axis: SIMD3<Float>(1, 0, 0))
                     entity.transform.translation = SIMD3<Float>(0, startPos + offset, 0)
@@ -208,8 +250,7 @@ class AxisRenderer {
                 default:
                     fatalError("Unexpected value \(axis)")}
                 
-                try? material?.setParameter(name: "samples", value: .float(Float(min(depth, width, height))))
-                try? material?.setParameter(name: "oversampling", value: .float(Float(OVERSAMPLING)))
+                try? material?.setParameter(name: "opacityCorrection", value: .float(Float(layers) * OVERSAMPLING))
                 
                 let materialEntity = MaterialEntity(entity: entity, material: material!, width: pWidth, height: pHeight)
                 entities.append(materialEntity)
@@ -236,5 +277,3 @@ class AxisRenderer {
         print(resultFolderURL)
     }
 }
-
-
