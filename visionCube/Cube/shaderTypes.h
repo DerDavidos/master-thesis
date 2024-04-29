@@ -29,10 +29,6 @@ typedef NS_ENUM(EnumBackingType, TextureIndex)
     TextureIndexColor    = 0,
 };
 
-struct ShaderVertices {
-    float vertecies[1];
-};
-
 struct shaderMatrices {
     matrix_float4x4 modelViewProjection;
     matrix_float4x4 clip;
@@ -46,10 +42,6 @@ struct ShaderRenderParamaters {
     vector_float3 minBounds;
     vector_float3 maxBounds;
 };
-
-typedef struct  {
-    struct ShaderVertices vertecies[2];
-} VertexArray;
 
 typedef struct
 {

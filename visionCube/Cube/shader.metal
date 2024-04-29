@@ -24,19 +24,25 @@ bool inBounds(float3 pos, ShaderRenderParamaters params) {
 }
 
 v2f vertex vertexMain( uint vertexId [[vertex_id]],
+                      ushort amp_id [[amplification_id]],
                       device const float4* position [[buffer(0)]],
-                      device const shaderMatrices& matrices [[buffer(1)]])
+                      device const MatricesArray& matricesArray [[buffer(1)]])
 {
+    shaderMatrices matrices = matricesArray.matrices[amp_id];
     v2f o;
+    
     o.position = matrices.modelViewProjection * position[ vertexId ];
     o.entryPoint = (matrices.clip*position[ vertexId ]).xyz+0.5;
     return o;
 }
 
 half4 fragment fragmentMain( v2f in [[stage_in]],
+                            ushort amp_id [[amplification_id]],
                             texture3d< half, access::sample > volume [[texture(0)]],
-                            device const ShaderRenderParamaters& renderParams [[buffer(0)]])
+                            device const ParamsArray& renderArray [[buffer(0)]])
 {
+    
+    ShaderRenderParamaters renderParams = renderArray.params[amp_id];
     constexpr sampler s( address::clamp_to_border, filter::linear );
     float3 voxelCount = float3(volume.get_width(), volume.get_height(), volume.get_depth());
     

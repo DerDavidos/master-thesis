@@ -44,7 +44,6 @@ class FullView {
     var matrixBuffer: MTLBuffer
     var parameterBuffer: MTLBuffer
     
-    var vertex: UnsafeMutablePointer<VertexArray>!
     var matrix: UnsafeMutablePointer<MatricesArray>
     var param: UnsafeMutablePointer<ParamsArray>
     
@@ -90,23 +89,22 @@ class FullView {
             fatalError("Unable to load texture. Error info: \(error)")
         }
         
-        
         self.vertexBuffer = nil
-        vertex = nil
+        
         self.matrixBuffer = self.device.makeBuffer(length: MemoryLayout<Matrices>.stride * 2,
                                                            options: [MTLResourceOptions.storageModeShared])!
-        matrix = UnsafeMutableRawPointer(matrixBuffer.contents()).bindMemory(to:MatricesArray.self, capacity:1)
+        matrix = UnsafeMutableRawPointer(matrixBuffer.contents()).bindMemory(to: MatricesArray.self, capacity: 1)
+        
         self.parameterBuffer = self.device.makeBuffer(length: MemoryLayout<RenderParams>.stride * 2,
                                                            options: [MTLResourceOptions.storageModeShared])!
-        param = UnsafeMutableRawPointer(parameterBuffer.contents()).bindMemory(to:ParamsArray.self, capacity:1)
+        param = UnsafeMutableRawPointer(parameterBuffer.contents()).bindMemory(to: ParamsArray.self, capacity: 1)
         
         worldTracking = WorldTrackingProvider()
         arSession = ARKitSession()
         cube = Tesselation.genBrick(center: Vec3(x: 0, y: 0, z: 0), size: Vec3(x: 1, y: 1, z: 1), texScale: Vec3(x: 1, y: 1, z: 1) ).unpack()
         
-        self.vertexBuffer = self.device.makeBuffer(length: MemoryLayout<Float>.stride * cube.vertices.count * 2,
+        self.vertexBuffer = self.device.makeBuffer(length: MemoryLayout<Float>.stride * cube.vertices.count,
                                                            options: [MTLResourceOptions.storageModeShared])!
-        vertex = UnsafeMutableRawPointer(vertexBuffer.contents()).bindMemory(to:VertexArray.self, capacity:1)
     }
 
     func buildBuffers() {
@@ -240,7 +238,7 @@ class FullView {
         renderPassDescriptor.colorAttachments[0].texture = drawable.colorTextures[0]
         renderPassDescriptor.colorAttachments[0].loadAction = .clear
         renderPassDescriptor.colorAttachments[0].storeAction = .store
-        renderPassDescriptor.colorAttachments[0].clearColor = MTLClearColor(red: 0.63, green: 0.8, blue: 0.9, alpha: 0.0)
+        renderPassDescriptor.colorAttachments[0].clearColor = MTLClearColor(red: 0.0, green: 0.0, blue: 0.0, alpha: 0.0)
         renderPassDescriptor.depthAttachment.texture = drawable.depthTextures[0]
         renderPassDescriptor.depthAttachment.loadAction = .clear
         renderPassDescriptor.depthAttachment.storeAction = .store
@@ -253,21 +251,17 @@ class FullView {
         guard let renderEncoder = commandBuffer.makeRenderCommandEncoder(descriptor: renderPassDescriptor) else {
             fatalError("Failed to create render encoder")
         }
-    
-        renderEncoder.label = "Primary Render Encoder"
-        renderEncoder.pushDebugGroup("Draw Box")
+
+        renderEncoder.setCullMode(.back)
         renderEncoder.setFrontFacing(.counterClockwise)
         renderEncoder.setRenderPipelineState(pipelineState)
         renderEncoder.setDepthStencilState(depthState)
-        
-        let viewports = drawable.views.map { $0.textureMap.viewport }
-        renderEncoder.setViewports(viewports)
-        renderEncoder.setFragmentTexture(texture, index: TextureIndex.color.rawValue)
+
         renderEncoder.setVertexBuffer(vertexBuffer, offset: 0, index: 0)
         renderEncoder.setVertexBuffer(matrixBuffer, offset: 0, index: 1)
-        renderEncoder.setFragmentBuffer(parameterBuffer, offset: 0, index: 0)
-        renderEncoder.setCullMode(.back)
-        renderEncoder.setFrontFacing(.counterClockwise)
+    
+        let viewports = drawable.views.map { $0.textureMap.viewport }
+        renderEncoder.setViewports(viewports)
         
         if drawable.views.count > 1 {
             var viewMappings = (0..<drawable.views.count).map {
@@ -277,12 +271,15 @@ class FullView {
             renderEncoder.setVertexAmplificationCount(viewports.count, viewMappings: &viewMappings)
         }
         
+        renderEncoder.setFragmentTexture(texture, index: TextureIndex.color.rawValue)
+        
+        renderEncoder.setFragmentBuffer(parameterBuffer, offset: 0, index: 0)
+
         renderEncoder.drawPrimitives(type: MTLPrimitiveType.triangle, vertexStart: 0, vertexCount: vertCount)
+        
         renderEncoder.popDebugGroup()
         renderEncoder.endEncoding()
-        
         drawable.encodePresent(commandBuffer: commandBuffer)
-        
         commandBuffer.commit()
         
         frame.endSubmission()
