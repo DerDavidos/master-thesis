@@ -28,5 +28,29 @@ typedef NS_ENUM(EnumBackingType, TextureIndex)
 {
     TextureIndexColor    = 0,
 };
+
+struct shaderMatrices {
+    matrix_float4x4 modelViewProjection;
+    matrix_float4x4 clip;
+};
+
+struct ShaderRenderParamaters {
+    float smoothStepStart;
+    float smoothStepShift;
+    float oversampling;
+    vector_float3 cameraPosInTextureSpace;
+    vector_float3 minBounds;
+    vector_float3 maxBounds;
+};
+
+typedef struct
+{
+    struct shaderMatrices matrices[2];
+} MatricesArray;
+
+typedef struct
+{
+    struct ShaderRenderParamaters params[2];
+} ParamsArray;
 #endif /* ShaderTypes_h */
 

@@ -26,9 +26,6 @@ class FullView {
     let worldTracking: WorldTrackingProvider
     let layerRenderer: LayerRenderer
     
-    var vertexBuffer: MTLBuffer?
-    var matrixBuffer: MTLBuffer?
-    var parameterBuffer: MTLBuffer?
     var vertCount: size_t = 0
     
     var view = simd_float4x4()
@@ -42,6 +39,13 @@ class FullView {
     var volumeModell: VolumeModell
     
     var volumeName: String
+    
+    var vertexBuffer: MTLBuffer!
+    var matrixBuffer: MTLBuffer
+    var parameterBuffer: MTLBuffer
+    
+    var matrix: UnsafeMutablePointer<MatricesArray>
+    var param: UnsafeMutablePointer<ParamsArray>
     
     struct Matrices {
         var modelViewProjection: simd_float4x4
@@ -85,8 +89,22 @@ class FullView {
             fatalError("Unable to load texture. Error info: \(error)")
         }
         
+        self.vertexBuffer = nil
+        
+        self.matrixBuffer = self.device.makeBuffer(length: MemoryLayout<Matrices>.stride * 2,
+                                                           options: [MTLResourceOptions.storageModeShared])!
+        matrix = UnsafeMutableRawPointer(matrixBuffer.contents()).bindMemory(to: MatricesArray.self, capacity: 1)
+        
+        self.parameterBuffer = self.device.makeBuffer(length: MemoryLayout<RenderParams>.stride * 2,
+                                                           options: [MTLResourceOptions.storageModeShared])!
+        param = UnsafeMutableRawPointer(parameterBuffer.contents()).bindMemory(to: ParamsArray.self, capacity: 1)
+        
         worldTracking = WorldTrackingProvider()
         arSession = ARKitSession()
+        cube = Tesselation.genBrick(center: Vec3(x: 0, y: 0, z: 0), size: Vec3(x: 1, y: 1, z: 1), texScale: Vec3(x: 1, y: 1, z: 1) ).unpack()
+        
+        self.vertexBuffer = self.device.makeBuffer(length: MemoryLayout<Float>.stride * cube.vertices.count,
+                                                           options: [MTLResourceOptions.storageModeShared])!
     }
 
     func buildBuffers() {
@@ -94,8 +112,8 @@ class FullView {
         let matrixDataSize = MemoryLayout<Matrices>.stride
         let paramDataSize = MemoryLayout<RenderParams>.stride
         
-        matrixBuffer = device.makeBuffer(length: matrixDataSize)
-        parameterBuffer = device.makeBuffer(length: paramDataSize)
+        matrixBuffer = device.makeBuffer(length: matrixDataSize)!
+        parameterBuffer = device.makeBuffer(length: paramDataSize)!
     }
     
     func updateMatrices(drawable: LayerRenderer.Drawable,  deviceAnchor: DeviceAnchor?) {
@@ -120,7 +138,7 @@ class FullView {
         let minBounds = clipBox * simd_float4(-0.5, -0.5, -0.5, 1.0) + 0.5
         let maxBounds = clipBox * simd_float4(0.5, 0.5, 0.5, 1.0) + 0.5
         
-        func projection(forView: Int) -> simd_float4x4 {
+        func projection(forView: Int,  renderParams: inout ShaderRenderParamaters, matrix: inout shaderMatrices) {
             
             let view = drawable.views[forView]
             let viewMatrix: simd_float4x4 = (simdDeviceAnchor * view.transform).inverse
@@ -133,28 +151,25 @@ class FullView {
                                                                                 farZ: Double(drawable.depthRange.x),
                                                                                 reverseZ: true))
             
-                return projection * viewMatrix * modelMatrix * clipBox
+            let viewToTexture = Transform(translation: SIMD3<Float>(0.5, 0.5,0.5)).matrix * simd_inverse(viewMatrix * modelMatrix)
+            
+            renderParams.cameraPosInTextureSpace = simd_make_float3(viewToTexture * simd_float4(0, 0, 0, 1))
+            renderParams.oversampling = OVERSAMPLING
+            renderParams.smoothStepStart = volumeModell.smoothStepStart
+            renderParams.smoothStepShift = volumeModell.smoothStepShift
+            renderParams.cameraPosInTextureSpace = simd_make_float3(viewToTexture * simd_float4(0, 0, 0, 1))
+            renderParams.minBounds = simd_make_float3(minBounds)
+            renderParams.maxBounds = simd_make_float3(maxBounds)
+            
+            matrix.clip = clipBox
+            matrix.modelViewProjection = projection * viewMatrix * modelMatrix * clipBox
         }
      
-        let pMatrixData = matrixBuffer!.contents().bindMemory(to: Matrices.self, capacity: 1)
-        pMatrixData.pointee.clip = clipBox
-        pMatrixData.pointee.modelViewProjection = projection(forView: 0)
-//        if drawable.views.count > 1 {
-//            pMatrixData.pointee.modelViewProjection = projection(forView: 1)
-//        }
+        projection(forView: 0, renderParams: &param.pointee.params.0, matrix: &matrix.pointee.matrices.0)
 
-        let paramData = parameterBuffer!.contents().bindMemory(to: RenderParams.self, capacity: 1)
-        paramData.pointee.oversampling = OVERSAMPLING
-        paramData.pointee.smoothStepStart = volumeModell.smoothStepStart
-        paramData.pointee.smoothStepShift = volumeModell.smoothStepShift
-        
-        let view = drawable.views[0]
-        let viewMatrix: simd_float4x4 = (simdDeviceAnchor * view.transform).inverse
-        let viewToTexture = Transform(translation: SIMD3<Float>(0.5, 0.5,0.5)).matrix * simd_inverse(viewMatrix * modelMatrix)
-        
-        paramData.pointee.cameraPosInTextureSpace = simd_make_float3(viewToTexture * simd_float4(0, 0, 0, 1))
-        paramData.pointee.minBounds = simd_make_float3(minBounds)
-        paramData.pointee.maxBounds = simd_make_float3(maxBounds)
+        if drawable.views.count > 1 {
+            projection(forView: 1, renderParams: &param.pointee.params.1, matrix: &matrix.pointee.matrices.1)
+        }
         
         meshNeedsUpdate = true
     }
@@ -175,13 +190,10 @@ class FullView {
             C: objectSpaceNearPlane.z,
             D: objectSpaceNearPlane.w
         )
+        
         let vertexDataSize = MemoryLayout<Float>.stride * verts.count
-        
-        if vertexBuffer == nil || vertexBuffer!.length < vertexDataSize {
-            vertexBuffer = device.makeBuffer(length: vertexDataSize * 2)
-        }
-        
-        vertexBuffer!.contents().copyMemory(from: verts, byteCount: vertexDataSize * 2)
+  
+        vertexBuffer.contents().copyMemory(from: verts, byteCount: vertexDataSize * 2)
         vertCount = verts.count / 4
     }
     
@@ -194,7 +206,6 @@ class FullView {
         }
         
         frame.startUpdate()
-    
         frame.endUpdate()
         
         guard let timing = frame.predictTiming() else { return }
@@ -206,8 +217,6 @@ class FullView {
         
         // Perform frame independent work
         guard let drawable = frame.queryDrawable() else { return }
-        
-
         _ = inFlightSemaphore.wait(timeout: DispatchTime.distantFuture)
         
         frame.startSubmission()
@@ -229,7 +238,7 @@ class FullView {
         renderPassDescriptor.colorAttachments[0].texture = drawable.colorTextures[0]
         renderPassDescriptor.colorAttachments[0].loadAction = .clear
         renderPassDescriptor.colorAttachments[0].storeAction = .store
-        renderPassDescriptor.colorAttachments[0].clearColor = MTLClearColor(red: 5.0, green: 0.0, blue: 0.0, alpha: 5.0)
+        renderPassDescriptor.colorAttachments[0].clearColor = MTLClearColor(red: 0.0, green: 0.0, blue: 0.0, alpha: 0.0)
         renderPassDescriptor.depthAttachment.texture = drawable.depthTextures[0]
         renderPassDescriptor.depthAttachment.loadAction = .clear
         renderPassDescriptor.depthAttachment.storeAction = .store
@@ -239,25 +248,20 @@ class FullView {
             renderPassDescriptor.renderTargetArrayLength = drawable.views.count
         }
         
-        /// Final pass rendering code here
         guard let renderEncoder = commandBuffer.makeRenderCommandEncoder(descriptor: renderPassDescriptor) else {
             fatalError("Failed to create render encoder")
         }
-    
-        renderEncoder.label = "Primary Render Encoder"
-        renderEncoder.pushDebugGroup("Draw Box")
+
+        renderEncoder.setCullMode(.back)
         renderEncoder.setFrontFacing(.counterClockwise)
         renderEncoder.setRenderPipelineState(pipelineState)
         renderEncoder.setDepthStencilState(depthState)
-        
-        let viewports = drawable.views.map { $0.textureMap.viewport }
-        renderEncoder.setViewports(viewports)
-        renderEncoder.setFragmentTexture(texture, index: TextureIndex.color.rawValue)
+
         renderEncoder.setVertexBuffer(vertexBuffer, offset: 0, index: 0)
         renderEncoder.setVertexBuffer(matrixBuffer, offset: 0, index: 1)
-        renderEncoder.setFragmentBuffer(parameterBuffer, offset: 0, index: 0)
-        renderEncoder.setCullMode(.back)
-        renderEncoder.setFrontFacing(.counterClockwise)
+    
+        let viewports = drawable.views.map { $0.textureMap.viewport }
+        renderEncoder.setViewports(viewports)
         
         if drawable.views.count > 1 {
             var viewMappings = (0..<drawable.views.count).map {
@@ -267,12 +271,15 @@ class FullView {
             renderEncoder.setVertexAmplificationCount(viewports.count, viewMappings: &viewMappings)
         }
         
+        renderEncoder.setFragmentTexture(texture, index: TextureIndex.color.rawValue)
+        
+        renderEncoder.setFragmentBuffer(parameterBuffer, offset: 0, index: 0)
+
         renderEncoder.drawPrimitives(type: MTLPrimitiveType.triangle, vertexStart: 0, vertexCount: vertCount)
+        
         renderEncoder.popDebugGroup()
         renderEncoder.endEncoding()
-        
         drawable.encodePresent(commandBuffer: commandBuffer)
-        
         commandBuffer.commit()
         
         frame.endSubmission()
@@ -295,9 +302,6 @@ class FullView {
     }
     
     func renderLoop() {
-        buildBuffers()
-        print("buffers build")
-        cube = Tesselation.genBrick(center: Vec3(x: 0, y: 0, z: 0), size: Vec3(x: 1, y: 1, z: 1), texScale: Vec3(x: 1, y: 1, z: 1) ).unpack()
         while true {
             if layerRenderer.state == .invalidated {
                 print("Layer is invalidated")

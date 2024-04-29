@@ -15,8 +15,11 @@
     "objectMetadataList" : [
       [
         "1D572CEB-057A-41C3-B575-04C37501A3C0",
+<<<<<<< HEAD
         "Root",
         "GridMaterial"
+=======
+        "Root"
       ],
       {
         "isExpanded" : true,
@@ -25,6 +28,17 @@
       [
         "1D572CEB-057A-41C3-B575-04C37501A3C0",
         "Root",
+        "Cube"
+>>>>>>> bothEyes
+      ],
+      {
+        "isExpanded" : true,
+        "isLocked" : false
+      },
+      [
+        "1D572CEB-057A-41C3-B575-04C37501A3C0",
+        "Root",
+<<<<<<< HEAD
         "Sphere_Left"
       ],
       {
@@ -43,6 +57,9 @@
       [
         "1D572CEB-057A-41C3-B575-04C37501A3C0",
         "Root"
+=======
+        "GridMaterial"
+>>>>>>> bothEyes
       ],
       {
         "isExpanded" : true,
@@ -52,6 +69,18 @@
         "1D572CEB-057A-41C3-B575-04C37501A3C0",
         "Root",
         "Sphere_Right"
+<<<<<<< HEAD
+=======
+      ],
+      {
+        "isExpanded" : true,
+        "isLocked" : false
+      },
+      [
+        "1D572CEB-057A-41C3-B575-04C37501A3C0",
+        "Root",
+        "Sphere_Left"
+>>>>>>> bothEyes
       ],
       {
         "isExpanded" : true,
@@ -76,6 +105,7 @@
       [
         "45E1EA52-5F26-46FB-AC85-2CBA51ACD09B",
         "Root",
+<<<<<<< HEAD
         "clipBoxY"
       ],
       {
@@ -85,6 +115,9 @@
       [
         "45E1EA52-5F26-46FB-AC85-2CBA51ACD09B",
         "Root"
+=======
+        "clipMaterial"
+>>>>>>> bothEyes
       ],
       {
         "isExpanded" : true,
@@ -93,6 +126,7 @@
       [
         "45E1EA52-5F26-46FB-AC85-2CBA51ACD09B",
         "Root",
+<<<<<<< HEAD
         "root",
         "DefaultMaterial"
       ],
@@ -113,6 +147,9 @@
         "45E1EA52-5F26-46FB-AC85-2CBA51ACD09B",
         "Root",
         "root"
+=======
+        "clipBoxX"
+>>>>>>> bothEyes
       ],
       {
         "isExpanded" : true,
@@ -131,8 +168,16 @@
       [
         "45E1EA52-5F26-46FB-AC85-2CBA51ACD09B",
         "Root",
-        "Cube",
-        "DefaultMaterial"
+        "Rotater"
+      ],
+      {
+        "isExpanded" : true,
+        "isLocked" : false
+      },
+      [
+        "45E1EA52-5F26-46FB-AC85-2CBA51ACD09B",
+        "Root",
+        "clipBoxY"
       ],
       {
         "isExpanded" : true,
@@ -149,7 +194,49 @@
       },
       [
         "45E1EA52-5F26-46FB-AC85-2CBA51ACD09B",
+        "Root"
+      ],
+      {
+        "isExpanded" : true,
+        "isLocked" : false
+      },
+      [
+        "45E1EA52-5F26-46FB-AC85-2CBA51ACD09B",
         "Root",
+        "Plane"
+      ],
+      {
+        "isExpanded" : true,
+        "isLocked" : false
+      },
+      [
+        "45E1EA52-5F26-46FB-AC85-2CBA51ACD09B",
+        "Root",
+        "Cube",
+        "DefaultMaterial"
+      ],
+      {
+        "isExpanded" : true,
+        "isLocked" : false
+      },
+      [
+        "45E1EA52-5F26-46FB-AC85-2CBA51ACD09B",
+        "Root",
+<<<<<<< HEAD
+        "clipBoxZ"
+=======
+        "root",
+        "DefaultMaterial"
+>>>>>>> bothEyes
+      ],
+      {
+        "isExpanded" : true,
+        "isLocked" : false
+      },
+      [
+        "45E1EA52-5F26-46FB-AC85-2CBA51ACD09B",
+        "Root",
+<<<<<<< HEAD
         "clipMaterial"
       ],
       {
@@ -169,6 +256,9 @@
         "45E1EA52-5F26-46FB-AC85-2CBA51ACD09B",
         "Root",
         "Rotater"
+=======
+        "root"
+>>>>>>> bothEyes
       ],
       {
         "isExpanded" : true,
@@ -252,6 +342,7 @@
       [
         "D66134B1-3681-4A8E-AFE5-29F257229F3B",
         "Root",
+<<<<<<< HEAD
         "placeHolder_X_Negative",
         "Material_X"
       ],
@@ -371,6 +462,11 @@
         "D66134B1-3681-4A8E-AFE5-29F257229F3B",
         "Root",
         "trim"
+=======
+        "placeHolder_X_Positive",
+        "Material_X",
+        "nodegraph"
+>>>>>>> bothEyes
       ],
       {
         "isExpanded" : true,
@@ -379,6 +475,7 @@
       [
         "D66134B1-3681-4A8E-AFE5-29F257229F3B",
         "Root",
+<<<<<<< HEAD
         "Material",
         "transfer"
       ],
@@ -510,6 +607,10 @@
         "D66134B1-3681-4A8E-AFE5-29F257229F3B",
         "Root",
         "placeHolder"
+=======
+        "placeHolder_X_Pos",
+        "Material_X"
+>>>>>>> bothEyes
       ],
       {
         "isExpanded" : true,
@@ -519,7 +620,8 @@
         "D66134B1-3681-4A8E-AFE5-29F257229F3B",
         "Root",
         "placeHolder_Z_Negative",
-        "Material_Z"
+        "Material_Z",
+        "nodegraph"
       ],
       {
         "isExpanded" : true,
@@ -528,8 +630,19 @@
       [
         "D66134B1-3681-4A8E-AFE5-29F257229F3B",
         "Root",
-        "placeHolder_Z_Neg",
-        "Material_Z",
+        "placeHolder_X_Pos",
+        "Material_X",
+        "transfer"
+      ],
+      {
+        "isExpanded" : true,
+        "isLocked" : false
+      },
+      [
+        "D66134B1-3681-4A8E-AFE5-29F257229F3B",
+        "Root",
+        "placeHolder_Y_Neg",
+        "Material_Y",
         "trim"
       ],
       {
@@ -539,6 +652,33 @@
       [
         "D66134B1-3681-4A8E-AFE5-29F257229F3B",
         "Root",
+        "placeHolder_X_Postive",
+        "Material_X"
+      ],
+      {
+        "isExpanded" : true,
+        "isLocked" : false
+      },
+      [
+        "D66134B1-3681-4A8E-AFE5-29F257229F3B",
+        "Root",
+<<<<<<< HEAD
+        "placeHolder_Z_Neg",
+        "Material_Z",
+        "trim"
+=======
+        "placeHolder_X_Negative",
+        "Material_X"
+>>>>>>> bothEyes
+      ],
+      {
+        "isExpanded" : true,
+        "isLocked" : false
+      },
+      [
+        "D66134B1-3681-4A8E-AFE5-29F257229F3B",
+        "Root",
+<<<<<<< HEAD
         "Material_1"
       ],
       {
@@ -551,6 +691,9 @@
         "placeHolder_Y_Positive",
         "Material_Y",
         "nodegraph"
+=======
+        "opacityCorrection"
+>>>>>>> bothEyes
       ],
       {
         "isExpanded" : true,
@@ -570,9 +713,15 @@
       [
         "D66134B1-3681-4A8E-AFE5-29F257229F3B",
         "Root",
+<<<<<<< HEAD
         "placeHolder_X_Positive",
         "Material_X",
         "nodegraph"
+=======
+        "placeHolder_Y_Pos",
+        "Material_Y",
+        "trim"
+>>>>>>> bothEyes
       ],
       {
         "isExpanded" : true,
@@ -581,7 +730,75 @@
       [
         "D66134B1-3681-4A8E-AFE5-29F257229F3B",
         "Root",
+<<<<<<< HEAD
         "opacityCorrection"
+=======
+        "placeHolder_Z_Positive"
+      ],
+      {
+        "isExpanded" : true,
+        "isLocked" : false
+      },
+      [
+        "D66134B1-3681-4A8E-AFE5-29F257229F3B",
+        "Root",
+        "placeHolder_X_Neg",
+        "Material_X"
+      ],
+      {
+        "isExpanded" : true,
+        "isLocked" : false
+      },
+      [
+        "D66134B1-3681-4A8E-AFE5-29F257229F3B",
+        "Root",
+        "Material_1"
+      ],
+      {
+        "isExpanded" : true,
+        "isLocked" : false
+      },
+      [
+        "D66134B1-3681-4A8E-AFE5-29F257229F3B",
+        "Root"
+      ],
+      {
+        "isExpanded" : true,
+        "isLocked" : false
+      },
+      [
+        "D66134B1-3681-4A8E-AFE5-29F257229F3B",
+        "Root",
+        "placeHolder_X_Negative"
+      ],
+      {
+        "isExpanded" : true,
+        "isLocked" : false
+      },
+      [
+        "D66134B1-3681-4A8E-AFE5-29F257229F3B",
+        "Root",
+        "transfer"
+      ],
+      {
+        "isExpanded" : true,
+        "isLocked" : false
+      },
+      [
+        "D66134B1-3681-4A8E-AFE5-29F257229F3B",
+        "Root",
+        "placeHolder_Y_Negative",
+        "Material_Y"
+      ],
+      {
+        "isExpanded" : true,
+        "isLocked" : false
+      },
+      [
+        "D66134B1-3681-4A8E-AFE5-29F257229F3B",
+        "Root",
+        "placeHolder_Z_Negative"
+>>>>>>> bothEyes
       ],
       {
         "isExpanded" : true,
@@ -601,6 +818,30 @@
       [
         "D66134B1-3681-4A8E-AFE5-29F257229F3B",
         "Root",
+<<<<<<< HEAD
+        "placeHolder_Y_Negative"
+=======
+        "placeHolder_X_Positive",
+        "Material_X"
+      ],
+      {
+        "isExpanded" : true,
+        "isLocked" : false
+      },
+      [
+        "D66134B1-3681-4A8E-AFE5-29F257229F3B",
+        "Root",
+        "placeHolder_Y_Positive",
+        "Material_Y",
+        "nodegraph"
+      ],
+      {
+        "isExpanded" : true,
+        "isLocked" : false
+      },
+      [
+        "D66134B1-3681-4A8E-AFE5-29F257229F3B",
+        "Root",
         "placeHolder_Y_Negative"
       ],
       {
@@ -610,7 +851,151 @@
       [
         "D66134B1-3681-4A8E-AFE5-29F257229F3B",
         "Root",
+        "placeHolder_X_Pos",
+        "Material_X",
+        "trim"
+      ],
+      {
+        "isExpanded" : true,
+        "isLocked" : false
+      },
+      [
+        "D66134B1-3681-4A8E-AFE5-29F257229F3B",
+        "Root",
+        "placeHolder_Y_Positive"
+      ],
+      {
+        "isExpanded" : true,
+        "isLocked" : false
+      },
+      [
+        "D66134B1-3681-4A8E-AFE5-29F257229F3B",
+        "Root",
+        "Material",
+        "transfer"
+      ],
+      {
+        "isExpanded" : true,
+        "isLocked" : false
+      },
+      [
+        "D66134B1-3681-4A8E-AFE5-29F257229F3B",
+        "Root",
+        "placeHolder_Z_Neg",
+        "Material_Z",
+        "trim"
+      ],
+      {
+        "isExpanded" : true,
+        "isLocked" : false
+      },
+      [
+        "D66134B1-3681-4A8E-AFE5-29F257229F3B",
+        "Root",
+        "placeHolder_Y_Neg",
+        "Material_Y"
+      ],
+      {
+        "isExpanded" : true,
+        "isLocked" : false
+      },
+      [
+        "D66134B1-3681-4A8E-AFE5-29F257229F3B",
+        "Root",
+        "trim"
+      ],
+      {
+        "isExpanded" : true,
+        "isLocked" : false
+      },
+      [
+        "D66134B1-3681-4A8E-AFE5-29F257229F3B",
+        "Root",
+        "placeHolder_X_Positive"
+      ],
+      {
+        "isExpanded" : true,
+        "isLocked" : false
+      },
+      [
+        "D66134B1-3681-4A8E-AFE5-29F257229F3B",
+        "Root",
+        "Material_copy"
+      ],
+      {
+        "isExpanded" : true,
+        "isLocked" : false
+      },
+      [
+        "D66134B1-3681-4A8E-AFE5-29F257229F3B",
+        "Root",
+        "placeHolder_Z_Negative",
+        "Material_Z"
+      ],
+      {
+        "isExpanded" : true,
+        "isLocked" : false
+      },
+      [
+        "D66134B1-3681-4A8E-AFE5-29F257229F3B",
+        "Root",
+        "placeHolder_Y_Positive",
+        "Material_Y"
+      ],
+      {
+        "isExpanded" : true,
+        "isLocked" : false
+      },
+      [
+        "D66134B1-3681-4A8E-AFE5-29F257229F3B",
+        "Root",
+        "placeHolder_Z_Positive",
+        "Material_Z"
+      ],
+      {
+        "isExpanded" : true,
+        "isLocked" : false
+      },
+      [
+        "D66134B1-3681-4A8E-AFE5-29F257229F3B",
+        "Root",
+        "placeHolder_Y_Pos",
+        "Material_Y"
+      ],
+      {
+        "isExpanded" : true,
+        "isLocked" : false
+      },
+      [
+        "D66134B1-3681-4A8E-AFE5-29F257229F3B",
+        "Root",
+        "placeHolder_Z_Pos",
+        "Material_Z",
+        "trim"
+      ],
+      {
+        "isExpanded" : true,
+        "isLocked" : false
+      },
+      [
+        "D66134B1-3681-4A8E-AFE5-29F257229F3B",
+        "Root",
+        "placeHolder"
+>>>>>>> bothEyes
+      ],
+      {
+        "isExpanded" : true,
+        "isLocked" : false
+      },
+      [
+        "D66134B1-3681-4A8E-AFE5-29F257229F3B",
+        "Root",
+<<<<<<< HEAD
         "placeHolder_Z_Negative"
+=======
+        "Sphere",
+        "Material"
+>>>>>>> bothEyes
       ],
       {
         "isExpanded" : true,
