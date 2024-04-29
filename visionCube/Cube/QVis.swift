@@ -93,12 +93,7 @@ class QVis {
         }
         
         let rawFile = try Data(contentsOf: URL(fileURLWithPath: rawFilename))
-        
-        /*
-        guard let rawFile = FileManager.default.contents(atPath: rawFilename) else {
-            throw QVisFileException(message: "Unable to read file \(rawFilename)")
-        }
-        */
+    
         if needsConversion {
             let data = rawFile.withUnsafeBytes { (ptr: UnsafePointer<UInt16>) in
                 return UnsafeBufferPointer(start: ptr, count: rawFile.count / 2)
@@ -120,8 +115,6 @@ class QVis {
         } else {
             volume.data = [UInt8](rawFile)
         }
-
-        volume.computeNormals()
     }
     
     func tokenize(_ str: String) -> [String] {

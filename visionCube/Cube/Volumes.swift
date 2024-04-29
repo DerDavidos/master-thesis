@@ -42,7 +42,6 @@ struct Volume {
     }
     
     mutating func computeNormals() {
-        return
         normals = Array(repeating: Vec3(), count: data.count)
         for w in 1..<depth-1 {
             for v in 1..<height-1 {

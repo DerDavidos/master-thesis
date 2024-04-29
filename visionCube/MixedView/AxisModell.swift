@@ -8,7 +8,7 @@ import Accelerate
 struct axisList {
     var entity: Entity
     var materialEntity: [MaterialEntity]
-
+    var axisName: String
 }
 
 @Observable
@@ -17,14 +17,6 @@ class AxisModell {
 
     var rotater = Entity()
     
-    var axises: [axisList] = Array()
-    var zPositiveEntities: axisList = axisList(entity: Entity(), materialEntity: [])
-    var zNegativeEntities: axisList = axisList(entity: Entity(), materialEntity: [])
-    var xPositiveEntities: axisList = axisList(entity: Entity(), materialEntity: [])
-    var xNegativeEntities: axisList = axisList(entity: Entity(), materialEntity: [])
-    var yPositiveEntities: axisList = axisList(entity: Entity(), materialEntity: [])
-    var yNegativeEntities: axisList = axisList(entity: Entity(), materialEntity: [])
-
     var clipBoxX = Entity()
     var clipBoxY = Entity()
     var clipBoxZ = Entity()
@@ -32,14 +24,16 @@ class AxisModell {
     var clipBoxYEnabled = false
     var clipBoxZEnabled = false
     
+    var axises: [axisList] = Array()
+    
     init(volumeModell: VolumeModell) {
         self.volumeModell = volumeModell
     }
     
     @MainActor
-    func enableAxis(entity: Entity) {
+    func enableAxis(axisName: String) {
         for axis in axises {
-            if (axis.entity == entity) {
+            if (axis.axisName == axisName) {
                 axis.entity.isEnabled = true
             } else {
                 axis.entity.isEnabled = false
@@ -51,26 +45,32 @@ class AxisModell {
         if ((!volumeModell.axisLoaded) || !volumeModell.axisView) {
             return
         }
+        
         Task {
             volumeModell.loading = true
-            await updateAxis(axisList: &zNegativeEntities)
-            await updateAxis(axisList: &zPositiveEntities)
-            await updateAxis(axisList: &xNegativeEntities)
-            await updateAxis(axisList: &xPositiveEntities)
-            await updateAxis(axisList: &yNegativeEntities)
-            await updateAxis(axisList: &yPositiveEntities)
+        
+            for i in 0...axises.count-1 {
+                updatMaterials(axisList: &axises[i])
+                await updateAxis(axisList: &axises[i])
+            }
+       
             volumeModell.loading = false
         }
     }
     
-    @MainActor
-    fileprivate func updateAxis(axisList: inout axisList) {
+    fileprivate func updatMaterials(axisList: inout axisList) {
         for i in 0...axisList.materialEntity.count - 1 {
             try! axisList.materialEntity[i].material.setParameter(name: "smoothStepStart", value: MaterialParameters.Value.float(volumeModell.smoothStepStart))
             try! axisList.materialEntity[i].material.setParameter(name: "smoothStepShift", value: MaterialParameters.Value.float(volumeModell.smoothStepShift))
             try! axisList.materialEntity[i].material.setParameter(name: "x", value: .float(volumeModell.XClip))
             try! axisList.materialEntity[i].material.setParameter(name: "y", value: .float(volumeModell.YClip))
             try! axisList.materialEntity[i].material.setParameter(name: "z", value: .float(volumeModell.ZClip))
+        }
+    }
+    
+    @MainActor
+    fileprivate func updateAxis(axisList: inout axisList) {
+        for i in 0...axisList.materialEntity.count - 1 {
             axisList.materialEntity[i].entity.components.set(ModelComponent(
                 mesh: .generatePlane(width: axisList.materialEntity[i].width, height: axisList.materialEntity[i].height),
                 materials: [axisList.materialEntity[i].material]
@@ -96,6 +96,7 @@ class AxisModell {
     func reset(selectedVolume: String) async {
         volumeModell.axisLoaded = false
         volumeModell.reset(selectedVolume: selectedVolume)
+        
         await loadAllEntities()
         
         clipBoxZ.position.z = -0.55
@@ -112,8 +113,27 @@ class AxisModell {
     }
     
     @MainActor
+    func createEntityList() async {
+        axises.removeAll()
+        
+        axises.append(axisList(entity: Entity(), materialEntity: [], axisName: "zPositive"))
+        axises.append(axisList(entity: Entity(), materialEntity: [], axisName: "zNegative"))
+        axises.append(axisList(entity: Entity(), materialEntity: [], axisName: "xPositive"))
+        axises.append(axisList(entity: Entity(), materialEntity: [], axisName: "xNegative"))
+        axises.append(axisList(entity: Entity(), materialEntity: [], axisName: "yPositive"))
+        axises.append(  axisList(entity: Entity(), materialEntity: [], axisName: "yNegative"))
+        
+        let axisRenderer: AxisRenderer = AxisRenderer(dataset: volumeModell.dataset)
+        for i in 0...axises.count-1 {
+            axises[i].materialEntity = await axisRenderer.createEntities(axis: axises[i].axisName)
+            addEntities(root: volumeModell.root!, axisList: &axises[i])
+        }
+    }
+    
+    @MainActor
     func loadAllEntities() async {
         volumeModell.loading = true
+        
         let scene = try! await Entity(named: "Plane", in: realityKitContentBundle)
 
         if (volumeModell.root == nil) {
@@ -134,29 +154,9 @@ class AxisModell {
         volumeModell.root!.addChild(clipBoxX)
         volumeModell.root!.addChild(clipBoxY)
         volumeModell.root!.addChild(clipBoxZ)
-
-         zPositiveEntities = axisList(entity: Entity(), materialEntity: [])
-         zNegativeEntities = axisList(entity: Entity(), materialEntity: [])
-         xPositiveEntities = axisList(entity: Entity(), materialEntity: [])
-         xNegativeEntities = axisList(entity: Entity(), materialEntity: [])
-         yPositiveEntities = axisList(entity: Entity(), materialEntity: [])
-         yNegativeEntities = axisList(entity: Entity(), materialEntity: [])
         
-        let axisRenderer: AxisRenderer = AxisRenderer(dataset: volumeModell.dataset)
-        zPositiveEntities.materialEntity = await axisRenderer.createEntities(axis: "zPositive")
-        addEntities(root: volumeModell.root!, axisList: &zPositiveEntities)
-        zNegativeEntities.materialEntity = await axisRenderer.createEntities(axis: "zNegative")
-        addEntities(root: volumeModell.root!, axisList: &zNegativeEntities)
-        xPositiveEntities.materialEntity = await axisRenderer.createEntities(axis: "xPositive")
-        addEntities(root: volumeModell.root!, axisList: &xPositiveEntities)
+        await createEntityList()
 
-        xNegativeEntities.materialEntity = await axisRenderer.createEntities(axis: "xNegative")
-        addEntities(root: volumeModell.root!, axisList: &xNegativeEntities)
-        yPositiveEntities.materialEntity = await axisRenderer.createEntities(axis: "yPositive")
-        addEntities(root: volumeModell.root!, axisList: &yPositiveEntities)
-        yNegativeEntities.materialEntity = await axisRenderer.createEntities(axis: "yNegative")
-        addEntities(root: volumeModell.root!, axisList: &yNegativeEntities)
-        
         volumeModell.root!.transform.translation = START_TRANSLATION
         
         volumeModell.updateTransformation(.identity)

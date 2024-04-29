@@ -70,24 +70,23 @@ struct AxisView: View {
 
         if (viewVector.z.magnitude > viewVector.x.magnitude && viewVector.z.magnitude > viewVector.y.magnitude) {
             if (viewVector.z > 0) {
-                axisModell.enableAxis(entity: axisModell.zPositiveEntities.entity)
+                axisModell.enableAxis(axisName: "zPositive")
             } else {
-                axisModell.enableAxis(entity: axisModell.zNegativeEntities.entity)
+                axisModell.enableAxis(axisName: "zNegative")
             }
         }
         else if (viewVector.x.magnitude > viewVector.y.magnitude && viewVector.x.magnitude > viewVector.z.magnitude) {
             if (viewVector.x > 0) {
-                axisModell.enableAxis(entity: axisModell.xPositiveEntities.entity)
+                axisModell.enableAxis(axisName: "xPositive")
             } else {
-                axisModell.enableAxis(entity: axisModell.xNegativeEntities.entity)
+                axisModell.enableAxis(axisName: "xNegative")
             }
         }
         else {
             if (viewVector.y > 0) {
-                print("y pos")
-                axisModell.enableAxis(entity: axisModell.yPositiveEntities.entity)
+                axisModell.enableAxis(axisName: "yPositive")
             } else {
-                axisModell.enableAxis(entity: axisModell.yNegativeEntities.entity)
+                axisModell.enableAxis(axisName: "yNegative")
             }
         }
     }

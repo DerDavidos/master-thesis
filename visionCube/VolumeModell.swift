@@ -34,6 +34,14 @@ class VolumeModell {
 
     var selectedVolume = ""
     
+
+//    var zPositiveEntities: axisList = axisList(entity: Entity(), materialEntity: [])
+//    var zNegativeEntities: axisList = axisList(entity: Entity(), materialEntity: [])
+//    var xPositiveEntities: axisList = axisList(entity: Entity(), materialEntity: [])
+//    var xNegativeEntities: axisList = axisList(entity: Entity(), materialEntity: [])
+//    var yPositiveEntities: axisList = axisList(entity: Entity(), materialEntity: [])
+//    var yNegativeEntities: axisList = axisList(entity: Entity(), materialEntity: [])
+    
     init() {
         selectedVolume = listRawFiles(at: Bundle.main.resourcePath!).first!
         dataset = try! QVis(filename: getFromResource(strFileName: selectedVolume, ext: "dat"))

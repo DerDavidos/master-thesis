@@ -1,7 +1,7 @@
 import SwiftUI
 import CompositorServices
 
-let OVERSAMPLING: Float = 0.5
+let OVERSAMPLING: Float = 1
 
 @main
 struct visionShaderApp: App {
