@@ -92,14 +92,35 @@ class QVis {
             throw QVisFileException(message: "object filename not found")
         }
         
+        let rawFile = try Data(contentsOf: URL(fileURLWithPath: rawFilename))
+        
+        /*
         guard let rawFile = FileManager.default.contents(atPath: rawFilename) else {
             throw QVisFileException(message: "Unable to read file \(rawFilename)")
         }
-        
+        */
         if needsConversion {
-            throw QVisFileException(message: "only supports 8 bit")
+            let data = rawFile.withUnsafeBytes { (ptr: UnsafePointer<UInt16>) in
+                return UnsafeBufferPointer(start: ptr, count: rawFile.count / 2)
+            }
+
+            var minVal = data[0]
+            var maxVal = data[0]
+            for val in data {
+                minVal = min(minVal, val)
+                maxVal = max(maxVal, val)
+            }
+            
+            for i in 0..<data.count {
+                let tmp = 255 * (UInt(data[i] - minVal))
+                let normalizedValue = tmp / (UInt(maxVal - minVal) + 1)
+                
+                volume.data.append(UInt8(normalizedValue))
+            }
+        } else {
+            volume.data = [UInt8](rawFile)
         }
-        volume.data = [UInt8](rawFile)
+
         volume.computeNormals()
     }
     

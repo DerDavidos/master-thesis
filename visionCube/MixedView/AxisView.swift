@@ -114,7 +114,7 @@ struct AxisView: View {
         }.onEnded { value in
             axisModell.volumeModell.rotation = axisModell.volumeModell.rotation.rotated(by: value.rotation!)
             axisModell.volumeModell.lastTranslation += SIMD3<Float>(makeToOtherCordinate(vector: SIMD3<Float>(value.translation.vector)))
-//            axisModell.volumeModell.scale = axisModell.root!.scale.x
+            axisModell.volumeModell.scale = axisModell.volumeModell.root!.scale.x
         })
         .onAppear {
             Timer.scheduledTimer(withTimeInterval: 0.05, repeats: true) { _ in

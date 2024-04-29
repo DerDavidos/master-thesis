@@ -1,9 +1,8 @@
 import SwiftUI
 import CompositorServices
 
-let RESOURCE = "c60"
-let OVERSAMPLING: Float = 1.5
-    
+let OVERSAMPLING: Float = 0.5
+
 @main
 struct visionShaderApp: App {
     @State private var volumeModell: VolumeModell

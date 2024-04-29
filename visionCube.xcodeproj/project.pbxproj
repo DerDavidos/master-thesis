@@ -15,6 +15,11 @@
 		6374FEA42B83811000F74D28 /* VisionProPosition.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6374FEA32B83811000F74D28 /* VisionProPosition.swift */; };
 		637F4EC52BA0BE2E0042A671 /* VolumeControll.swift in Sources */ = {isa = PBXBuildFile; fileRef = 637F4EC42BA0BE2E0042A671 /* VolumeControll.swift */; };
 		637F4EC72BA1A0CD0042A671 /* AxisModell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 637F4EC62BA1A0CD0042A671 /* AxisModell.swift */; };
+		6389E0942BDFE5CB00E10599 /* hand.dat in Resources */ = {isa = PBXBuildFile; fileRef = 6329F23F2BDFE47C007C0274 /* hand.dat */; };
+		6389E0952BDFE5CB00E10599 /* hand.raw in Resources */ = {isa = PBXBuildFile; fileRef = 6329F23E2BDFE47C007C0274 /* hand.raw */; };
+		6389E0962BDFE5CB00E10599 /* hand162.1dt in Resources */ = {isa = PBXBuildFile; fileRef = 6329F23D2BDFE47B007C0274 /* hand162.1dt */; };
+		6389E0972BDFE5CB00E10599 /* head.dat in Resources */ = {isa = PBXBuildFile; fileRef = 6329F2402BDFE47C007C0274 /* head.dat */; };
+		6389E0982BDFE5CB00E10599 /* head.raw in Resources */ = {isa = PBXBuildFile; fileRef = 6329F2412BDFE47D007C0274 /* head.raw */; };
 		638E69242B6AE81600DC2E98 /* Tesselation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 638E691D2B6AE81600DC2E98 /* Tesselation.swift */; };
 		638E69272B6AE81600DC2E98 /* Vecs.swift in Sources */ = {isa = PBXBuildFile; fileRef = 638E69202B6AE81600DC2E98 /* Vecs.swift */; };
 		638E69282B6AE81600DC2E98 /* Clipper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 638E69212B6AE81600DC2E98 /* Clipper.swift */; };
@@ -32,8 +37,6 @@
 		63C2455A2B66CDC90037B3E1 /* AxisView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63C245592B66CDC90037B3E1 /* AxisView.swift */; };
 		63C2455C2B66CDCB0037B3E1 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 63C2455B2B66CDCB0037B3E1 /* Assets.xcassets */; };
 		63C2455F2B66CDCB0037B3E1 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 63C2455E2B66CDCB0037B3E1 /* Preview Assets.xcassets */; };
-		63D336322BBEB84800125499 /* tooth.raw in Resources */ = {isa = PBXBuildFile; fileRef = 63D336312BBEB84800125499 /* tooth.raw */; };
-		63D336342BBEB89900125499 /* tooth.dat in Resources */ = {isa = PBXBuildFile; fileRef = 63D336332BBEB89900125499 /* tooth.dat */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -41,6 +44,11 @@
 		6308682C2B8F5A7D00D14763 /* shader.metal */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.metal; path = shader.metal; sourceTree = "<group>"; };
 		6308682E2B8F5A8B00D14763 /* shaderTypes.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = shaderTypes.h; sourceTree = "<group>"; };
 		630868302B8F656600D14763 /* FullRenderer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FullRenderer.swift; sourceTree = "<group>"; };
+		6329F23D2BDFE47B007C0274 /* hand162.1dt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = hand162.1dt; sourceTree = "<group>"; };
+		6329F23E2BDFE47C007C0274 /* hand.raw */ = {isa = PBXFileReference; lastKnownFileType = file; path = hand.raw; sourceTree = "<group>"; };
+		6329F23F2BDFE47C007C0274 /* hand.dat */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = hand.dat; sourceTree = "<group>"; };
+		6329F2402BDFE47C007C0274 /* head.dat */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = head.dat; sourceTree = "<group>"; };
+		6329F2412BDFE47D007C0274 /* head.raw */ = {isa = PBXFileReference; lastKnownFileType = file; path = head.raw; sourceTree = "<group>"; };
 		63318D552BA30FBC004F8061 /* VolumeModell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VolumeModell.swift; sourceTree = "<group>"; };
 		6346945D2B7107720063817D /* AxisRenderer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AxisRenderer.swift; sourceTree = "<group>"; };
 		6374FEA32B83811000F74D28 /* VisionProPosition.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VisionProPosition.swift; sourceTree = "<group>"; };
@@ -65,8 +73,6 @@
 		63C2455B2B66CDCB0037B3E1 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		63C2455E2B66CDCB0037B3E1 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 		63C245602B66CDCB0037B3E1 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		63D336312BBEB84800125499 /* tooth.raw */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = tooth.raw; sourceTree = "<group>"; };
-		63D336332BBEB89900125499 /* tooth.dat */ = {isa = PBXFileReference; lastKnownFileType = text; path = tooth.dat; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -104,8 +110,11 @@
 		6346945F2B71A5490063817D /* dat */ = {
 			isa = PBXGroup;
 			children = (
-				63D336312BBEB84800125499 /* tooth.raw */,
-				63D336332BBEB89900125499 /* tooth.dat */,
+				6329F23F2BDFE47C007C0274 /* hand.dat */,
+				6329F23E2BDFE47C007C0274 /* hand.raw */,
+				6329F23D2BDFE47B007C0274 /* hand162.1dt */,
+				6329F2402BDFE47C007C0274 /* head.dat */,
+				6329F2412BDFE47D007C0274 /* head.raw */,
 				638E692E2B6AE99D00DC2E98 /* bonsai.dat */,
 				638E692C2B6AE99D00DC2E98 /* bonsai.raw */,
 				638E69302B6AE99D00DC2E98 /* c60.dat */,
@@ -242,7 +251,11 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				63D336342BBEB89900125499 /* tooth.dat in Resources */,
+				6389E0942BDFE5CB00E10599 /* hand.dat in Resources */,
+				6389E0952BDFE5CB00E10599 /* hand.raw in Resources */,
+				6389E0962BDFE5CB00E10599 /* hand162.1dt in Resources */,
+				6389E0972BDFE5CB00E10599 /* head.dat in Resources */,
+				6389E0982BDFE5CB00E10599 /* head.raw in Resources */,
 				638E69322B6AE99D00DC2E98 /* bonsai.raw in Resources */,
 				638E69332B6AE99D00DC2E98 /* engine.dat in Resources */,
 				638E69342B6AE99D00DC2E98 /* bonsai.dat in Resources */,
@@ -251,7 +264,6 @@
 				638E69372B6AE99D00DC2E98 /* engine.raw in Resources */,
 				63C2455F2B66CDCB0037B3E1 /* Preview Assets.xcassets in Resources */,
 				63C2455C2B66CDCB0037B3E1 /* Assets.xcassets in Resources */,
-				63D336322BBEB84800125499 /* tooth.raw in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -427,7 +439,7 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SUPPORTED_PLATFORMS = "xros xrsimulator";
 				SWIFT_EMIT_LOC_STRINGS = YES;
-				"SWIFT_OBJC_BRIDGING_HEADER[arch=*]" = visionCube/Cube/ShaderTypes.h;
+				SWIFT_OBJC_BRIDGING_HEADER = visionCube/Cube/ShaderTypes.h;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2,7";
 				XROS_DEPLOYMENT_TARGET = 1.1;
@@ -454,6 +466,7 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SUPPORTED_PLATFORMS = "xros xrsimulator";
 				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_OBJC_BRIDGING_HEADER = visionCube/Cube/ShaderTypes.h;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2,7";
 				XROS_DEPLOYMENT_TARGET = 1.1;

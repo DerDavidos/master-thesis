@@ -51,18 +51,19 @@ class AxisModell {
         if ((!volumeModell.axisLoaded) || !volumeModell.axisView) {
             return
         }
-        volumeModell.loading = true
-        print("updating")
-        updateAxis(axisList: &zNegativeEntities)
-        updateAxis(axisList: &zPositiveEntities)
-        updateAxis(axisList: &xNegativeEntities)
-        updateAxis(axisList: &xPositiveEntities)
-        updateAxis(axisList: &yNegativeEntities)
-        updateAxis(axisList: &yPositiveEntities)
-        print("updated")
-        volumeModell.loading = false
+        Task {
+            volumeModell.loading = true
+            await updateAxis(axisList: &zNegativeEntities)
+            await updateAxis(axisList: &zPositiveEntities)
+            await updateAxis(axisList: &xNegativeEntities)
+            await updateAxis(axisList: &xPositiveEntities)
+            await updateAxis(axisList: &yNegativeEntities)
+            await updateAxis(axisList: &yPositiveEntities)
+            volumeModell.loading = false
+        }
     }
     
+    @MainActor
     fileprivate func updateAxis(axisList: inout axisList) {
         for i in 0...axisList.materialEntity.count - 1 {
             try! axisList.materialEntity[i].material.setParameter(name: "smoothStepStart", value: MaterialParameters.Value.float(volumeModell.smoothStepStart))

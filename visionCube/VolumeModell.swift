@@ -71,9 +71,8 @@ class VolumeModell {
         root!.orientation = simd_quatf(rotation.rotated(by: value.rotation!))
         
         updateTranslation(translation: makeToOtherCordinate(vector: SIMD3<Float>(value.translation.vector)))
-        //        var scale: Float = Float(value.scale.width * value.scale.height * value.scale.depth)
-        //        if scale > 1 { scale = (scale - 1) * 0.05 + 1 }
-        //        scale *= Float(volumeModell.scale)
-        //        volumeModell.root!.scale = SIMD3<Float>(scale, scale, scale)
+        var scale: Float = Float(value.scale.width + value.scale.height + value.scale.depth) / 3
+        scale *= self.scale
+        root!.scale = SIMD3<Float>(scale, scale, scale)
     }
 }

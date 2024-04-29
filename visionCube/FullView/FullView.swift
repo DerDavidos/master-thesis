@@ -117,7 +117,7 @@ class FullView {
     }
     
     func updateMatrices(drawable: LayerRenderer.Drawable,  deviceAnchor: DeviceAnchor?) {
-        var translate = Transform(translation: SIMD3<Float>(0, 0, -2)).translation
+        var translate = Transform(translation: SIMD3<Float>(0, 1.6, -2)).translation
         if (volumeModell.root != nil) {
             translate = (volumeModell.root?.transform.translation)!
         }
