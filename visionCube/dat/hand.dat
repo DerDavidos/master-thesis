@@ -1,9 +1,0 @@
-ObjectFileName: hand.raw
-TaggedFileName: ---
-Resolution:     244 124 257
-SliceThickness: 1 1 1
-Format:         USHORT
-ObjectType:     TEXTURE_VOLUME_OBJECT
-ObjectModel:    RGBA
-GridType:       EQUIDISTANT
-Endianess:      LITTLE

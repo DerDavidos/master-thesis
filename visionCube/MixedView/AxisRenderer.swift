@@ -22,7 +22,7 @@ class AxisRenderer {
     private var width: Int
     
     private var maxValue: Float
-    private var abstand: Float
+    private var layerDistance: Float
     
     private var dataset: QVis!
     
@@ -34,7 +34,7 @@ class AxisRenderer {
         self.width = Int(dataset.volume.width)
         
         self.maxValue = Float(max(depth, height, width))
-        self.abstand = 1/maxValue
+        self.layerDistance = 1 / maxValue / 2
     }
 
     func getTexture(id: Float, axis: String) -> TextureResource {
@@ -76,7 +76,7 @@ class AxisRenderer {
                     index0 += 1
                     index1 += 1
                 }
-
+                
                 if (axis == "zPositive") {
                     columnData = columnData.reversed()
                 }
@@ -85,7 +85,7 @@ class AxisRenderer {
                 j_1 += width
             }
             imageData = imageData.reversed()
-
+            
         case "xPositive", "xNegative":
             imageWidth = depth
             imageHeight = height
@@ -160,9 +160,12 @@ class AxisRenderer {
         
         let provider = CGDataProvider(dataInfo: nil, data: imageRawPointer!, size: imageWidth*imageHeight) { _, _, _ in}
         image = CGImage(width: imageWidth, height: imageHeight, bitsPerComponent: bitsPerComponent, bitsPerPixel: bitsPerPixel, bytesPerRow: imageWidth, space: colorSpace, bitmapInfo: bitmapInfo, provider: provider!, decode: nil, shouldInterpolate: false, intent: renderingIntent)!
-
-        let textureResource = try! TextureResource.generate(from: image, options: TextureResource.CreateOptions(semantic: .color, mipmapsMode: .allocateAll))
         
+//        if (OVERSAMPLING < 1.0) {
+//            image = UIImage(cgImage: image).resize(height: CGFloat(height) / 1 / CGFloat(OVERSAMPLING)).cgImage!
+//        }
+        
+        let textureResource = try! TextureResource.generate(from: image, options: TextureResource.CreateOptions(semantic: .color, mipmapsMode: .allocateAll))
         return textureResource
     }
 
@@ -187,16 +190,16 @@ class AxisRenderer {
             for layer in stride(from: 0.0, through: Float(layers - 3), by: 1/OVERSAMPLING) {
                 let entity = Entity()
                 var material: ShaderGraphMaterial? = nil
-                let offset = Float(layer) * abstand
+                let offset = Float(layer) * layerDistance
                 var pWidth: Float = Float(layers)
                 var pHeight: Float = Float(layers)
                 
-                let startPos = -abstand * Float(layers) / 2
+                let startPos = -layerDistance * Float(layers) / 2
                 
                 switch axis {
                 case "zNegative":
-                    let sphere = scene.findEntity(named: "placeHolder_Z_Negative") as! ModelEntity
-                    material = sphere.model!.materials.first as? ShaderGraphMaterial
+                    let placeHolderZ = scene.findEntity(named: "placeHolder_Z_Negative") as! ModelEntity
+                    material = placeHolderZ.model!.materials.first as? ShaderGraphMaterial
                     try? material?.setParameter(name: "Image", value: .textureResource(getTexture(id: layer, axis: axis)))
                     try? material?.setParameter(name: "ZLayer", value: .float(Float(layer)/Float(layers)))
                     entity.transform.translation = SIMD3<Float>(0, 0 , startPos  + offset)
@@ -204,16 +207,16 @@ class AxisRenderer {
                     pWidth = Float(width) / maxValue
                     pHeight = Float(height) / maxValue
                 case "zPositive":
-                    let sphere = scene.findEntity(named: "placeHolder_Z_Positive") as! ModelEntity
-                    material = sphere.model!.materials.first as? ShaderGraphMaterial
+                    let placeHolderZ = scene.findEntity(named: "placeHolder_Z_Positive") as! ModelEntity
+                    material = placeHolderZ.model!.materials.first as? ShaderGraphMaterial
                     try? material?.setParameter(name: "Image", value: .textureResource(getTexture(id: Float(layer), axis: axis)))
                     try? material?.setParameter(name: "ZLayer", value: .float(Float(layer)/Float(layers)))
                     entity.transform.translation = SIMD3<Float>(0, 0 , startPos + offset)
                     pWidth = Float(width) / maxValue
                     pHeight = Float(height) / maxValue
                 case "xPositive":
-                    let sphereX = scene.findEntity(named: "placeHolder_X_Positive") as! ModelEntity
-                    material = sphereX.model!.materials.first as? ShaderGraphMaterial
+                    let placeHolderX = scene.findEntity(named: "placeHolder_X_Positive") as! ModelEntity
+                    material = placeHolderX.model!.materials.first as? ShaderGraphMaterial
                     try? material?.setParameter(name: "Image", value: .textureResource(getTexture(id: Float(layer), axis: axis)))
                     try? material?.setParameter(name: "XLayer", value: .float(Float(layer)/Float(layers)))
                     entity.transform.rotation = simd_quatf(angle: .pi/2, axis: SIMD3<Float>(0, 1, 0))
@@ -221,8 +224,8 @@ class AxisRenderer {
                     pWidth = Float(depth) / maxValue
                     pHeight = Float(height) / maxValue
                 case "xNegative":
-                    let sphereX = scene.findEntity(named: "placeHolder_X_Negative") as! ModelEntity
-                    material = sphereX.model!.materials.first as? ShaderGraphMaterial
+                    let placeHolderX = scene.findEntity(named: "placeHolder_X_Negative") as! ModelEntity
+                    material = placeHolderX.model!.materials.first as? ShaderGraphMaterial
                     try? material?.setParameter(name: "Image", value: .textureResource(getTexture(id: Float(layer), axis: axis)))
                     try? material?.setParameter(name: "XLayer", value: .float(Float(layer)/Float(layers)))
                     entity.transform.rotation = simd_quatf(angle: -.pi/2, axis: SIMD3<Float>(0, 1, 0))
@@ -230,8 +233,8 @@ class AxisRenderer {
                     pWidth = Float(depth) / maxValue
                     pHeight = Float(height) / maxValue
                 case "yPositive":
-                    let sphereY = scene.findEntity(named: "placeHolder_Y_Positive") as! ModelEntity
-                    material = sphereY.model!.materials.first as? ShaderGraphMaterial
+                    let placeHolderY = scene.findEntity(named: "placeHolder_Y_Positive") as! ModelEntity
+                    material = placeHolderY.model!.materials.first as? ShaderGraphMaterial
                     try? material?.setParameter(name: "Image", value: .textureResource(getTexture(id: Float(layer), axis: axis)))
                     try? material?.setParameter(name: "YLayer", value: .float(Float(layer)/Float(layers)))
                     entity.transform.rotation = simd_quatf(angle: -.pi/2, axis: SIMD3<Float>(1, 0, 0))
@@ -239,8 +242,8 @@ class AxisRenderer {
                     pWidth = Float(width) / maxValue
                     pHeight = Float(depth) / maxValue
                 case "yNegative":
-                    let sphereY = scene.findEntity(named: "placeHolder_Y_Negative") as! ModelEntity
-                    material = sphereY.model!.materials.first as? ShaderGraphMaterial
+                    let placeHolderY = scene.findEntity(named: "placeHolder_Y_Negative") as! ModelEntity
+                    material = placeHolderY.model!.materials.first as? ShaderGraphMaterial
                     try? material?.setParameter(name: "Image", value: .textureResource(getTexture(id: Float(layer), axis: axis)))
                     try? material?.setParameter(name: "YLayer", value: .float(Float(layer)/Float(layers)))
                     entity.transform.rotation = simd_quatf(angle: .pi/2, axis: SIMD3<Float>(1, 0, 0))
@@ -252,7 +255,7 @@ class AxisRenderer {
                 
                 try? material?.setParameter(name: "opacityCorrection", value: .float(Float(layers) * OVERSAMPLING))
                 
-                let materialEntity = MaterialEntity(entity: entity, material: material!, width: pWidth, height: pHeight)
+                let materialEntity = MaterialEntity(entity: entity, material: material!, width: pWidth / 2, height: pHeight / 2)
                 entities.append(materialEntity)
             }
         }
@@ -277,3 +280,18 @@ class AxisRenderer {
         print(resultFolderURL)
     }
 }
+
+extension UIImage {
+    /// Resizes the image by keeping the aspect ratio
+    func resize(height: CGFloat) -> UIImage {
+        let scale = height / self.size.height
+        let width = self.size.width * scale
+        let newSize = CGSize(width: width, height: height)
+        
+        let renderer = UIGraphicsImageRenderer(size: newSize)
+        return renderer.image { _ in
+            self.draw(in: CGRect(origin: .zero, size: newSize))
+        }
+    }
+}
+

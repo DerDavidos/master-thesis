@@ -6,6 +6,7 @@ import ARKit
 import Accelerate
 
 let START_TRANSLATION = SIMD3<Float>(x: 0, y: 1.8, z: -2)
+//let START_TRANSLATION = SIMD3<Float>(x: 0, y: 0, z: 0)
 
 @Observable
 class VolumeModell {
@@ -22,7 +23,7 @@ class VolumeModell {
     
     var scale: Float = 1.0
     
-    var lastTranslation: SIMD3<Float> = SIMD3<Float>(0, 1.8, -2)
+    var lastTranslation: SIMD3<Float> = START_TRANSLATION
     
     var loading = false
     var axisView = false

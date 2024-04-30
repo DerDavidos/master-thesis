@@ -6,7 +6,7 @@ import ARKit
 import Accelerate
 
 struct axisList {
-    var entity: Entity
+    var listEntity: Entity
     var materialEntity: [MaterialEntity]
     var axisName: String
 }
@@ -32,11 +32,12 @@ class AxisModell {
     
     @MainActor
     func enableAxis(axisName: String) {
+//        print(axisName)
         for axis in axises {
             if (axis.axisName == axisName) {
-                axis.entity.isEnabled = true
+                axis.listEntity.isEnabled = true
             } else {
-                axis.entity.isEnabled = false
+                axis.listEntity.isEnabled = false
             }
         }
     }
@@ -68,21 +69,27 @@ class AxisModell {
         }
     }
     
+    
+    
     @MainActor
-    fileprivate func updateAxis(axisList: inout axisList) {
+    fileprivate func updateAxis(axisList: inout axisList) async {
+        
         for i in 0...axisList.materialEntity.count - 1 {
             axisList.materialEntity[i].entity.components.set(ModelComponent(
                 mesh: .generatePlane(width: axisList.materialEntity[i].width, height: axisList.materialEntity[i].height),
                 materials: [axisList.materialEntity[i].material]
             ))
+            
+            axisList.materialEntity[i].entity.components.remove(AdaptiveResolutionComponent.self)
         }
     }
     
     func addEntities(root: Entity, axisList: inout axisList) {
+        axisList.listEntity.components.remove(AdaptiveResolutionComponent.self)
         for i in 0...axisList.materialEntity.count - 1 {
-            axisList.entity.addChild(axisList.materialEntity[i].entity)
+            axisList.listEntity.addChild(axisList.materialEntity[i].entity)
         }
-        root.addChild(axisList.entity)
+        root.addChild(axisList.listEntity)
         axises.append(axisList)
     }
 
@@ -116,12 +123,12 @@ class AxisModell {
     func createEntityList() async {
         axises.removeAll()
         
-        axises.append(axisList(entity: Entity(), materialEntity: [], axisName: "zPositive"))
-        axises.append(axisList(entity: Entity(), materialEntity: [], axisName: "zNegative"))
-        axises.append(axisList(entity: Entity(), materialEntity: [], axisName: "xPositive"))
-        axises.append(axisList(entity: Entity(), materialEntity: [], axisName: "xNegative"))
-        axises.append(axisList(entity: Entity(), materialEntity: [], axisName: "yPositive"))
-        axises.append(  axisList(entity: Entity(), materialEntity: [], axisName: "yNegative"))
+        axises.append(axisList(listEntity: Entity(), materialEntity: [], axisName: "zPositive"))
+        axises.append(axisList(listEntity: Entity(), materialEntity: [], axisName: "zNegative"))
+        axises.append(axisList(listEntity: Entity(), materialEntity: [], axisName: "xPositive"))
+        axises.append(axisList(listEntity: Entity(), materialEntity: [], axisName: "xNegative"))
+        axises.append(axisList(listEntity: Entity(), materialEntity: [], axisName: "yPositive"))
+        axises.append(axisList(listEntity: Entity(), materialEntity: [], axisName: "yNegative"))
         
         let axisRenderer: AxisRenderer = AxisRenderer(dataset: volumeModell.dataset)
         for i in 0...axises.count-1 {
@@ -138,10 +145,11 @@ class AxisModell {
         
         if (volumeModell.root == nil) {
             volumeModell.root = scene.findEntity(named: "root")!
+            volumeModell.root!.components.remove(AdaptiveResolutionComponent.self)
         }
         volumeModell.root!.children.removeAll();
 
-        rotater =  scene.findEntity(named: "Rotater")!
+        rotater = scene.findEntity(named: "Rotater")!
         rotater.components.set(InputTargetComponent())
         rotater.generateCollisionShapes(recursive: false)
         volumeModell.root!.addChild(rotater)

@@ -30,13 +30,13 @@ def Xform "Root"
 
         def Material "Material_X"
         {
-            reorder nameChildren = ["trim_1", "opacityCorrection_1", "Image_1", "transfer_1", "UnlitSurface_1", "Image", "UsdPreviewSurface", "nodegraph", "IfGreaterOrEqual"]
-            asset inputs:Image = @image.jpeg@ (
+            reorder nameChildren = ["trim", "opacityCorrection", "Image_1", "transfer", "UnlitSurface_1", "Image", "UsdPreviewSurface", "nodegraph", "IfGreaterOrEqual"]
+            asset inputs:Image (
                 customData = {
                     dictionary realitykit = {
                         float2 positionInSubgraph = (-248.30103, -104.44954)
                         float2 sizeInSubgraph = (116, 53)
-                        int stackingOrderInSubgraph = 3914
+                        int stackingOrderInSubgraph = 3985
                     }
                 }
             )
@@ -106,47 +106,13 @@ def Xform "Root"
                     }
                 }
             )
-            token outputs:mtlx:surface.connect = </Root/placeHolder_X_Positive/Material_X/UnlitSurface_1.outputs:out>
+            token outputs:mtlx:surface.connect = </Root/placeHolder_X_Positive/Material_X/UnlitSurface.outputs:out>
             token outputs:realitykit:vertex.connect = </Root/placeHolder_Z_Positive/Material/GeometryModifier.outputs:out>
             token outputs:surface.connect = </Root/placeHolder_Z_Positive/Material/UsdPreviewSurface.outputs:surface>
             string[] ui:nodegraph:realitykit:node:attributesShowingChildren = ["outputs:realitykit:vertex"]
             float2 ui:nodegraph:realitykit:subgraphOutputs:pos = (2156.4065, 86.74538)
             float2 ui:nodegraph:realitykit:subgraphOutputs:size = (182, 99)
             int ui:nodegraph:realitykit:subgraphOutputs:stackingOrder = 3371
-
-            def Shader "UnlitSurface_1" (
-                active = true
-            )
-            {
-                uniform token info:id = "ND_realitykit_unlit_surfaceshader"
-                bool inputs:applyPostProcessToneMap = 1
-                color3f inputs:color.connect = </Root/placeHolder_X_Positive/Material_X/Dot_1.outputs:out>
-                bool inputs:hasPremultipliedAlpha = 0
-                float inputs:opacity = 0
-                float inputs:opacity.connect = </Root/placeHolder_X_Positive/Material_X/transfer_1.outputs:return>
-                float inputs:opacityThreshold.connect = None
-                token outputs:out
-                float2 ui:nodegraph:node:pos = (1902.8978, 100.71924)
-                float2 ui:nodegraph:node:size = (195, 181)
-                int ui:nodegraph:node:stackingOrder = 3927
-                string[] ui:nodegraph:realitykit:node:attributesShowingChildren = ["inputs:color", "inputs:opacity", "inputs:applyPostProcessToneMap", "inputs:opacityThreshold", "inputs:opacityThreshold", "outputs:out", "inputs:applyPostProcessToneMap", "inputs:hasPremultipliedAlpha", "inputs:opacityThreshold", "inputs:hasPremultipliedAlpha", "inputs:opacity", "inputs:opacityThreshold", "inputs:color", "inputs:opacityThreshold", "inputs:applyPostProcessToneMap"]
-            }
-
-            def Shader "Image"
-            {
-                uniform token info:id = "ND_image_float"
-                float inputs:default
-                asset inputs:file.connect = </Root/placeHolder_X_Positive/Material_X.inputs:Image>
-                string inputs:filtertype
-                float2 inputs:texcoord
-                string inputs:uaddressmode
-                string inputs:vaddressmode
-                float outputs:out
-                float2 ui:nodegraph:node:pos = (0.47951108, 10.171405)
-                float2 ui:nodegraph:node:size = (149, 199)
-                int ui:nodegraph:node:stackingOrder = 3910
-                string[] ui:nodegraph:realitykit:node:attributesShowingChildren = ["inputs:uaddressmode", "inputs:texcoord", "inputs:texcoord", "inputs:default", "inputs:texcoord", "inputs:file", "inputs:default", "inputs:uaddressmode", "inputs:texcoord"]
-            }
 
             def Shader "UsdPreviewSurface" (
                 active = false
@@ -156,7 +122,46 @@ def Xform "Root"
                 token outputs:surface
             }
 
-            def NodeGraph "nodegraph"
+            def Shader "Dot_1"
+            {
+                uniform token info:id = "ND_dot_color3"
+                color3f inputs:in.connect = </Root/placeHolder_X_Positive/Material_X/Combine3.outputs:out>
+                color3f outputs:out
+                float2 ui:nodegraph:node:pos = (1657.2253, -135.03653)
+                float2 ui:nodegraph:node:size = (44, 18)
+                int ui:nodegraph:node:stackingOrder = 3924
+            }
+
+            def Shader "Image"
+            {
+                uniform token info:id = "ND_image_float"
+                float inputs:default
+                asset inputs:file.connect = </Root/placeHolder_X_Positive/Material_X.inputs:Image>
+                string inputs:filtertype
+                float2 inputs:texcoord
+                string inputs:uaddressmode.connect = None
+                string inputs:vaddressmode
+                float outputs:out
+                float2 ui:nodegraph:node:pos = (1.7874792, -83.71022)
+                float2 ui:nodegraph:node:size = (149, 199)
+                int ui:nodegraph:node:stackingOrder = 3989
+                string[] ui:nodegraph:realitykit:node:attributesShowingChildren = ["inputs:vaddressmode", "inputs:file", "inputs:vaddressmode"]
+            }
+
+            def Shader "Combine3"
+            {
+                uniform token info:id = "ND_combine3_color3"
+                float inputs:in1.connect = </Root/placeHolder_X_Positive/Material_X/Image.outputs:out>
+                float inputs:in2.connect = </Root/placeHolder_X_Positive/Material_X/Image.outputs:out>
+                float inputs:in3.connect = </Root/placeHolder_X_Positive/Material_X/Image.outputs:out>
+                color3f outputs:out
+                float2 ui:nodegraph:node:pos = (794.24524, -136.33482)
+                float2 ui:nodegraph:node:size = (146, 54)
+                int ui:nodegraph:node:stackingOrder = 3873
+                string[] ui:nodegraph:realitykit:node:attributesShowingChildren = ["inputs:in2"]
+            }
+
+            def NodeGraph "clip"
             {
                 float inputs:Opacity (
                     customData = {
@@ -188,19 +193,19 @@ def Xform "Root"
                     }
                 )
                 float inputs:z.connect = </Root/placeHolder_X_Positive/Material_X.inputs:z>
-                float outputs:Min_out.connect = </Root/placeHolder_X_Positive/Material_X/nodegraph/Min.outputs:out>
+                float outputs:Min_out.connect = </Root/placeHolder_X_Positive/Material_X/clip/Min.outputs:out>
                 float2 ui:nodegraph:node:pos = (178.67715, 143.24005)
-                float2 ui:nodegraph:node:size = (120, 145)
-                int ui:nodegraph:node:stackingOrder = 3959
+                float2 ui:nodegraph:node:size = (106, 145)
+                int ui:nodegraph:node:stackingOrder = 3999
                 string[] ui:nodegraph:realitykit:node:attributesShowingChildren = ["inputs:Ifgreater_1_in2", "outputs:Min_out"]
                 float2 ui:nodegraph:realitykit:subgraphOutputs:pos = (1036.9363, 278.91962)
-                float2 ui:nodegraph:realitykit:subgraphOutputs:size = (137, 81)
+                float2 ui:nodegraph:realitykit:subgraphOutputs:size = (137.42729, 81)
                 int ui:nodegraph:realitykit:subgraphOutputs:stackingOrder = 2822
 
                 def Shader "Separate2"
                 {
                     uniform token info:id = "ND_separate2_vector2"
-                    float2 inputs:in.connect = </Root/placeHolder_X_Positive/Material_X/nodegraph/Texcoord.outputs:out>
+                    float2 inputs:in.connect = </Root/placeHolder_X_Positive/Material_X/clip/Texcoord.outputs:out>
                     float outputs:outx
                     float outputs:outy
                     float2 ui:nodegraph:node:pos = (214.44858, 248.63914)
@@ -213,9 +218,9 @@ def Xform "Root"
                 {
                     uniform token info:id = "ND_ifgreater_float"
                     float inputs:in1.connect = None
-                    float inputs:in2.connect = </Root/placeHolder_X_Positive/Material_X/nodegraph.inputs:Opacity>
-                    float inputs:value1.connect = </Root/placeHolder_X_Positive/Material_X/nodegraph/Separate2.outputs:outx>
-                    float inputs:value2.connect = </Root/placeHolder_X_Positive/Material_X/nodegraph/Subtract.outputs:out>
+                    float inputs:in2.connect = </Root/placeHolder_X_Positive/Material_X/clip.inputs:Opacity>
+                    float inputs:value1.connect = </Root/placeHolder_X_Positive/Material_X/clip/Separate2.outputs:outx>
+                    float inputs:value2.connect = </Root/placeHolder_X_Positive/Material_X/clip/Subtract.outputs:out>
                     float outputs:out
                     float2 ui:nodegraph:node:pos = (687.6565, 124.37821)
                     float2 ui:nodegraph:node:size = (109, 163)
@@ -237,9 +242,9 @@ def Xform "Root"
                 {
                     uniform token info:id = "ND_ifgreater_float"
                     float inputs:in1
-                    float inputs:in2.connect = </Root/placeHolder_X_Positive/Material_X/nodegraph.inputs:Opacity>
-                    float inputs:value1.connect = </Root/placeHolder_X_Positive/Material_X/nodegraph.inputs:y>
-                    float inputs:value2.connect = </Root/placeHolder_X_Positive/Material_X/nodegraph/Dot.outputs:out>
+                    float inputs:in2.connect = </Root/placeHolder_X_Positive/Material_X/clip.inputs:Opacity>
+                    float inputs:value1.connect = </Root/placeHolder_X_Positive/Material_X/clip.inputs:y>
+                    float inputs:value2.connect = </Root/placeHolder_X_Positive/Material_X/clip/Dot.outputs:out>
                     float outputs:out
                     float2 ui:nodegraph:node:pos = (680.8892, 425.97546)
                     float2 ui:nodegraph:node:size = (115, 163)
@@ -250,8 +255,8 @@ def Xform "Root"
                 def Shader "Min"
                 {
                     uniform token info:id = "ND_min_float"
-                    float inputs:in1.connect = </Root/placeHolder_X_Positive/Material_X/nodegraph/Ifgreater.outputs:out>
-                    float inputs:in2.connect = </Root/placeHolder_X_Positive/Material_X/nodegraph/Ifgreater_1.outputs:out>
+                    float inputs:in1.connect = </Root/placeHolder_X_Positive/Material_X/clip/Ifgreater.outputs:out>
+                    float inputs:in2.connect = </Root/placeHolder_X_Positive/Material_X/clip/Ifgreater_1.outputs:out>
                     float outputs:out
                     float2 ui:nodegraph:node:pos = (862.89154, 301.87238)
                     float2 ui:nodegraph:node:size = (114, 40)
@@ -261,7 +266,7 @@ def Xform "Root"
                 def Shader "Dot"
                 {
                     uniform token info:id = "ND_dot_float"
-                    float inputs:in.connect = </Root/placeHolder_X_Positive/Material_X/nodegraph/Separate2.outputs:outy>
+                    float inputs:in.connect = </Root/placeHolder_X_Positive/Material_X/clip/Separate2.outputs:outy>
                     float outputs:out
                     float2 ui:nodegraph:node:pos = (352.34045, 424.14096)
                     float2 ui:nodegraph:node:size = (44, 18)
@@ -273,7 +278,7 @@ def Xform "Root"
                     uniform token info:id = "ND_subtract_float"
                     float inputs:in1 = 1
                     float inputs:in1.connect = None
-                    float inputs:in2.connect = </Root/placeHolder_X_Positive/Material_X/nodegraph.inputs:z>
+                    float inputs:in2.connect = </Root/placeHolder_X_Positive/Material_X/clip.inputs:z>
                     float outputs:out
                     float2 ui:nodegraph:node:pos = (483.59375, 123.83984)
                     float2 ui:nodegraph:node:size = (63, 36)
@@ -281,22 +286,22 @@ def Xform "Root"
                 }
             }
 
-            def Shader "IfGreaterOrEqual"
+            def Shader "clipX"
             {
                 uniform token info:id = "ND_ifgreatereq_float"
                 float inputs:in1.connect = None
                 float inputs:in2 = 0
-                float inputs:in2.connect = </Root/placeHolder_X_Positive/Material_X/nodegraph.outputs:Min_out>
+                float inputs:in2.connect = </Root/placeHolder_X_Positive/Material_X/clip.outputs:Min_out>
                 float inputs:value1.connect = </Root/placeHolder_X_Positive/Material_X.inputs:x>
                 float inputs:value2.connect = </Root/placeHolder_X_Positive/Material_X.inputs:XLayer>
                 float outputs:out
                 float2 ui:nodegraph:node:pos = (489.77817, 146.14174)
-                float2 ui:nodegraph:node:size = (157, 163)
-                int ui:nodegraph:node:stackingOrder = 3959
+                float2 ui:nodegraph:node:size = (140, 163)
+                int ui:nodegraph:node:stackingOrder = 3997
                 string[] ui:nodegraph:realitykit:node:attributesShowingChildren = ["inputs:in1"]
             }
 
-            def "opacityCorrection_1" (
+            def "opacityCorrection" (
                 active = true
                 instanceable = true
                 references = </Root/opacityCorrection>
@@ -321,74 +326,15 @@ def Xform "Root"
                         }
                     }
                 )
-                float inputs:v.connect = </Root/placeHolder_X_Positive/Material_X/IfGreaterOrEqual.outputs:out>
+                float inputs:v.connect = </Root/placeHolder_X_Positive/Material_X/clipX.outputs:out>
                 float2 ui:nodegraph:node:pos = (895.90735, 131.34763)
-                float2 ui:nodegraph:node:size = (176, 127)
-                int ui:nodegraph:node:stackingOrder = 3959
+                float2 ui:nodegraph:node:size = (163, 127)
+                int ui:nodegraph:node:stackingOrder = 4005
                 string[] ui:nodegraph:realitykit:node:attributesShowingChildren = ["inputs:smoothStepWidth", "inputs:smoothStepWidth", "inputs:smoothStepStep", "inputs:smoothStepStep", "inputs:smoothStepStep", "inputs:smoothStepWidth", "inputs:smoothStepStep", "inputs:opacityCorrection"]
-                float2 ui:nodegraph:realitykit:subgraphOutputs:size = (145.5, 81)
+                float2 ui:nodegraph:realitykit:subgraphOutputs:size = (144, 81)
             }
 
-            def Shader "Image_1"
-            {
-                uniform token info:id = "ND_image_color3"
-                color3f inputs:default
-                asset inputs:file.connect = </Root/placeHolder_X_Positive/Material_X/Dot.outputs:out>
-                string inputs:filtertype
-                float2 inputs:texcoord
-                string inputs:uaddressmode
-                string inputs:vaddressmode
-                color3f outputs:out
-                float2 ui:nodegraph:node:pos = (781.1528, -259.93323)
-                float2 ui:nodegraph:node:size = (149, 199)
-                int ui:nodegraph:node:stackingOrder = 3921
-                string[] ui:nodegraph:realitykit:node:attributesShowingChildren = ["inputs:uaddressmode", "inputs:texcoord", "inputs:texcoord", "inputs:default", "inputs:texcoord", "inputs:file", "inputs:default"]
-            }
-
-            def "trim_1" (
-                active = true
-                instanceable = true
-                references = </Root/trim>
-            )
-            {
-                float inputs:Opacity (
-                    customData = {
-                        dictionary realitykit = {
-                            float2 positionInSubgraph = (519.5298, 268.8333)
-                            float2 sizeInSubgraph = (116.5, 53)
-                            int stackingOrderInSubgraph = 3252
-                        }
-                    }
-                )
-                float inputs:Opacity.connect = </Root/placeHolder_X_Positive/Material_X/opacityCorrection_1.outputs:return>
-                float2 ui:nodegraph:node:pos = (1099.9236, 142.50877)
-                float2 ui:nodegraph:node:size = (105, 109)
-                int ui:nodegraph:node:stackingOrder = 3959
-                string[] ui:nodegraph:realitykit:node:attributesShowingChildren = ["inputs:Ifgreater_1_in2", "inputs:Ocopacity", "inputs:y", "inputs:Ocopacity", "inputs:Ocopacity", "outputs:Min_out", "inputs:Opacity"]
-                float2 ui:nodegraph:realitykit:subgraphOutputs:size = (152, 81)
-            }
-
-            def Shader "Dot"
-            {
-                uniform token info:id = "ND_dot_filename"
-                asset inputs:in.connect = </Root/placeHolder_X_Positive/Material_X.inputs:Image>
-                asset outputs:out
-                float2 ui:nodegraph:node:pos = (-123.51974, -291.14087)
-                float2 ui:nodegraph:node:size = (44, 18)
-                int ui:nodegraph:node:stackingOrder = 3917
-            }
-
-            def Shader "Dot_1"
-            {
-                uniform token info:id = "ND_dot_color3"
-                color3f inputs:in.connect = </Root/placeHolder_X_Positive/Material_X/Image_1.outputs:out>
-                color3f outputs:out
-                float2 ui:nodegraph:node:pos = (1657.2253, -135.03653)
-                float2 ui:nodegraph:node:size = (44, 18)
-                int ui:nodegraph:node:stackingOrder = 3924
-            }
-
-            def "transfer_1" (
+            def "transfer" (
                 active = true
                 instanceable = true
                 references = </Root/transfer>
@@ -422,13 +368,54 @@ def Xform "Root"
                         }
                     }
                 )
-                float inputs:v.connect = </Root/placeHolder_X_Positive/Material_X/trim_1.outputs:Min_out>
-                float outputs:return.connect = </Root/placeHolder_X_Positive/Material_X/transfer_1/Multiply_2.outputs:out>
+                float inputs:v.connect = </Root/placeHolder_X_Positive/Material_X/trim.outputs:Min_out>
+                float outputs:return.connect = </Root/placeHolder_X_Positive/Material_X/transfer/Multiply_2.outputs:out>
                 float2 ui:nodegraph:node:pos = (1490.6232, 97.8088)
                 float2 ui:nodegraph:node:size = (140, 145)
                 int ui:nodegraph:node:stackingOrder = 3984
                 string[] ui:nodegraph:realitykit:node:attributesShowingChildren = ["inputs:smoothStepWidth", "inputs:smoothStepWidth", "inputs:smoothStepStep", "inputs:smoothStepStep", "inputs:smoothStepStep", "inputs:smoothStepWidth", "inputs:smoothStepStep", "inputs:smoothStepShift", "inputs:smoothStepStart"]
                 float2 ui:nodegraph:realitykit:subgraphOutputs:size = (144, 81)
+            }
+
+            def "trim" (
+                active = true
+                instanceable = true
+                references = </Root/trim>
+            )
+            {
+                float inputs:Opacity (
+                    customData = {
+                        dictionary realitykit = {
+                            float2 positionInSubgraph = (519.5298, 268.8333)
+                            float2 sizeInSubgraph = (117, 53)
+                            int stackingOrderInSubgraph = 3252
+                        }
+                    }
+                )
+                float inputs:Opacity.connect = </Root/placeHolder_X_Positive/Material_X/opacityCorrection.outputs:return>
+                float2 ui:nodegraph:node:pos = (1099.9236, 142.50877)
+                float2 ui:nodegraph:node:size = (105, 109)
+                int ui:nodegraph:node:stackingOrder = 3959
+                string[] ui:nodegraph:realitykit:node:attributesShowingChildren = ["inputs:Ifgreater_1_in2", "inputs:Ocopacity", "inputs:y", "inputs:Ocopacity", "inputs:Ocopacity", "outputs:Min_out", "inputs:Opacity"]
+                float2 ui:nodegraph:realitykit:subgraphOutputs:size = (152, 81)
+            }
+
+            def Shader "UnlitSurface" (
+                active = true
+            )
+            {
+                uniform token info:id = "ND_realitykit_unlit_surfaceshader"
+                bool inputs:applyPostProcessToneMap = 0
+                color3f inputs:color.connect = </Root/placeHolder_X_Positive/Material_X/Dot_1.outputs:out>
+                bool inputs:hasPremultipliedAlpha = 0
+                float inputs:opacity = 0
+                float inputs:opacity.connect = </Root/placeHolder_X_Positive/Material_X/transfer.outputs:return>
+                float inputs:opacityThreshold.connect = None
+                token outputs:out
+                float2 ui:nodegraph:node:pos = (1902.8978, 100.71924)
+                float2 ui:nodegraph:node:size = (195, 181)
+                int ui:nodegraph:node:stackingOrder = 4010
+                string[] ui:nodegraph:realitykit:node:attributesShowingChildren = ["inputs:color", "inputs:opacity", "inputs:applyPostProcessToneMap", "inputs:opacityThreshold", "inputs:opacityThreshold", "outputs:out", "inputs:applyPostProcessToneMap", "inputs:hasPremultipliedAlpha", "inputs:opacityThreshold", "inputs:hasPremultipliedAlpha", "inputs:opacity", "inputs:opacityThreshold", "inputs:color", "inputs:opacityThreshold", "inputs:applyPostProcessToneMap"]
             }
         }
     }
@@ -450,13 +437,13 @@ def Xform "Root"
 
         def Material "Material_X"
         {
-            reorder nameChildren = ["trim_1", "UnlitSurface_1", "transfer_1", "opacityCorrection_1", "Image_1", "Image", "UsdPreviewSurface", "nodegraph", "IfGreaterOrEqual"]
-            asset inputs:Image = @image.jpeg@ (
+            reorder nameChildren = ["trim", "UnlitSurface_1", "transfer", "opacityCorrection", "Image_1", "Image", "UsdPreviewSurface", "nodegraph", "IfGreaterOrEqual"]
+            asset inputs:Image (
                 customData = {
                     dictionary realitykit = {
                         float2 positionInSubgraph = (-136.96214, -138.12038)
                         float2 sizeInSubgraph = (116, 53)
-                        int stackingOrderInSubgraph = 3745
+                        int stackingOrderInSubgraph = 3883
                     }
                 }
             )
@@ -525,47 +512,13 @@ def Xform "Root"
                     }
                 }
             )
-            token outputs:mtlx:surface.connect = </Root/placeHolder_X_Negative/Material_X/UnlitSurface_1.outputs:out>
+            token outputs:mtlx:surface.connect = </Root/placeHolder_X_Negative/Material_X/UnlitSurface.outputs:out>
             token outputs:realitykit:vertex.connect = </Root/placeHolder_Z_Positive/Material/GeometryModifier.outputs:out>
             token outputs:surface.connect = </Root/placeHolder_Z_Positive/Material/UsdPreviewSurface.outputs:surface>
             string[] ui:nodegraph:realitykit:node:attributesShowingChildren = ["outputs:realitykit:vertex"]
             float2 ui:nodegraph:realitykit:subgraphOutputs:pos = (2119.6396, 133.81857)
             float2 ui:nodegraph:realitykit:subgraphOutputs:size = (182, 99)
             int ui:nodegraph:realitykit:subgraphOutputs:stackingOrder = 3517
-
-            def Shader "UnlitSurface_1" (
-                active = true
-            )
-            {
-                uniform token info:id = "ND_realitykit_unlit_surfaceshader"
-                bool inputs:applyPostProcessToneMap = 1
-                color3f inputs:color.connect = </Root/placeHolder_X_Negative/Material_X/Image_1.outputs:out>
-                bool inputs:hasPremultipliedAlpha = 0
-                float inputs:opacity = 0
-                float inputs:opacity.connect = </Root/placeHolder_X_Negative/Material_X/transfer_1.outputs:return>
-                float inputs:opacityThreshold
-                token outputs:out
-                float2 ui:nodegraph:node:pos = (1885.0413, 113.76458)
-                float2 ui:nodegraph:node:size = (195, 181)
-                int ui:nodegraph:node:stackingOrder = 3745
-                string[] ui:nodegraph:realitykit:node:attributesShowingChildren = ["inputs:color", "inputs:opacity", "inputs:applyPostProcessToneMap", "inputs:opacityThreshold", "inputs:opacityThreshold", "outputs:out", "inputs:applyPostProcessToneMap", "inputs:hasPremultipliedAlpha", "inputs:opacityThreshold", "inputs:hasPremultipliedAlpha", "inputs:opacity", "inputs:opacityThreshold", "inputs:hasPremultipliedAlpha", "inputs:applyPostProcessToneMap", "inputs:applyPostProcessToneMap", "inputs:opacity"]
-            }
-
-            def Shader "Image"
-            {
-                uniform token info:id = "ND_image_float"
-                float inputs:default
-                asset inputs:file.connect = </Root/placeHolder_X_Negative/Material_X.inputs:Image>
-                string inputs:filtertype
-                float2 inputs:texcoord
-                string inputs:uaddressmode
-                string inputs:vaddressmode
-                float outputs:out
-                float2 ui:nodegraph:node:pos = (91.14406, -29.383032)
-                float2 ui:nodegraph:node:size = (149, 199)
-                int ui:nodegraph:node:stackingOrder = 3734
-                string[] ui:nodegraph:realitykit:node:attributesShowingChildren = ["inputs:uaddressmode", "inputs:texcoord", "inputs:texcoord", "inputs:default", "inputs:texcoord", "inputs:file"]
-            }
 
             def Shader "UsdPreviewSurface" (
                 active = false
@@ -575,183 +528,32 @@ def Xform "Root"
                 token outputs:surface
             }
 
-            def NodeGraph "nodegraph"
+            def Shader "Image"
             {
-                float inputs:Opacity (
-                    customData = {
-                        dictionary realitykit = {
-                            float2 positionInSubgraph = (501.00006, 280.88766)
-                            float2 sizeInSubgraph = (117, 53)
-                            int stackingOrderInSubgraph = 2809
-                        }
-                    }
-                )
-                float inputs:Opacity.connect = </Root/placeHolder_X_Negative/Material_X/Image.outputs:out>
-                float inputs:y (
-                    customData = {
-                        dictionary realitykit = {
-                            float2 positionInSubgraph = (444.4671, 375.54602)
-                            float2 sizeInSubgraph = (98, 53)
-                            int stackingOrderInSubgraph = 2809
-                        }
-                    }
-                )
-                float inputs:y.connect = </Root/placeHolder_X_Negative/Material_X.inputs:y>
-                float inputs:z (
-                    customData = {
-                        dictionary realitykit = {
-                            float2 positionInSubgraph = (458.7852, 109.96706)
-                            float2 sizeInSubgraph = (98, 53)
-                            int stackingOrderInSubgraph = 2808
-                        }
-                    }
-                )
-                float inputs:z.connect = </Root/placeHolder_X_Negative/Material_X.inputs:z>
-                float outputs:Min_out.connect = </Root/placeHolder_X_Negative/Material_X/nodegraph/Min.outputs:out>
-                float2 ui:nodegraph:node:pos = (352.58267, 143.62653)
-                float2 ui:nodegraph:node:size = (120, 145)
-                int ui:nodegraph:node:stackingOrder = 3876
-                string[] ui:nodegraph:realitykit:node:attributesShowingChildren = ["inputs:Ifgreater_1_in2"]
-                float2 ui:nodegraph:realitykit:subgraphOutputs:pos = (1036.9363, 278.91962)
-                float2 ui:nodegraph:realitykit:subgraphOutputs:size = (137, 81)
-                int ui:nodegraph:realitykit:subgraphOutputs:stackingOrder = 2787
-
-                def Shader "Separate2"
-                {
-                    uniform token info:id = "ND_separate2_vector2"
-                    float2 inputs:in.connect = </Root/placeHolder_X_Negative/Material_X/nodegraph/Texcoord.outputs:out>
-                    float outputs:outx
-                    float outputs:outy
-                    float2 ui:nodegraph:node:pos = (214.44858, 248.63914)
-                    float2 ui:nodegraph:node:size = (116, 127)
-                    int ui:nodegraph:node:stackingOrder = 2688
-                    string[] ui:nodegraph:realitykit:node:attributesShowingChildren = ["inputs:in"]
-                }
-
-                def Shader "Ifgreater"
-                {
-                    uniform token info:id = "ND_ifgreater_float"
-                    float inputs:in1.connect = None
-                    float inputs:in2.connect = </Root/placeHolder_X_Negative/Material_X/nodegraph.inputs:Opacity>
-                    float inputs:value1.connect = </Root/placeHolder_X_Negative/Material_X/nodegraph.inputs:z>
-                    float inputs:value2.connect = </Root/placeHolder_X_Negative/Material_X/nodegraph/Separate2.outputs:outx>
-                    float outputs:out
-                    float2 ui:nodegraph:node:pos = (687.6565, 124.37821)
-                    float2 ui:nodegraph:node:size = (109, 163)
-                    int ui:nodegraph:node:stackingOrder = 2675
-                    string[] ui:nodegraph:realitykit:node:attributesShowingChildren = ["inputs:in1", "inputs:value2", "inputs:value1", "inputs:in1"]
-                }
-
-                def Shader "Texcoord"
-                {
-                    uniform token info:id = "ND_texcoord_vector2"
-                    float2 outputs:out
-                    float2 ui:nodegraph:node:pos = (-8.836226, 255.0784)
-                    float2 ui:nodegraph:node:size = (182, 53)
-                    int ui:nodegraph:node:stackingOrder = 2708
-                    string[] ui:nodegraph:realitykit:node:attributesShowingChildren = ["outputs:out"]
-                }
-
-                def Shader "Ifgreater_1"
-                {
-                    uniform token info:id = "ND_ifgreater_float"
-                    float inputs:in1
-                    float inputs:in2.connect = </Root/placeHolder_X_Negative/Material_X/nodegraph.inputs:Opacity>
-                    float inputs:value1.connect = </Root/placeHolder_X_Negative/Material_X/nodegraph.inputs:y>
-                    float inputs:value2.connect = </Root/placeHolder_X_Negative/Material_X/nodegraph/Dot.outputs:out>
-                    float outputs:out
-                    float2 ui:nodegraph:node:pos = (680.8892, 425.97546)
-                    float2 ui:nodegraph:node:size = (115, 163)
-                    int ui:nodegraph:node:stackingOrder = 2805
-                    string[] ui:nodegraph:realitykit:node:attributesShowingChildren = ["inputs:in1", "inputs:value2", "inputs:value1", "inputs:in1"]
-                }
-
-                def Shader "Min"
-                {
-                    uniform token info:id = "ND_min_float"
-                    float inputs:in1.connect = </Root/placeHolder_X_Negative/Material_X/nodegraph/Ifgreater.outputs:out>
-                    float inputs:in2.connect = </Root/placeHolder_X_Negative/Material_X/nodegraph/Ifgreater_1.outputs:out>
-                    float outputs:out
-                    float2 ui:nodegraph:node:pos = (862.89154, 301.87238)
-                    float2 ui:nodegraph:node:size = (114, 40)
-                    int ui:nodegraph:node:stackingOrder = 2787
-                }
-
-                def Shader "Dot"
-                {
-                    uniform token info:id = "ND_dot_float"
-                    float inputs:in.connect = </Root/placeHolder_X_Negative/Material_X/nodegraph/Separate2.outputs:outy>
-                    float outputs:out
-                    float2 ui:nodegraph:node:pos = (352.34045, 424.14096)
-                    float2 ui:nodegraph:node:size = (44, 18)
-                    int ui:nodegraph:node:stackingOrder = 2807
-                }
-            }
-
-            def Shader "IfGreaterOrEqual"
-            {
-                uniform token info:id = "ND_ifgreatereq_float"
-                float inputs:in1.connect = None
-                float inputs:in2 = 0
-                float inputs:in2.connect = </Root/placeHolder_X_Negative/Material_X/nodegraph.outputs:Min_out>
-                float inputs:value1.connect = </Root/placeHolder_X_Negative/Material_X.inputs:x>
-                float inputs:value2.connect = </Root/placeHolder_X_Negative/Material_X.inputs:XLayer>
-                float outputs:out
-                float2 ui:nodegraph:node:pos = (677.1841, 154.64444)
-                float2 ui:nodegraph:node:size = (157, 163)
-                int ui:nodegraph:node:stackingOrder = 3876
-                string[] ui:nodegraph:realitykit:node:attributesShowingChildren = ["inputs:in1", "inputs:value1", "inputs:value1"]
-            }
-
-            def "opacityCorrection_1" (
-                active = true
-                instanceable = true
-                references = </Root/opacityCorrection>
-            )
-            {
-                float inputs:opacityCorrection (
-                    customData = {
-                        dictionary realitykit = {
-                            float2 positionInSubgraph = (461.80106, -156.40652)
-                            float2 sizeInSubgraph = (180, 53)
-                            int stackingOrderInSubgraph = 1106
-                        }
-                    }
-                )
-                float inputs:opacityCorrection.connect = </Root/placeHolder_X_Negative/Material_X.inputs:opacityCorrection>
-                float inputs:v (
-                    customData = {
-                        dictionary realitykit = {
-                            float2 positionInSubgraph = (485.76352, -284.85245)
-                            float2 sizeInSubgraph = (98, 53)
-                            int stackingOrderInSubgraph = 1089
-                        }
-                    }
-                )
-                float inputs:v.connect = </Root/placeHolder_X_Negative/Material_X/IfGreaterOrEqual.outputs:out>
-                float2 ui:nodegraph:node:pos = (1096.53, 197.44504)
-                float2 ui:nodegraph:node:size = (176, 127)
-                int ui:nodegraph:node:stackingOrder = 3876
-                string[] ui:nodegraph:realitykit:node:attributesShowingChildren = ["inputs:smoothStepWidth", "inputs:smoothStepWidth", "inputs:smoothStepStep", "inputs:smoothStepStep", "inputs:smoothStepStep", "inputs:smoothStepWidth", "inputs:smoothStepStep", "inputs:opacityCorrection"]
-                float2 ui:nodegraph:realitykit:subgraphOutputs:size = (145.5, 81)
-            }
-
-            def Shader "Image_1"
-            {
-                uniform token info:id = "ND_image_color3"
-                prepend asset inputs:file.connect = </Root/placeHolder_X_Negative/Material_X.inputs:Image>
+                uniform token info:id = "ND_image_float"
+                asset inputs:file.connect = </Root/placeHolder_X_Negative/Material_X.inputs:Image>
                 string inputs:filtertype
-                float2 inputs:texcoord
-                string inputs:uaddressmode
-                string inputs:vaddressmode
-                color3f outputs:out
-                float2 ui:nodegraph:node:pos = (881.3642, -257.7143)
+                float outputs:out
+                float2 ui:nodegraph:node:pos = (93.721115, -68.46155)
                 float2 ui:nodegraph:node:size = (149, 199)
-                int ui:nodegraph:node:stackingOrder = 3415
-                string[] ui:nodegraph:realitykit:node:attributesShowingChildren = ["inputs:uaddressmode", "inputs:texcoord", "inputs:texcoord", "inputs:default", "inputs:texcoord", "inputs:file"]
+                int ui:nodegraph:node:stackingOrder = 3872
+                string[] ui:nodegraph:realitykit:node:attributesShowingChildren = ["inputs:vaddressmode", "inputs:file", "inputs:vaddressmode"]
             }
 
-            def "trim_1" (
+            def Shader "Combine3"
+            {
+                uniform token info:id = "ND_combine3_color3"
+                float inputs:in1.connect = </Root/placeHolder_X_Negative/Material_X/Image.outputs:out>
+                float inputs:in2.connect = </Root/placeHolder_X_Negative/Material_X/Image.outputs:out>
+                float inputs:in3.connect = </Root/placeHolder_X_Negative/Material_X/Image.outputs:out>
+                color3f outputs:out
+                float2 ui:nodegraph:node:pos = (794.24524, -136.33482)
+                float2 ui:nodegraph:node:size = (146, 54)
+                int ui:nodegraph:node:stackingOrder = 3873
+                string[] ui:nodegraph:realitykit:node:attributesShowingChildren = ["inputs:in2"]
+            }
+
+            def "trim" (
                 active = true
                 instanceable = true
                 references = </Root/trim>
@@ -761,19 +563,19 @@ def Xform "Root"
                     customData = {
                         dictionary realitykit = {
                             float2 positionInSubgraph = (519.5298, 268.8333)
-                            float2 sizeInSubgraph = (116.5, 53)
+                            float2 sizeInSubgraph = (117, 53)
                             int stackingOrderInSubgraph = 3252
                         }
                     }
                 )
-                float inputs:Opacity.connect = </Root/placeHolder_X_Negative/Material_X/opacityCorrection_1.outputs:return>
+                float inputs:Opacity.connect = </Root/placeHolder_X_Negative/Material_X/opacityCorrection.outputs:return>
                 float2 ui:nodegraph:node:pos = (1289.8903, 238.47173)
                 float2 ui:nodegraph:node:size = (105, 109)
                 int ui:nodegraph:node:stackingOrder = 3881
-                float2 ui:nodegraph:realitykit:subgraphOutputs:size = (152, 81)
+                float2 ui:nodegraph:realitykit:subgraphOutputs:size = (137, 81)
             }
 
-            def "transfer_1" (
+            def "transfer" (
                 active = true
                 instanceable = true
                 references = </Root/transfer>
@@ -807,13 +609,192 @@ def Xform "Root"
                         }
                     }
                 )
-                float inputs:v.connect = </Root/placeHolder_X_Negative/Material_X/trim_1.outputs:Min_out>
-                float outputs:return.connect = </Root/placeHolder_X_Negative/Material_X/transfer_1/Multiply_2.outputs:out>
+                float inputs:v.connect = </Root/placeHolder_X_Negative/Material_X/trim.outputs:Min_out>
+                float outputs:return.connect = </Root/placeHolder_X_Negative/Material_X/transfer/Multiply_2.outputs:out>
                 float2 ui:nodegraph:node:pos = (1652.3568, 142.71198)
                 float2 ui:nodegraph:node:size = (140, 145)
                 int ui:nodegraph:node:stackingOrder = 3878
                 string[] ui:nodegraph:realitykit:node:attributesShowingChildren = ["inputs:smoothStepStep", "inputs:smoothStepStep", "inputs:smoothStepStep", "inputs:smoothStepStep", "inputs:smoothStepStep", "inputs:smoothStepShift"]
                 float2 ui:nodegraph:realitykit:subgraphOutputs:size = (144, 81)
+            }
+
+            def "opacityCorrection" (
+                active = true
+                instanceable = true
+                references = </Root/opacityCorrection>
+            )
+            {
+                float inputs:opacityCorrection (
+                    customData = {
+                        dictionary realitykit = {
+                            float2 positionInSubgraph = (461.80106, -156.40652)
+                            float2 sizeInSubgraph = (180, 53)
+                            int stackingOrderInSubgraph = 1106
+                        }
+                    }
+                )
+                float inputs:opacityCorrection.connect = </Root/placeHolder_X_Negative/Material_X.inputs:opacityCorrection>
+                float inputs:v (
+                    customData = {
+                        dictionary realitykit = {
+                            float2 positionInSubgraph = (485.76352, -284.85245)
+                            float2 sizeInSubgraph = (98, 53)
+                            int stackingOrderInSubgraph = 1089
+                        }
+                    }
+                )
+                float inputs:v.connect = </Root/placeHolder_X_Negative/Material_X/clipX.outputs:out>
+                float2 ui:nodegraph:node:pos = (1096.53, 197.44504)
+                float2 ui:nodegraph:node:size = (163, 127)
+                int ui:nodegraph:node:stackingOrder = 3876
+                string[] ui:nodegraph:realitykit:node:attributesShowingChildren = ["inputs:smoothStepWidth", "inputs:smoothStepWidth", "inputs:smoothStepStep", "inputs:smoothStepStep", "inputs:smoothStepStep", "inputs:smoothStepWidth", "inputs:smoothStepStep", "inputs:opacityCorrection"]
+                float2 ui:nodegraph:realitykit:subgraphOutputs:size = (146, 81)
+            }
+
+            def NodeGraph "clip"
+            {
+                float inputs:Opacity (
+                    customData = {
+                        dictionary realitykit = {
+                            float2 positionInSubgraph = (501.00006, 280.88766)
+                            float2 sizeInSubgraph = (117, 53)
+                            int stackingOrderInSubgraph = 2809
+                        }
+                    }
+                )
+                float inputs:Opacity.connect = </Root/placeHolder_X_Negative/Material_X/Image.outputs:out>
+                float inputs:y (
+                    customData = {
+                        dictionary realitykit = {
+                            float2 positionInSubgraph = (444.4671, 375.54602)
+                            float2 sizeInSubgraph = (98, 53)
+                            int stackingOrderInSubgraph = 2809
+                        }
+                    }
+                )
+                float inputs:y.connect = </Root/placeHolder_X_Negative/Material_X.inputs:y>
+                float inputs:z (
+                    customData = {
+                        dictionary realitykit = {
+                            float2 positionInSubgraph = (458.7852, 109.96706)
+                            float2 sizeInSubgraph = (98, 53)
+                            int stackingOrderInSubgraph = 2808
+                        }
+                    }
+                )
+                float inputs:z.connect = </Root/placeHolder_X_Negative/Material_X.inputs:z>
+                float outputs:Min_out.connect = </Root/placeHolder_X_Negative/Material_X/clip/Min.outputs:out>
+                float2 ui:nodegraph:node:pos = (352.58267, 143.62653)
+                float2 ui:nodegraph:node:size = (106, 145)
+                int ui:nodegraph:node:stackingOrder = 3890
+                string[] ui:nodegraph:realitykit:node:attributesShowingChildren = ["inputs:Ifgreater_1_in2"]
+                float2 ui:nodegraph:realitykit:subgraphOutputs:pos = (1036.9363, 278.91962)
+                float2 ui:nodegraph:realitykit:subgraphOutputs:size = (137.99985, 81)
+                int ui:nodegraph:realitykit:subgraphOutputs:stackingOrder = 2787
+
+                def Shader "Separate2"
+                {
+                    uniform token info:id = "ND_separate2_vector2"
+                    float2 inputs:in.connect = </Root/placeHolder_X_Negative/Material_X/clip/Texcoord.outputs:out>
+                    float outputs:outx
+                    float outputs:outy
+                    float2 ui:nodegraph:node:pos = (214.44858, 248.63914)
+                    float2 ui:nodegraph:node:size = (116, 127)
+                    int ui:nodegraph:node:stackingOrder = 2688
+                    string[] ui:nodegraph:realitykit:node:attributesShowingChildren = ["inputs:in"]
+                }
+
+                def Shader "Ifgreater"
+                {
+                    uniform token info:id = "ND_ifgreater_float"
+                    float inputs:in1.connect = None
+                    float inputs:in2.connect = </Root/placeHolder_X_Negative/Material_X/clip.inputs:Opacity>
+                    float inputs:value1.connect = </Root/placeHolder_X_Negative/Material_X/clip.inputs:z>
+                    float inputs:value2.connect = </Root/placeHolder_X_Negative/Material_X/clip/Separate2.outputs:outx>
+                    float outputs:out
+                    float2 ui:nodegraph:node:pos = (687.6565, 124.37821)
+                    float2 ui:nodegraph:node:size = (109, 163)
+                    int ui:nodegraph:node:stackingOrder = 2675
+                    string[] ui:nodegraph:realitykit:node:attributesShowingChildren = ["inputs:in1", "inputs:value2", "inputs:value1", "inputs:in1"]
+                }
+
+                def Shader "Texcoord"
+                {
+                    uniform token info:id = "ND_texcoord_vector2"
+                    float2 outputs:out
+                    float2 ui:nodegraph:node:pos = (-8.836226, 255.0784)
+                    float2 ui:nodegraph:node:size = (182, 53)
+                    int ui:nodegraph:node:stackingOrder = 2708
+                    string[] ui:nodegraph:realitykit:node:attributesShowingChildren = ["outputs:out"]
+                }
+
+                def Shader "Ifgreater_1"
+                {
+                    uniform token info:id = "ND_ifgreater_float"
+                    float inputs:in1
+                    float inputs:in2.connect = </Root/placeHolder_X_Negative/Material_X/clip.inputs:Opacity>
+                    float inputs:value1.connect = </Root/placeHolder_X_Negative/Material_X/clip.inputs:y>
+                    float inputs:value2.connect = </Root/placeHolder_X_Negative/Material_X/clip/Dot.outputs:out>
+                    float outputs:out
+                    float2 ui:nodegraph:node:pos = (680.8892, 425.97546)
+                    float2 ui:nodegraph:node:size = (115, 163)
+                    int ui:nodegraph:node:stackingOrder = 2805
+                    string[] ui:nodegraph:realitykit:node:attributesShowingChildren = ["inputs:in1", "inputs:value2", "inputs:value1", "inputs:in1"]
+                }
+
+                def Shader "Min"
+                {
+                    uniform token info:id = "ND_min_float"
+                    float inputs:in1.connect = </Root/placeHolder_X_Negative/Material_X/clip/Ifgreater.outputs:out>
+                    float inputs:in2.connect = </Root/placeHolder_X_Negative/Material_X/clip/Ifgreater_1.outputs:out>
+                    float outputs:out
+                    float2 ui:nodegraph:node:pos = (862.89154, 301.87238)
+                    float2 ui:nodegraph:node:size = (114, 40)
+                    int ui:nodegraph:node:stackingOrder = 2787
+                }
+
+                def Shader "Dot"
+                {
+                    uniform token info:id = "ND_dot_float"
+                    float inputs:in.connect = </Root/placeHolder_X_Negative/Material_X/clip/Separate2.outputs:outy>
+                    float outputs:out
+                    float2 ui:nodegraph:node:pos = (352.34045, 424.14096)
+                    float2 ui:nodegraph:node:size = (44, 18)
+                    int ui:nodegraph:node:stackingOrder = 2807
+                }
+            }
+
+            def Shader "clipX"
+            {
+                uniform token info:id = "ND_ifgreatereq_float"
+                float inputs:in1.connect = None
+                float inputs:in2 = 0
+                float inputs:in2.connect = </Root/placeHolder_X_Negative/Material_X/clip.outputs:Min_out>
+                float inputs:value1.connect = </Root/placeHolder_X_Negative/Material_X.inputs:x>
+                float inputs:value2.connect = </Root/placeHolder_X_Negative/Material_X.inputs:XLayer>
+                float outputs:out
+                float2 ui:nodegraph:node:pos = (677.1841, 154.64444)
+                float2 ui:nodegraph:node:size = (140, 163)
+                int ui:nodegraph:node:stackingOrder = 3893
+                string[] ui:nodegraph:realitykit:node:attributesShowingChildren = ["inputs:in1", "inputs:value1", "inputs:value1"]
+            }
+
+            def Shader "UnlitSurface" (
+                active = true
+            )
+            {
+                uniform token info:id = "ND_realitykit_unlit_surfaceshader"
+                bool inputs:applyPostProcessToneMap = 0
+                color3f inputs:color.connect = </Root/placeHolder_X_Negative/Material_X/Combine3.outputs:out>
+                bool inputs:hasPremultipliedAlpha = 0
+                float inputs:opacity = 0
+                float inputs:opacity.connect = </Root/placeHolder_X_Negative/Material_X/transfer.outputs:return>
+                float inputs:opacityThreshold
+                token outputs:out
+                float2 ui:nodegraph:node:pos = (1885.0413, 113.76458)
+                float2 ui:nodegraph:node:size = (195, 181)
+                int ui:nodegraph:node:stackingOrder = 3895
+                string[] ui:nodegraph:realitykit:node:attributesShowingChildren = ["inputs:color", "inputs:opacity", "inputs:applyPostProcessToneMap", "inputs:opacityThreshold", "inputs:opacityThreshold", "outputs:out", "inputs:applyPostProcessToneMap", "inputs:hasPremultipliedAlpha", "inputs:opacityThreshold", "inputs:hasPremultipliedAlpha", "inputs:opacity", "inputs:opacityThreshold", "inputs:hasPremultipliedAlpha", "inputs:applyPostProcessToneMap", "inputs:applyPostProcessToneMap", "inputs:opacity", "inputs:applyPostProcessToneMap", "inputs:opacity"]
             }
         }
     }
@@ -835,13 +816,13 @@ def Xform "Root"
 
         def Material "Material_Y"
         {
-            reorder nameChildren = ["trim_1", "transfer_1", "UnlitSurface_1", "opacityCorrection_1", "Image_1", "Image", "UsdPreviewSurface", "nodegraph", "IfGreaterOrEqual"]
+            reorder nameChildren = ["trim", "transfer", "UnlitSurface_1", "opacityCorrection", "Image_1", "Image", "UsdPreviewSurface", "nodegraph", "IfGreaterOrEqual"]
             asset inputs:Image (
                 customData = {
                     dictionary realitykit = {
                         float2 positionInSubgraph = (-146.14076, -116.99972)
                         float2 sizeInSubgraph = (116, 53)
-                        int stackingOrderInSubgraph = 3630
+                        int stackingOrderInSubgraph = 3761
                     }
                 }
             )
@@ -910,47 +891,13 @@ def Xform "Root"
                     }
                 }
             )
-            token outputs:mtlx:surface.connect = </Root/placeHolder_Y_Positive/Material_Y/UnlitSurface_1.outputs:out>
+            token outputs:mtlx:surface.connect = </Root/placeHolder_Y_Positive/Material_Y/UnlitSurface.outputs:out>
             token outputs:realitykit:vertex.connect = </Root/placeHolder_Z_Positive/Material/GeometryModifier.outputs:out>
             token outputs:surface.connect = </Root/placeHolder_Z_Positive/Material/UsdPreviewSurface.outputs:surface>
             string[] ui:nodegraph:realitykit:node:attributesShowingChildren = ["outputs:realitykit:vertex"]
             float2 ui:nodegraph:realitykit:subgraphOutputs:pos = (2153.4355, 38.232193)
             float2 ui:nodegraph:realitykit:subgraphOutputs:size = (182, 99)
             int ui:nodegraph:realitykit:subgraphOutputs:stackingOrder = 3486
-
-            def Shader "UnlitSurface_1" (
-                active = true
-            )
-            {
-                uniform token info:id = "ND_realitykit_unlit_surfaceshader"
-                bool inputs:applyPostProcessToneMap = 1
-                color3f inputs:color.connect = </Root/placeHolder_Y_Positive/Material_Y/Image_1.outputs:out>
-                bool inputs:hasPremultipliedAlpha = 0
-                float inputs:opacity = 0
-                float inputs:opacity.connect = </Root/placeHolder_Y_Positive/Material_Y/transfer_1.outputs:return>
-                float inputs:opacityThreshold.connect = None
-                token outputs:out
-                float2 ui:nodegraph:node:pos = (1931.0127, 144.67244)
-                float2 ui:nodegraph:node:size = (195, 181)
-                int ui:nodegraph:node:stackingOrder = 3714
-                string[] ui:nodegraph:realitykit:node:attributesShowingChildren = ["inputs:color", "inputs:opacity", "inputs:applyPostProcessToneMap", "inputs:opacityThreshold", "inputs:opacityThreshold", "outputs:out", "inputs:applyPostProcessToneMap", "inputs:hasPremultipliedAlpha", "inputs:opacityThreshold", "inputs:hasPremultipliedAlpha", "inputs:opacity", "inputs:opacityThreshold", "inputs:opacity", "inputs:opacityThreshold", "inputs:opacityThreshold", "inputs:opacity"]
-            }
-
-            def Shader "Image"
-            {
-                uniform token info:id = "ND_image_float"
-                float inputs:default
-                asset inputs:file.connect = </Root/placeHolder_Y_Positive/Material_Y.inputs:Image>
-                string inputs:filtertype
-                float2 inputs:texcoord
-                string inputs:uaddressmode
-                string inputs:vaddressmode
-                float outputs:out
-                float2 ui:nodegraph:node:pos = (64.89013, 12.803858)
-                float2 ui:nodegraph:node:size = (149, 199)
-                int ui:nodegraph:node:stackingOrder = 3627
-                string[] ui:nodegraph:realitykit:node:attributesShowingChildren = ["inputs:uaddressmode", "inputs:texcoord", "inputs:texcoord", "inputs:default", "inputs:texcoord", "inputs:file", "inputs:uaddressmode"]
-            }
 
             def Shader "UsdPreviewSurface" (
                 active = false
@@ -960,217 +907,33 @@ def Xform "Root"
                 token outputs:surface
             }
 
-            def NodeGraph "nodegraph"
+            def Shader "Combine3"
             {
-                float inputs:Opacity (
-                    customData = {
-                        dictionary realitykit = {
-                            float2 positionInSubgraph = (501.00006, 280.88766)
-                            float2 sizeInSubgraph = (117, 53)
-                            int stackingOrderInSubgraph = 2835
-                        }
-                    }
-                )
-                float inputs:Opacity.connect = </Root/placeHolder_Y_Positive/Material_Y/Image.outputs:out>
-                float inputs:x (
-                    customData = {
-                        dictionary realitykit = {
-                            float2 positionInSubgraph = (487.51428, 104.692825)
-                            float2 sizeInSubgraph = (98, 53)
-                            int stackingOrderInSubgraph = 2837
-                        }
-                    }
-                )
-                float inputs:x.connect = </Root/placeHolder_Y_Positive/Material_Y.inputs:x>
-                float inputs:z (
-                    customData = {
-                        dictionary realitykit = {
-                            float2 positionInSubgraph = (373.72916, 483.60965)
-                            float2 sizeInSubgraph = (98, 53)
-                            int stackingOrderInSubgraph = 2835
-                        }
-                    }
-                )
-                float inputs:z.connect = </Root/placeHolder_Y_Positive/Material_Y.inputs:z>
-                float outputs:Min_out.connect = </Root/placeHolder_Y_Positive/Material_Y/nodegraph/Min.outputs:out>
-                float2 ui:nodegraph:node:pos = (433.30692, 158.18195)
-                float2 ui:nodegraph:node:size = (120, 145)
-                int ui:nodegraph:node:stackingOrder = 3703
-                string[] ui:nodegraph:realitykit:node:attributesShowingChildren = ["inputs:Ifgreater_1_in2", "inputs:x", "inputs:Ocopacity"]
-                float2 ui:nodegraph:realitykit:subgraphOutputs:pos = (1036.9363, 278.91962)
-                float2 ui:nodegraph:realitykit:subgraphOutputs:size = (137, 81)
-                int ui:nodegraph:realitykit:subgraphOutputs:stackingOrder = 2787
-
-                def Shader "Separate2"
-                {
-                    uniform token info:id = "ND_separate2_vector2"
-                    float2 inputs:in.connect = </Root/placeHolder_Y_Positive/Material_Y/nodegraph/Texcoord.outputs:out>
-                    float outputs:outx
-                    float outputs:outy
-                    float2 ui:nodegraph:node:pos = (214.44858, 248.63914)
-                    float2 ui:nodegraph:node:size = (116, 127)
-                    int ui:nodegraph:node:stackingOrder = 2688
-                    string[] ui:nodegraph:realitykit:node:attributesShowingChildren = ["inputs:in"]
-                }
-
-                def Shader "Ifgreater"
-                {
-                    uniform token info:id = "ND_ifgreater_float"
-                    float inputs:in1.connect = None
-                    float inputs:in2.connect = </Root/placeHolder_Y_Positive/Material_Y/nodegraph.inputs:Opacity>
-                    float inputs:value1.connect = </Root/placeHolder_Y_Positive/Material_Y/nodegraph.inputs:x>
-                    float inputs:value2.connect = </Root/placeHolder_Y_Positive/Material_Y/nodegraph/Separate2.outputs:outx>
-                    float outputs:out
-                    float2 ui:nodegraph:node:pos = (687.6565, 124.37821)
-                    float2 ui:nodegraph:node:size = (109, 163)
-                    int ui:nodegraph:node:stackingOrder = 2831
-                    string[] ui:nodegraph:realitykit:node:attributesShowingChildren = ["inputs:in1", "inputs:value2", "inputs:value1", "inputs:in1"]
-                }
-
-                def Shader "Texcoord"
-                {
-                    uniform token info:id = "ND_texcoord_vector2"
-                    float2 outputs:out
-                    float2 ui:nodegraph:node:pos = (-8.836226, 255.0784)
-                    float2 ui:nodegraph:node:size = (182, 53)
-                    int ui:nodegraph:node:stackingOrder = 2708
-                    string[] ui:nodegraph:realitykit:node:attributesShowingChildren = ["outputs:out"]
-                }
-
-                def Shader "Ifgreater_1"
-                {
-                    uniform token info:id = "ND_ifgreater_float"
-                    float inputs:in1
-                    float inputs:in2.connect = </Root/placeHolder_Y_Positive/Material_Y/nodegraph.inputs:Opacity>
-                    float inputs:value1.connect = </Root/placeHolder_Y_Positive/Material_Y/nodegraph/Dot.outputs:out>
-                    float inputs:value2.connect = </Root/placeHolder_Y_Positive/Material_Y/nodegraph/Subtract_1.outputs:out>
-                    float outputs:out
-                    float2 ui:nodegraph:node:pos = (680.8892, 425.97546)
-                    float2 ui:nodegraph:node:size = (115, 163)
-                    int ui:nodegraph:node:stackingOrder = 2805
-                    string[] ui:nodegraph:realitykit:node:attributesShowingChildren = ["inputs:in1", "inputs:value2", "inputs:value1", "inputs:in1"]
-                }
-
-                def Shader "Min"
-                {
-                    uniform token info:id = "ND_min_float"
-                    float inputs:in1.connect = </Root/placeHolder_Y_Positive/Material_Y/nodegraph/Ifgreater.outputs:out>
-                    float inputs:in2.connect = </Root/placeHolder_Y_Positive/Material_Y/nodegraph/Ifgreater_1.outputs:out>
-                    float outputs:out
-                    float2 ui:nodegraph:node:pos = (862.89154, 301.87238)
-                    float2 ui:nodegraph:node:size = (114, 40)
-                    int ui:nodegraph:node:stackingOrder = 2787
-                }
-
-                def Shader "Dot"
-                {
-                    uniform token info:id = "ND_dot_float"
-                    float inputs:in.connect = </Root/placeHolder_Y_Positive/Material_Y/nodegraph/Separate2.outputs:outy>
-                    float outputs:out
-                    float2 ui:nodegraph:node:pos = (352.34045, 424.14096)
-                    float2 ui:nodegraph:node:size = (44, 18)
-                    int ui:nodegraph:node:stackingOrder = 2807
-                }
-
-                def Shader "Subtract_1"
-                {
-                    uniform token info:id = "ND_subtract_float"
-                    float inputs:in1 = 1
-                    float inputs:in1.connect = None
-                    float inputs:in2.connect = </Root/placeHolder_Y_Positive/Material_Y/nodegraph.inputs:z>
-                    float outputs:out
-                    float2 ui:nodegraph:node:pos = (523.3973, 455.79712)
-                    float2 ui:nodegraph:node:size = (63, 36)
-                    int ui:nodegraph:node:stackingOrder = 2834
-                    string[] ui:nodegraph:realitykit:node:attributesShowingChildren = ["inputs:in1"]
-                }
-            }
-
-            def Shader "IfGreaterOrEqual"
-            {
-                uniform token info:id = "ND_ifgreatereq_float"
-                float inputs:in1.connect = </Root/placeHolder_Y_Positive/Material_Y/nodegraph.outputs:Min_out>
-                float inputs:in2 = 0
-                float inputs:in2.connect = None
-                float inputs:value1.connect = </Root/placeHolder_Y_Positive/Material_Y.inputs:YLayer>
-                float inputs:value2.connect = </Root/placeHolder_Y_Positive/Material_Y.inputs:y>
-                float outputs:out
-                float2 ui:nodegraph:node:pos = (762.36694, 224.14798)
-                float2 ui:nodegraph:node:size = (157, 163)
-                int ui:nodegraph:node:stackingOrder = 3703
-            }
-
-            def "opacityCorrection_1" (
-                active = true
-                instanceable = true
-                references = </Root/opacityCorrection>
-            )
-            {
-                float inputs:opacityCorrection (
-                    customData = {
-                        dictionary realitykit = {
-                            float2 positionInSubgraph = (461.80106, -156.40652)
-                            float2 sizeInSubgraph = (180, 53)
-                            int stackingOrderInSubgraph = 1106
-                        }
-                    }
-                )
-                float inputs:opacityCorrection.connect = </Root/placeHolder_Y_Positive/Material_Y.inputs:opacityCorrection>
-                float inputs:v (
-                    customData = {
-                        dictionary realitykit = {
-                            float2 positionInSubgraph = (485.76352, -284.85245)
-                            float2 sizeInSubgraph = (98, 53)
-                            int stackingOrderInSubgraph = 1089
-                        }
-                    }
-                )
-                float inputs:v.connect = </Root/placeHolder_Y_Positive/Material_Y/IfGreaterOrEqual.outputs:out>
-                float2 ui:nodegraph:node:pos = (1126.8359, 233.28563)
-                float2 ui:nodegraph:node:size = (176, 127)
-                int ui:nodegraph:node:stackingOrder = 3758
-                string[] ui:nodegraph:realitykit:node:attributesShowingChildren = ["inputs:smoothStepWidth", "inputs:smoothStepWidth", "inputs:smoothStepStep", "inputs:smoothStepStep", "inputs:smoothStepStep", "inputs:smoothStepWidth", "inputs:smoothStepStep", "inputs:opacityCorrection"]
-                float2 ui:nodegraph:realitykit:subgraphOutputs:size = (145.5, 81)
-            }
-
-            def Shader "Image_1"
-            {
-                uniform token info:id = "ND_image_color3"
-                prepend asset inputs:file.connect = </Root/placeHolder_Y_Positive/Material_Y.inputs:Image>
-                string inputs:filtertype
-                float2 inputs:texcoord
-                string inputs:uaddressmode
-                string inputs:vaddressmode
+                uniform token info:id = "ND_combine3_color3"
+                float inputs:in1.connect = </Root/placeHolder_Y_Positive/Material_Y/Image.outputs:out>
+                float inputs:in2.connect = </Root/placeHolder_Y_Positive/Material_Y/Image.outputs:out>
+                float inputs:in3.connect = </Root/placeHolder_Y_Positive/Material_Y/Image.outputs:out>
                 color3f outputs:out
-                float2 ui:nodegraph:node:pos = (943.73016, -164.52205)
-                float2 ui:nodegraph:node:size = (149, 199)
-                int ui:nodegraph:node:stackingOrder = 3711
-                string[] ui:nodegraph:realitykit:node:attributesShowingChildren = ["inputs:uaddressmode", "inputs:texcoord", "inputs:texcoord", "inputs:default", "inputs:texcoord", "inputs:file", "inputs:uaddressmode"]
+                float2 ui:nodegraph:node:pos = (794.24524, -136.33482)
+                float2 ui:nodegraph:node:size = (146, 54)
+                int ui:nodegraph:node:stackingOrder = 3873
+                string[] ui:nodegraph:realitykit:node:attributesShowingChildren = ["inputs:in2"]
             }
 
-            def "trim_1" (
-                active = true
-                instanceable = true
-                references = </Root/trim>
-            )
+            def Shader "Image"
             {
-                float inputs:Opacity (
-                    customData = {
-                        dictionary realitykit = {
-                            float2 positionInSubgraph = (519.5298, 268.8333)
-                            float2 sizeInSubgraph = (117, 53)
-                            int stackingOrderInSubgraph = 3252
-                        }
-                    }
-                )
-                float inputs:Opacity.connect = </Root/placeHolder_Y_Positive/Material_Y/opacityCorrection_1.outputs:return>
-                float2 ui:nodegraph:node:pos = (1301.1527, 253.22076)
-                float2 ui:nodegraph:node:size = (105, 109)
-                int ui:nodegraph:node:stackingOrder = 3760
-                float2 ui:nodegraph:realitykit:subgraphOutputs:size = (137, 81)
+                uniform token info:id = "ND_image_float"
+                float inputs:default
+                asset inputs:file.connect = </Root/placeHolder_Y_Positive/Material_Y.inputs:Image>
+                string inputs:filtertype
+                float outputs:out
+                float2 ui:nodegraph:node:pos = (93.721115, -68.46155)
+                float2 ui:nodegraph:node:size = (149, 199)
+                int ui:nodegraph:node:stackingOrder = 3872
+                string[] ui:nodegraph:realitykit:node:attributesShowingChildren = ["inputs:vaddressmode", "inputs:file", "inputs:vaddressmode"]
             }
 
-            def "transfer_1" (
+            def "transfer" (
                 active = true
                 instanceable = true
                 references = </Root/transfer>
@@ -1204,13 +967,226 @@ def Xform "Root"
                         }
                     }
                 )
-                float inputs:v.connect = </Root/placeHolder_Y_Positive/Material_Y/trim_1.outputs:Min_out>
-                float outputs:return.connect = </Root/placeHolder_Y_Positive/Material_Y/transfer_1/Multiply_2.outputs:out>
+                float inputs:v.connect = </Root/placeHolder_Y_Positive/Material_Y/trim.outputs:Min_out>
+                float outputs:return.connect = </Root/placeHolder_Y_Positive/Material_Y/transfer/Multiply_2.outputs:out>
                 float2 ui:nodegraph:node:pos = (1715.4419, 187.12842)
                 float2 ui:nodegraph:node:size = (140, 145)
                 int ui:nodegraph:node:stackingOrder = 3708
                 string[] ui:nodegraph:realitykit:node:attributesShowingChildren = ["inputs:smoothStepWidth", "inputs:smoothStepWidth", "inputs:smoothStepStep", "inputs:smoothStepStep", "inputs:smoothStepStep", "inputs:smoothStepWidth", "inputs:smoothStepStep", "inputs:smoothStepShift"]
                 float2 ui:nodegraph:realitykit:subgraphOutputs:size = (144, 81)
+            }
+
+            def "trim" (
+                active = true
+                instanceable = true
+                references = </Root/trim>
+            )
+            {
+                float inputs:Opacity (
+                    customData = {
+                        dictionary realitykit = {
+                            float2 positionInSubgraph = (519.5298, 268.8333)
+                            float2 sizeInSubgraph = (117, 53)
+                            int stackingOrderInSubgraph = 3252
+                        }
+                    }
+                )
+                float inputs:Opacity.connect = </Root/placeHolder_Y_Positive/Material_Y/opacityCorrection.outputs:return>
+                float2 ui:nodegraph:node:pos = (1301.1527, 253.22076)
+                float2 ui:nodegraph:node:size = (105, 109)
+                int ui:nodegraph:node:stackingOrder = 3760
+                float2 ui:nodegraph:realitykit:subgraphOutputs:size = (152, 81)
+            }
+
+            def "opacityCorrection" (
+                active = true
+                instanceable = true
+                references = </Root/opacityCorrection>
+            )
+            {
+                float inputs:opacityCorrection (
+                    customData = {
+                        dictionary realitykit = {
+                            float2 positionInSubgraph = (461.80106, -156.40652)
+                            float2 sizeInSubgraph = (180, 53)
+                            int stackingOrderInSubgraph = 1106
+                        }
+                    }
+                )
+                float inputs:opacityCorrection.connect = </Root/placeHolder_Y_Positive/Material_Y.inputs:opacityCorrection>
+                float inputs:v (
+                    customData = {
+                        dictionary realitykit = {
+                            float2 positionInSubgraph = (485.76352, -284.85245)
+                            float2 sizeInSubgraph = (98, 53)
+                            int stackingOrderInSubgraph = 1089
+                        }
+                    }
+                )
+                float inputs:v.connect = </Root/placeHolder_Y_Positive/Material_Y/clipY.outputs:out>
+                float2 ui:nodegraph:node:pos = (1126.8359, 233.28563)
+                float2 ui:nodegraph:node:size = (163, 127)
+                int ui:nodegraph:node:stackingOrder = 3758
+                string[] ui:nodegraph:realitykit:node:attributesShowingChildren = ["inputs:smoothStepWidth", "inputs:smoothStepWidth", "inputs:smoothStepStep", "inputs:smoothStepStep", "inputs:smoothStepStep", "inputs:smoothStepWidth", "inputs:smoothStepStep", "inputs:opacityCorrection"]
+                float2 ui:nodegraph:realitykit:subgraphOutputs:size = (145.5, 81)
+            }
+
+            def NodeGraph "clip"
+            {
+                float inputs:Opacity (
+                    customData = {
+                        dictionary realitykit = {
+                            float2 positionInSubgraph = (501.00006, 280.88766)
+                            float2 sizeInSubgraph = (117, 53)
+                            int stackingOrderInSubgraph = 2835
+                        }
+                    }
+                )
+                float inputs:Opacity.connect = </Root/placeHolder_Y_Positive/Material_Y/Image.outputs:out>
+                float inputs:x (
+                    customData = {
+                        dictionary realitykit = {
+                            float2 positionInSubgraph = (487.51428, 104.692825)
+                            float2 sizeInSubgraph = (98, 53)
+                            int stackingOrderInSubgraph = 2837
+                        }
+                    }
+                )
+                float inputs:x.connect = </Root/placeHolder_Y_Positive/Material_Y.inputs:x>
+                float inputs:z (
+                    customData = {
+                        dictionary realitykit = {
+                            float2 positionInSubgraph = (373.72916, 483.60965)
+                            float2 sizeInSubgraph = (98, 53)
+                            int stackingOrderInSubgraph = 2835
+                        }
+                    }
+                )
+                float inputs:z.connect = </Root/placeHolder_Y_Positive/Material_Y.inputs:z>
+                float outputs:Min_out.connect = </Root/placeHolder_Y_Positive/Material_Y/clip/Min.outputs:out>
+                float2 ui:nodegraph:node:pos = (433.30692, 158.18195)
+                float2 ui:nodegraph:node:size = (106, 145)
+                int ui:nodegraph:node:stackingOrder = 3878
+                string[] ui:nodegraph:realitykit:node:attributesShowingChildren = ["inputs:Ifgreater_1_in2", "inputs:x", "inputs:Ocopacity"]
+                float2 ui:nodegraph:realitykit:subgraphOutputs:pos = (1036.9363, 278.91962)
+                float2 ui:nodegraph:realitykit:subgraphOutputs:size = (137.99977, 81)
+                int ui:nodegraph:realitykit:subgraphOutputs:stackingOrder = 2787
+
+                def Shader "Separate2"
+                {
+                    uniform token info:id = "ND_separate2_vector2"
+                    float2 inputs:in.connect = </Root/placeHolder_Y_Positive/Material_Y/clip/Texcoord.outputs:out>
+                    float outputs:outx
+                    float outputs:outy
+                    float2 ui:nodegraph:node:pos = (214.44858, 248.63914)
+                    float2 ui:nodegraph:node:size = (116, 127)
+                    int ui:nodegraph:node:stackingOrder = 2688
+                    string[] ui:nodegraph:realitykit:node:attributesShowingChildren = ["inputs:in"]
+                }
+
+                def Shader "Ifgreater"
+                {
+                    uniform token info:id = "ND_ifgreater_float"
+                    float inputs:in1.connect = None
+                    float inputs:in2.connect = </Root/placeHolder_Y_Positive/Material_Y/clip.inputs:Opacity>
+                    float inputs:value1.connect = </Root/placeHolder_Y_Positive/Material_Y/clip.inputs:x>
+                    float inputs:value2.connect = </Root/placeHolder_Y_Positive/Material_Y/clip/Separate2.outputs:outx>
+                    float outputs:out
+                    float2 ui:nodegraph:node:pos = (687.6565, 124.37821)
+                    float2 ui:nodegraph:node:size = (109, 163)
+                    int ui:nodegraph:node:stackingOrder = 2831
+                    string[] ui:nodegraph:realitykit:node:attributesShowingChildren = ["inputs:in1", "inputs:value2", "inputs:value1", "inputs:in1"]
+                }
+
+                def Shader "Texcoord"
+                {
+                    uniform token info:id = "ND_texcoord_vector2"
+                    float2 outputs:out
+                    float2 ui:nodegraph:node:pos = (-8.836226, 255.0784)
+                    float2 ui:nodegraph:node:size = (182, 53)
+                    int ui:nodegraph:node:stackingOrder = 2708
+                    string[] ui:nodegraph:realitykit:node:attributesShowingChildren = ["outputs:out"]
+                }
+
+                def Shader "Ifgreater_1"
+                {
+                    uniform token info:id = "ND_ifgreater_float"
+                    float inputs:in1
+                    float inputs:in2.connect = </Root/placeHolder_Y_Positive/Material_Y/clip.inputs:Opacity>
+                    float inputs:value1.connect = </Root/placeHolder_Y_Positive/Material_Y/clip/Dot.outputs:out>
+                    float inputs:value2.connect = </Root/placeHolder_Y_Positive/Material_Y/clip/Subtract_1.outputs:out>
+                    float outputs:out
+                    float2 ui:nodegraph:node:pos = (680.8892, 425.97546)
+                    float2 ui:nodegraph:node:size = (115, 163)
+                    int ui:nodegraph:node:stackingOrder = 2805
+                    string[] ui:nodegraph:realitykit:node:attributesShowingChildren = ["inputs:in1", "inputs:value2", "inputs:value1", "inputs:in1"]
+                }
+
+                def Shader "Min"
+                {
+                    uniform token info:id = "ND_min_float"
+                    float inputs:in1.connect = </Root/placeHolder_Y_Positive/Material_Y/clip/Ifgreater.outputs:out>
+                    float inputs:in2.connect = </Root/placeHolder_Y_Positive/Material_Y/clip/Ifgreater_1.outputs:out>
+                    float outputs:out
+                    float2 ui:nodegraph:node:pos = (862.89154, 301.87238)
+                    float2 ui:nodegraph:node:size = (114, 40)
+                    int ui:nodegraph:node:stackingOrder = 2787
+                }
+
+                def Shader "Dot"
+                {
+                    uniform token info:id = "ND_dot_float"
+                    float inputs:in.connect = </Root/placeHolder_Y_Positive/Material_Y/clip/Separate2.outputs:outy>
+                    float outputs:out
+                    float2 ui:nodegraph:node:pos = (352.34045, 424.14096)
+                    float2 ui:nodegraph:node:size = (44, 18)
+                    int ui:nodegraph:node:stackingOrder = 2807
+                }
+
+                def Shader "Subtract_1"
+                {
+                    uniform token info:id = "ND_subtract_float"
+                    float inputs:in1 = 1
+                    float inputs:in1.connect = None
+                    float inputs:in2.connect = </Root/placeHolder_Y_Positive/Material_Y/clip.inputs:z>
+                    float outputs:out
+                    float2 ui:nodegraph:node:pos = (523.3973, 455.79712)
+                    float2 ui:nodegraph:node:size = (63, 36)
+                    int ui:nodegraph:node:stackingOrder = 2834
+                    string[] ui:nodegraph:realitykit:node:attributesShowingChildren = ["inputs:in1"]
+                }
+            }
+
+            def Shader "clipY"
+            {
+                uniform token info:id = "ND_ifgreatereq_float"
+                float inputs:in1.connect = </Root/placeHolder_Y_Positive/Material_Y/clip.outputs:Min_out>
+                float inputs:in2 = 0
+                float inputs:in2.connect = None
+                float inputs:value1.connect = </Root/placeHolder_Y_Positive/Material_Y.inputs:YLayer>
+                float inputs:value2.connect = </Root/placeHolder_Y_Positive/Material_Y.inputs:y>
+                float outputs:out
+                float2 ui:nodegraph:node:pos = (762.36694, 224.14798)
+                float2 ui:nodegraph:node:size = (140, 163)
+                int ui:nodegraph:node:stackingOrder = 3880
+            }
+
+            def Shader "UnlitSurface" (
+                active = true
+            )
+            {
+                uniform token info:id = "ND_realitykit_unlit_surfaceshader"
+                bool inputs:applyPostProcessToneMap = 0
+                color3f inputs:color.connect = </Root/placeHolder_Y_Positive/Material_Y/Combine3.outputs:out>
+                bool inputs:hasPremultipliedAlpha = 0
+                float inputs:opacity = 0
+                float inputs:opacity.connect = </Root/placeHolder_Y_Positive/Material_Y/transfer.outputs:return>
+                float inputs:opacityThreshold.connect = None
+                token outputs:out
+                float2 ui:nodegraph:node:pos = (1931.0127, 144.67244)
+                float2 ui:nodegraph:node:size = (195, 181)
+                int ui:nodegraph:node:stackingOrder = 3882
+                string[] ui:nodegraph:realitykit:node:attributesShowingChildren = ["inputs:color", "inputs:opacity", "inputs:applyPostProcessToneMap", "inputs:opacityThreshold", "inputs:opacityThreshold", "outputs:out", "inputs:applyPostProcessToneMap", "inputs:hasPremultipliedAlpha", "inputs:opacityThreshold", "inputs:hasPremultipliedAlpha", "inputs:opacity", "inputs:opacityThreshold", "inputs:opacity", "inputs:opacityThreshold", "inputs:opacityThreshold", "inputs:opacity"]
             }
         }
     }
@@ -1231,13 +1207,13 @@ def Xform "Root"
 
         def Material "Material_Y"
         {
-            reorder nameChildren = ["transfer_1", "opacityCorrection_1", "Image_1", "trim_1", "UnlitSurface_1", "Image", "UsdPreviewSurface", "nodegraph", "IfGreaterOrEqual"]
+            reorder nameChildren = ["transfer", "opacityCorrection", "Image_1", "trim", "UnlitSurface_1", "Image", "UsdPreviewSurface", "nodegraph", "IfGreaterOrEqual"]
             asset inputs:Image (
                 customData = {
                     dictionary realitykit = {
                         float2 positionInSubgraph = (-156.7928, -56.245697)
                         float2 sizeInSubgraph = (116, 53)
-                        int stackingOrderInSubgraph = 3548
+                        int stackingOrderInSubgraph = 3594
                     }
                 }
             )
@@ -1245,9 +1221,9 @@ def Xform "Root"
                 colorSpace = ""
                 customData = {
                     dictionary realitykit = {
-                        float2 positionInSubgraph = (671.7356, 157.87195)
+                        float2 positionInSubgraph = (702.3684, 132.62195)
                         float2 sizeInSubgraph = (180, 53)
-                        int stackingOrderInSubgraph = 3590
+                        int stackingOrderInSubgraph = 3888
                     }
                 }
             )
@@ -1307,47 +1283,13 @@ def Xform "Root"
                     }
                 }
             )
-            token outputs:mtlx:surface.connect = </Root/placeHolder_Y_Negative/Material_Y/UnlitSurface_1.outputs:out>
+            token outputs:mtlx:surface.connect = </Root/placeHolder_Y_Negative/Material_Y/UnlitSurface.outputs:out>
             token outputs:realitykit:vertex.connect = </Root/placeHolder_Z_Positive/Material/GeometryModifier.outputs:out>
             token outputs:surface.connect = </Root/placeHolder_Z_Positive/Material/UsdPreviewSurface.outputs:surface>
             string[] ui:nodegraph:realitykit:node:attributesShowingChildren = ["outputs:realitykit:vertex"]
             float2 ui:nodegraph:realitykit:subgraphOutputs:pos = (1949.5385, 110.68668)
             float2 ui:nodegraph:realitykit:subgraphOutputs:size = (182, 99)
             int ui:nodegraph:realitykit:subgraphOutputs:stackingOrder = 3051
-
-            def Shader "UnlitSurface_1" (
-                active = true
-            )
-            {
-                uniform token info:id = "ND_realitykit_unlit_surfaceshader"
-                bool inputs:applyPostProcessToneMap = 1
-                color3f inputs:color.connect = </Root/placeHolder_Y_Negative/Material_Y/Image_1.outputs:out>
-                bool inputs:hasPremultipliedAlpha = 0
-                float inputs:opacity = 0
-                float inputs:opacity.connect = </Root/placeHolder_Y_Negative/Material_Y/transfer_1.outputs:return>
-                float inputs:opacityThreshold.connect = None
-                token outputs:out
-                float2 ui:nodegraph:node:pos = (1672.9205, 176.6677)
-                float2 ui:nodegraph:node:size = (195, 181)
-                int ui:nodegraph:node:stackingOrder = 3467
-                string[] ui:nodegraph:realitykit:node:attributesShowingChildren = ["inputs:color", "inputs:opacity", "inputs:applyPostProcessToneMap", "inputs:opacityThreshold", "inputs:opacityThreshold", "outputs:out", "inputs:applyPostProcessToneMap", "inputs:hasPremultipliedAlpha", "inputs:opacityThreshold", "inputs:hasPremultipliedAlpha", "inputs:opacity", "inputs:opacityThreshold", "inputs:opacityThreshold", "inputs:applyPostProcessToneMap", "inputs:opacity"]
-            }
-
-            def Shader "Image"
-            {
-                uniform token info:id = "ND_image_float"
-                float inputs:default
-                asset inputs:file.connect = </Root/placeHolder_Y_Negative/Material_Y.inputs:Image>
-                string inputs:filtertype
-                float2 inputs:texcoord
-                string inputs:uaddressmode
-                string inputs:vaddressmode
-                float outputs:out
-                float2 ui:nodegraph:node:pos = (20.835098, 94.89467)
-                float2 ui:nodegraph:node:size = (149, 199)
-                int ui:nodegraph:node:stackingOrder = 3547
-                string[] ui:nodegraph:realitykit:node:attributesShowingChildren = ["inputs:uaddressmode", "inputs:texcoord", "inputs:texcoord", "inputs:default", "inputs:texcoord", "inputs:file", "inputs:uaddressmode", "inputs:default"]
-            }
 
             def Shader "UsdPreviewSurface" (
                 active = false
@@ -1357,13 +1299,139 @@ def Xform "Root"
                 token outputs:surface
             }
 
-            def NodeGraph "nodegraph"
+            def Shader "Image"
+            {
+                uniform token info:id = "ND_image_float"
+                float inputs:default
+                asset inputs:file.connect = </Root/placeHolder_Y_Negative/Material_Y.inputs:Image>
+                string inputs:filtertype
+                float2 inputs:texcoord
+                float outputs:out
+                float2 ui:nodegraph:node:pos = (93.721115, -68.46155)
+                float2 ui:nodegraph:node:size = (149, 199)
+                int ui:nodegraph:node:stackingOrder = 3872
+                string[] ui:nodegraph:realitykit:node:attributesShowingChildren = ["inputs:vaddressmode", "inputs:file", "inputs:vaddressmode"]
+            }
+
+            def Shader "Combine3"
+            {
+                uniform token info:id = "ND_combine3_color3"
+                float inputs:in1.connect = </Root/placeHolder_Y_Negative/Material_Y/Image.outputs:out>
+                float inputs:in2.connect = </Root/placeHolder_Y_Negative/Material_Y/Image.outputs:out>
+                float inputs:in3.connect = </Root/placeHolder_Y_Negative/Material_Y/Image.outputs:out>
+                color3f outputs:out
+                float2 ui:nodegraph:node:pos = (794.24524, -136.33482)
+                float2 ui:nodegraph:node:size = (146, 54)
+                int ui:nodegraph:node:stackingOrder = 3873
+                string[] ui:nodegraph:realitykit:node:attributesShowingChildren = ["inputs:in2"]
+            }
+
+            def "opacityCorrection" (
+                active = true
+                instanceable = true
+                references = </Root/opacityCorrection>
+            )
+            {
+                float inputs:opacityCorrection (
+                    customData = {
+                        dictionary realitykit = {
+                            float2 positionInSubgraph = (461.80106, -156.40652)
+                            float2 sizeInSubgraph = (180, 53)
+                            int stackingOrderInSubgraph = 1106
+                        }
+                    }
+                )
+                float inputs:opacityCorrection.connect = </Root/placeHolder_Y_Negative/Material_Y.inputs:opacityCorrection>
+                float inputs:v (
+                    customData = {
+                        dictionary realitykit = {
+                            float2 positionInSubgraph = (485.76352, -284.85245)
+                            float2 sizeInSubgraph = (98, 53)
+                            int stackingOrderInSubgraph = 1089
+                        }
+                    }
+                )
+                float inputs:v.connect = </Root/placeHolder_Y_Negative/Material_Y/clipY.outputs:out>
+                float outputs:return.connect = </Root/placeHolder_Y_Negative/Material_Y/opacityCorrection/Subtract_1.outputs:out>
+                float2 ui:nodegraph:node:pos = (899.64453, 251.3483)
+                float2 ui:nodegraph:node:size = (163, 127)
+                int ui:nodegraph:node:stackingOrder = 3590
+                string[] ui:nodegraph:realitykit:node:attributesShowingChildren = ["inputs:smoothStepWidth", "inputs:smoothStepWidth", "inputs:smoothStepStep", "inputs:smoothStepStep", "inputs:smoothStepStep", "inputs:smoothStepWidth", "inputs:smoothStepStep", "inputs:opacityCorrection", "inputs:opacityCorrection", "inputs:opacityCorrection"]
+                float2 ui:nodegraph:realitykit:subgraphOutputs:size = (145.5, 81)
+            }
+
+            def "transfer" (
+                active = true
+                instanceable = true
+                references = </Root/transfer>
+            )
+            {
+                float inputs:smoothStepShift (
+                    customData = {
+                        dictionary realitykit = {
+                            float2 positionInSubgraph = (295.22253, 269.35736)
+                            float2 sizeInSubgraph = (173, 53)
+                            int stackingOrderInSubgraph = 889
+                        }
+                    }
+                )
+                float inputs:smoothStepShift.connect = </Root/placeHolder_Y_Negative/Material_Y.inputs:smoothStepShift>
+                float inputs:smoothStepStart (
+                    customData = {
+                        dictionary realitykit = {
+                            float2 positionInSubgraph = (212.77861, 222.0645)
+                            float2 sizeInSubgraph = (174, 53)
+                            int stackingOrderInSubgraph = 891
+                        }
+                    }
+                )
+                float inputs:smoothStepStart.connect = </Root/placeHolder_Y_Negative/Material_Y.inputs:smoothStepStart>
+                float inputs:v (
+                    customData = {
+                        dictionary realitykit = {
+                            float2 positionInSubgraph = (169.79424, 26.00644)
+                            float2 sizeInSubgraph = (98, 53)
+                            int stackingOrderInSubgraph = 889
+                        }
+                    }
+                )
+                float inputs:v.connect = </Root/placeHolder_Y_Negative/Material_Y/trim.outputs:Min_out>
+                float outputs:return.connect = </Root/placeHolder_Y_Negative/Material_Y/transfer/Multiply_2.outputs:out>
+                float2 ui:nodegraph:node:pos = (1377.514, 169.54659)
+                float2 ui:nodegraph:node:size = (140, 145)
+                int ui:nodegraph:node:stackingOrder = 3544
+                float2 ui:nodegraph:realitykit:subgraphOutputs:size = (129, 81)
+            }
+
+            def "trim" (
+                active = true
+                instanceable = true
+                references = </Root/trim>
+            )
+            {
+                float inputs:Opacity (
+                    customData = {
+                        dictionary realitykit = {
+                            float2 positionInSubgraph = (519.5298, 268.8333)
+                            float2 sizeInSubgraph = (116.5, 53)
+                            int stackingOrderInSubgraph = 3252
+                        }
+                    }
+                )
+                float inputs:Opacity.connect = </Root/placeHolder_Y_Negative/Material_Y/opacityCorrection.outputs:return>
+                float2 ui:nodegraph:node:pos = (1158.2965, 284.0586)
+                float2 ui:nodegraph:node:size = (105, 109)
+                int ui:nodegraph:node:stackingOrder = 3537
+                float2 ui:nodegraph:realitykit:subgraphOutputs:size = (152, 81)
+            }
+
+            def NodeGraph "clip"
             {
                 float inputs:Opacity (
                     customData = {
                         dictionary realitykit = {
                             float2 positionInSubgraph = (501.00006, 280.88766)
-                            float2 sizeInSubgraph = (116.5, 53)
+                            float2 sizeInSubgraph = (117, 53)
                             int stackingOrderInSubgraph = 2810
                         }
                     }
@@ -1389,23 +1457,23 @@ def Xform "Root"
                     }
                 )
                 float inputs:z.connect = </Root/placeHolder_Y_Negative/Material_Y.inputs:z>
-                float outputs:Min_out.connect = </Root/placeHolder_Y_Negative/Material_Y/nodegraph/Min.outputs:out>
+                float outputs:Min_out.connect = </Root/placeHolder_Y_Negative/Material_Y/clip/Min.outputs:out>
                 float2 ui:nodegraph:node:pos = (321.3162, 249.43745)
-                float2 ui:nodegraph:node:size = (120, 145)
-                int ui:nodegraph:node:stackingOrder = 3587
+                float2 ui:nodegraph:node:size = (106, 145)
+                int ui:nodegraph:node:stackingOrder = 3881
                 string[] ui:nodegraph:realitykit:node:attributesShowingChildren = ["inputs:Ifgreater_1_in2", "inputs:x", "inputs:Ocopacity"]
                 float2 ui:nodegraph:realitykit:subgraphOutputs:pos = (1036.9363, 278.91962)
-                float2 ui:nodegraph:realitykit:subgraphOutputs:size = (137, 81)
+                float2 ui:nodegraph:realitykit:subgraphOutputs:size = (137.99985, 81)
                 int ui:nodegraph:realitykit:subgraphOutputs:stackingOrder = 2787
 
                 def Shader "Separate2"
                 {
                     uniform token info:id = "ND_separate2_vector2"
-                    float2 inputs:in.connect = </Root/placeHolder_Y_Negative/Material_Y/nodegraph/Texcoord.outputs:out>
+                    float2 inputs:in.connect = </Root/placeHolder_Y_Negative/Material_Y/clip/Texcoord.outputs:out>
                     float outputs:outx
                     float outputs:outy
                     float2 ui:nodegraph:node:pos = (214.44858, 248.63914)
-                    float2 ui:nodegraph:node:size = (115, 127)
+                    float2 ui:nodegraph:node:size = (116, 127)
                     int ui:nodegraph:node:stackingOrder = 2688
                     string[] ui:nodegraph:realitykit:node:attributesShowingChildren = ["inputs:in"]
                 }
@@ -1414,9 +1482,9 @@ def Xform "Root"
                 {
                     uniform token info:id = "ND_ifgreater_float"
                     float inputs:in1.connect = None
-                    float inputs:in2.connect = </Root/placeHolder_Y_Negative/Material_Y/nodegraph.inputs:Opacity>
-                    float inputs:value1.connect = </Root/placeHolder_Y_Negative/Material_Y/nodegraph.inputs:x>
-                    float inputs:value2.connect = </Root/placeHolder_Y_Negative/Material_Y/nodegraph/Separate2.outputs:outx>
+                    float inputs:in2.connect = </Root/placeHolder_Y_Negative/Material_Y/clip.inputs:Opacity>
+                    float inputs:value1.connect = </Root/placeHolder_Y_Negative/Material_Y/clip.inputs:x>
+                    float inputs:value2.connect = </Root/placeHolder_Y_Negative/Material_Y/clip/Separate2.outputs:outx>
                     float outputs:out
                     float2 ui:nodegraph:node:pos = (687.6565, 124.37821)
                     float2 ui:nodegraph:node:size = (109, 163)
@@ -1429,7 +1497,7 @@ def Xform "Root"
                     uniform token info:id = "ND_texcoord_vector2"
                     float2 outputs:out
                     float2 ui:nodegraph:node:pos = (-8.836226, 255.0784)
-                    float2 ui:nodegraph:node:size = (180.5, 53)
+                    float2 ui:nodegraph:node:size = (182, 53)
                     int ui:nodegraph:node:stackingOrder = 2708
                     string[] ui:nodegraph:realitykit:node:attributesShowingChildren = ["outputs:out"]
                 }
@@ -1438,12 +1506,12 @@ def Xform "Root"
                 {
                     uniform token info:id = "ND_ifgreater_float"
                     float inputs:in1
-                    float inputs:in2.connect = </Root/placeHolder_Y_Negative/Material_Y/nodegraph.inputs:Opacity>
-                    float inputs:value1.connect = </Root/placeHolder_Y_Negative/Material_Y/nodegraph.inputs:z>
-                    float inputs:value2.connect = </Root/placeHolder_Y_Negative/Material_Y/nodegraph/Dot.outputs:out>
+                    float inputs:in2.connect = </Root/placeHolder_Y_Negative/Material_Y/clip.inputs:Opacity>
+                    float inputs:value1.connect = </Root/placeHolder_Y_Negative/Material_Y/clip.inputs:z>
+                    float inputs:value2.connect = </Root/placeHolder_Y_Negative/Material_Y/clip/Dot.outputs:out>
                     float outputs:out
                     float2 ui:nodegraph:node:pos = (680.8892, 425.97546)
-                    float2 ui:nodegraph:node:size = (113.5, 163)
+                    float2 ui:nodegraph:node:size = (115, 163)
                     int ui:nodegraph:node:stackingOrder = 2805
                     string[] ui:nodegraph:realitykit:node:attributesShowingChildren = ["inputs:in1", "inputs:value2", "inputs:value1", "inputs:in1"]
                 }
@@ -1451,18 +1519,18 @@ def Xform "Root"
                 def Shader "Min"
                 {
                     uniform token info:id = "ND_min_float"
-                    float inputs:in1.connect = </Root/placeHolder_Y_Negative/Material_Y/nodegraph/Ifgreater.outputs:out>
-                    float inputs:in2.connect = </Root/placeHolder_Y_Negative/Material_Y/nodegraph/Ifgreater_1.outputs:out>
+                    float inputs:in1.connect = </Root/placeHolder_Y_Negative/Material_Y/clip/Ifgreater.outputs:out>
+                    float inputs:in2.connect = </Root/placeHolder_Y_Negative/Material_Y/clip/Ifgreater_1.outputs:out>
                     float outputs:out
                     float2 ui:nodegraph:node:pos = (862.89154, 301.87238)
-                    float2 ui:nodegraph:node:size = (113, 40)
+                    float2 ui:nodegraph:node:size = (114, 40)
                     int ui:nodegraph:node:stackingOrder = 2787
                 }
 
                 def Shader "Dot"
                 {
                     uniform token info:id = "ND_dot_float"
-                    float inputs:in.connect = </Root/placeHolder_Y_Negative/Material_Y/nodegraph/Separate2.outputs:outy>
+                    float inputs:in.connect = </Root/placeHolder_Y_Negative/Material_Y/clip/Separate2.outputs:outy>
                     float outputs:out
                     float2 ui:nodegraph:node:pos = (352.34045, 424.14096)
                     float2 ui:nodegraph:node:size = (44, 18)
@@ -1470,132 +1538,37 @@ def Xform "Root"
                 }
             }
 
-            def Shader "IfGreaterOrEqual"
+            def Shader "clipY"
             {
                 uniform token info:id = "ND_ifgreatereq_float"
-                float inputs:in1.connect = </Root/placeHolder_Y_Negative/Material_Y/nodegraph.outputs:Min_out>
+                float inputs:in1.connect = </Root/placeHolder_Y_Negative/Material_Y/clip.outputs:Min_out>
                 float inputs:in2 = 0
                 float inputs:in2.connect = None
                 float inputs:value1.connect = </Root/placeHolder_Y_Negative/Material_Y.inputs:YLayer>
                 float inputs:value2.connect = </Root/placeHolder_Y_Negative/Material_Y.inputs:y>
                 float outputs:out
                 float2 ui:nodegraph:node:pos = (651.3947, 253.47807)
-                float2 ui:nodegraph:node:size = (157, 163)
-                int ui:nodegraph:node:stackingOrder = 3587
+                float2 ui:nodegraph:node:size = (140, 163)
+                int ui:nodegraph:node:stackingOrder = 3890
                 string[] ui:nodegraph:realitykit:node:attributesShowingChildren = ["inputs:value2"]
             }
 
-            def Shader "Image_1"
-            {
-                uniform token info:id = "ND_image_color3"
-                prepend asset inputs:file.connect = </Root/placeHolder_Y_Negative/Material_Y.inputs:Image>
-                string inputs:filtertype
-                float2 inputs:texcoord
-                string inputs:uaddressmode
-                string inputs:vaddressmode
-                color3f outputs:out
-                float2 ui:nodegraph:node:pos = (935.42413, -273.51395)
-                float2 ui:nodegraph:node:size = (149, 199)
-                int ui:nodegraph:node:stackingOrder = 3461
-                string[] ui:nodegraph:realitykit:node:attributesShowingChildren = ["inputs:uaddressmode", "inputs:texcoord", "inputs:texcoord", "inputs:default", "inputs:texcoord", "inputs:file", "inputs:uaddressmode"]
-            }
-
-            def "trim_1" (
+            def Shader "UnlitSurface" (
                 active = true
-                instanceable = true
-                references = </Root/trim>
             )
             {
-                float inputs:Opacity (
-                    customData = {
-                        dictionary realitykit = {
-                            float2 positionInSubgraph = (519.5298, 268.8333)
-                            float2 sizeInSubgraph = (116.5, 53)
-                            int stackingOrderInSubgraph = 3252
-                        }
-                    }
-                )
-                float inputs:Opacity.connect = </Root/placeHolder_Y_Negative/Material_Y/opacityCorrection_1.outputs:return>
-                float2 ui:nodegraph:node:pos = (1158.2965, 284.0586)
-                float2 ui:nodegraph:node:size = (105, 109)
-                int ui:nodegraph:node:stackingOrder = 3537
-                float2 ui:nodegraph:realitykit:subgraphOutputs:size = (152, 81)
-            }
-
-            def "transfer_1" (
-                active = true
-                instanceable = true
-                references = </Root/transfer>
-            )
-            {
-                float inputs:smoothStepShift (
-                    customData = {
-                        dictionary realitykit = {
-                            float2 sizeInSubgraph = (173, 53)
-                            int stackingOrderInSubgraph = 889
-                        }
-                    }
-                )
-                float inputs:smoothStepShift.connect = </Root/placeHolder_Y_Negative/Material_Y.inputs:smoothStepShift>
-                float inputs:smoothStepStart (
-                    customData = {
-                        dictionary realitykit = {
-                            float2 positionInSubgraph = (212.77861, 222.0645)
-                            float2 sizeInSubgraph = (180, 53)
-                            int stackingOrderInSubgraph = 891
-                        }
-                    }
-                )
-                float inputs:smoothStepStart.connect = </Root/placeHolder_Y_Negative/Material_Y.inputs:smoothStepStart>
-                float inputs:v (
-                    customData = {
-                        dictionary realitykit = {
-                            float2 positionInSubgraph = (169.79424, 26.00644)
-                            float2 sizeInSubgraph = (98, 53)
-                            int stackingOrderInSubgraph = 889
-                        }
-                    }
-                )
-                float inputs:v.connect = </Root/placeHolder_Y_Negative/Material_Y/trim_1.outputs:Min_out>
-                float outputs:return.connect = </Root/placeHolder_Y_Negative/Material_Y/transfer_1/Multiply_2.outputs:out>
-                float2 ui:nodegraph:node:pos = (1377.514, 169.54659)
-                float2 ui:nodegraph:node:size = (140, 145)
-                int ui:nodegraph:node:stackingOrder = 3544
-                float2 ui:nodegraph:realitykit:subgraphOutputs:size = (144, 81)
-            }
-
-            def "opacityCorrection_1" (
-                active = true
-                instanceable = true
-                references = </Root/opacityCorrection>
-            )
-            {
-                float inputs:opacityCorrection (
-                    customData = {
-                        dictionary realitykit = {
-                            float2 positionInSubgraph = (461.80106, -156.40652)
-                            float2 sizeInSubgraph = (180, 53)
-                            int stackingOrderInSubgraph = 1106
-                        }
-                    }
-                )
-                float inputs:opacityCorrection.connect = </Root/placeHolder_Y_Negative/Material_Y.inputs:opacityCorrection>
-                float inputs:v (
-                    customData = {
-                        dictionary realitykit = {
-                            float2 positionInSubgraph = (485.76352, -284.85245)
-                            float2 sizeInSubgraph = (98, 53)
-                            int stackingOrderInSubgraph = 1089
-                        }
-                    }
-                )
-                float inputs:v.connect = </Root/placeHolder_Y_Negative/Material_Y/IfGreaterOrEqual.outputs:out>
-                float outputs:return.connect = </Root/placeHolder_Y_Negative/Material_Y/opacityCorrection_1/Subtract_1.outputs:out>
-                float2 ui:nodegraph:node:pos = (899.64453, 251.3483)
-                float2 ui:nodegraph:node:size = (176, 127)
-                int ui:nodegraph:node:stackingOrder = 3590
-                string[] ui:nodegraph:realitykit:node:attributesShowingChildren = ["inputs:smoothStepWidth", "inputs:smoothStepWidth", "inputs:smoothStepStep", "inputs:smoothStepStep", "inputs:smoothStepStep", "inputs:smoothStepWidth", "inputs:smoothStepStep", "inputs:opacityCorrection", "inputs:opacityCorrection", "inputs:opacityCorrection"]
-                float2 ui:nodegraph:realitykit:subgraphOutputs:size = (145.5, 81)
+                uniform token info:id = "ND_realitykit_unlit_surfaceshader"
+                bool inputs:applyPostProcessToneMap = 0
+                color3f inputs:color.connect = </Root/placeHolder_Y_Negative/Material_Y/Combine3.outputs:out>
+                bool inputs:hasPremultipliedAlpha = 0
+                float inputs:opacity = 0
+                float inputs:opacity.connect = </Root/placeHolder_Y_Negative/Material_Y/transfer.outputs:return>
+                float inputs:opacityThreshold.connect = None
+                token outputs:out
+                float2 ui:nodegraph:node:pos = (1672.9205, 176.6677)
+                float2 ui:nodegraph:node:size = (195, 181)
+                int ui:nodegraph:node:stackingOrder = 3892
+                string[] ui:nodegraph:realitykit:node:attributesShowingChildren = ["inputs:color", "inputs:opacity", "inputs:applyPostProcessToneMap", "inputs:opacityThreshold", "inputs:opacityThreshold", "outputs:out", "inputs:applyPostProcessToneMap", "inputs:hasPremultipliedAlpha", "inputs:opacityThreshold", "inputs:hasPremultipliedAlpha", "inputs:opacity", "inputs:opacityThreshold", "inputs:opacityThreshold", "inputs:applyPostProcessToneMap", "inputs:opacity"]
             }
         }
     }
@@ -1616,13 +1589,13 @@ def Xform "Root"
 
         def Material "Material_Z"
         {
-            reorder nameChildren = ["trim_1", "UnlitSurface_1", "opacityCorrection_1", "Image_1", "Dot", "Dot_1", "transfer_1", "Image", "UsdPreviewSurface", "nodegraph", "IfGreaterOrEqual"]
+            reorder nameChildren = ["trim", "UnlitSurface_1", "opacityCorrection", "Image_1", "Dot", "Dot_1", "transfer", "Image", "UsdPreviewSurface", "nodegraph", "IfGreaterOrEqual"]
             asset inputs:Image (
                 customData = {
                     dictionary realitykit = {
-                        float2 positionInSubgraph = (-206.71866, -56.35967)
+                        float2 positionInSubgraph = (-128.2424, -156.43105)
                         float2 sizeInSubgraph = (116, 53)
-                        int stackingOrderInSubgraph = 3725
+                        int stackingOrderInSubgraph = 3868
                     }
                 }
             )
@@ -1650,7 +1623,7 @@ def Xform "Root"
                     dictionary realitykit = {
                         float2 positionInSubgraph = (1354.4425, -19.762518)
                         float2 sizeInSubgraph = (174, 53)
-                        int stackingOrderInSubgraph = 3719
+                        int stackingOrderInSubgraph = 3796
                     }
                 }
             )
@@ -1690,31 +1663,13 @@ def Xform "Root"
                     }
                 }
             )
-            token outputs:mtlx:surface.connect = </Root/placeHolder_Z_Positive/Material_Z/UnlitSurface_1.outputs:out>
+            token outputs:mtlx:surface.connect = </Root/placeHolder_Z_Positive/Material_Z/UnlitSurface.outputs:out>
             token outputs:realitykit:vertex.connect = </Root/placeHolder_Z_Positive/Material/GeometryModifier.outputs:out>
             token outputs:surface.connect = </Root/placeHolder_Z_Positive/Material/UsdPreviewSurface.outputs:surface>
             string[] ui:nodegraph:realitykit:node:attributesShowingChildren = ["outputs:realitykit:vertex"]
-            float2 ui:nodegraph:realitykit:subgraphOutputs:pos = (2114.2993, 238.20566)
+            float2 ui:nodegraph:realitykit:subgraphOutputs:pos = (2181.1409, 167.09026)
             float2 ui:nodegraph:realitykit:subgraphOutputs:size = (182, 99)
-            int ui:nodegraph:realitykit:subgraphOutputs:stackingOrder = 3377
-
-            def Shader "UnlitSurface_1" (
-                active = true
-            )
-            {
-                uniform token info:id = "ND_realitykit_unlit_surfaceshader"
-                bool inputs:applyPostProcessToneMap = 0
-                color3f inputs:color.connect = </Root/placeHolder_Z_Positive/Material_Z/Dot_1.outputs:out>
-                bool inputs:hasPremultipliedAlpha = 0
-                float inputs:opacity = 1
-                float inputs:opacity.connect = </Root/placeHolder_Z_Positive/Material_Z/transfer_1.outputs:return>
-                float inputs:opacityThreshold
-                token outputs:out
-                float2 ui:nodegraph:node:pos = (1883.3693, 178.72592)
-                float2 ui:nodegraph:node:size = (195, 181)
-                int ui:nodegraph:node:stackingOrder = 3555
-                string[] ui:nodegraph:realitykit:node:attributesShowingChildren = ["inputs:color", "inputs:opacity", "inputs:applyPostProcessToneMap", "inputs:opacityThreshold", "inputs:opacityThreshold", "outputs:out", "inputs:applyPostProcessToneMap", "inputs:hasPremultipliedAlpha", "inputs:opacityThreshold", "inputs:hasPremultipliedAlpha", "inputs:opacity", "inputs:opacityThreshold", "inputs:opacityThreshold", "inputs:opacity", "inputs:hasPremultipliedAlpha", "inputs:color", "inputs:color"]
-            }
+            int ui:nodegraph:realitykit:subgraphOutputs:stackingOrder = 3791
 
             def Shader "UsdPreviewSurface" (
                 active = false
@@ -1724,135 +1679,98 @@ def Xform "Root"
                 token outputs:surface
             }
 
-            def NodeGraph "nodegraph"
+            def Shader "Dot_1"
+            {
+                uniform token info:id = "ND_dot_color3"
+                color3f inputs:in.connect = </Root/placeHolder_Z_Positive/Material_Z/Combine3.outputs:out>
+                color3f outputs:out
+                float2 ui:nodegraph:node:pos = (1709.167, -148.22159)
+                float2 ui:nodegraph:node:size = (44, 18)
+                int ui:nodegraph:node:stackingOrder = 3832
+            }
+
+            def Shader "Combine3"
+            {
+                uniform token info:id = "ND_combine3_color3"
+                float inputs:in1.connect = </Root/placeHolder_Z_Positive/Material_Z/Image.outputs:out>
+                float inputs:in2.connect = </Root/placeHolder_Z_Positive/Material_Z/Image.outputs:out>
+                float inputs:in3.connect = </Root/placeHolder_Z_Positive/Material_Z/Image.outputs:out>
+                color3f outputs:out
+                float2 ui:nodegraph:node:pos = (774.24524, -156.33482)
+                float2 ui:nodegraph:node:size = (146, 54)
+                int ui:nodegraph:node:stackingOrder = 3872
+                string[] ui:nodegraph:realitykit:node:attributesShowingChildren = ["inputs:in2"]
+            }
+
+            def Shader "Image"
+            {
+                uniform token info:id = "ND_image_float"
+                prepend asset inputs:file.connect = </Root/placeHolder_Z_Positive/Material_Z.inputs:Image>
+                string inputs:filtertype
+                float outputs:out
+                float2 ui:nodegraph:node:pos = (73.721115, -88.46155)
+                float2 ui:nodegraph:node:size = (149, 199)
+                int ui:nodegraph:node:stackingOrder = 3871
+                string[] ui:nodegraph:realitykit:node:attributesShowingChildren = ["inputs:vaddressmode", "inputs:file", "inputs:vaddressmode"]
+            }
+
+            def "trim" (
+                active = true
+                instanceable = true
+                references = </Root/trim>
+            )
             {
                 float inputs:Opacity (
                     customData = {
                         dictionary realitykit = {
-                            float2 positionInSubgraph = (501.00006, 280.88766)
+                            float2 positionInSubgraph = (519.5298, 268.8333)
                             float2 sizeInSubgraph = (117, 53)
-                            int stackingOrderInSubgraph = 2809
+                            int stackingOrderInSubgraph = 3252
                         }
                     }
                 )
-                float inputs:Opacity.connect = </Root/placeHolder_Z_Positive/Material_Z/Image.outputs:out>
-                float inputs:x (
-                    customData = {
-                        dictionary realitykit = {
-                            float2 positionInSubgraph = (276.9795, 5.5900807)
-                            float2 sizeInSubgraph = (98, 53)
-                            int stackingOrderInSubgraph = 2811
-                        }
-                    }
-                )
-                float inputs:x.connect = </Root/placeHolder_Z_Positive/Material_Z.inputs:x>
-                float inputs:y (
-                    customData = {
-                        dictionary realitykit = {
-                            float2 positionInSubgraph = (444.4671, 375.54602)
-                            float2 sizeInSubgraph = (98, 53)
-                            int stackingOrderInSubgraph = 2809
-                        }
-                    }
-                )
-                float inputs:y.connect = </Root/placeHolder_Z_Positive/Material_Z.inputs:y>
-                float outputs:Min_out.connect = </Root/placeHolder_Z_Positive/Material_Z/nodegraph/Min.outputs:out>
-                float2 ui:nodegraph:node:pos = (356.98157, 222.28746)
-                float2 ui:nodegraph:node:size = (120, 145)
-                int ui:nodegraph:node:stackingOrder = 3770
-                string[] ui:nodegraph:realitykit:node:attributesShowingChildren = ["inputs:Ifgreater_1_in2", "inputs:Ocopacity", "inputs:y", "inputs:Ocopacity", "inputs:Ocopacity"]
-                float2 ui:nodegraph:realitykit:subgraphOutputs:pos = (1036.9363, 278.91962)
-                float2 ui:nodegraph:realitykit:subgraphOutputs:size = (137.2568, 81)
-                int ui:nodegraph:realitykit:subgraphOutputs:stackingOrder = 2787
-
-                def Shader "Separate2"
-                {
-                    uniform token info:id = "ND_separate2_vector2"
-                    float2 inputs:in.connect = </Root/placeHolder_Z_Positive/Material_Z/nodegraph/Texcoord.outputs:out>
-                    float outputs:outx
-                    float outputs:outy
-                    float2 ui:nodegraph:node:pos = (214.44858, 248.63914)
-                    float2 ui:nodegraph:node:size = (116, 127)
-                    int ui:nodegraph:node:stackingOrder = 2688
-                    string[] ui:nodegraph:realitykit:node:attributesShowingChildren = ["inputs:in"]
-                }
-
-                def Shader "Ifgreater"
-                {
-                    uniform token info:id = "ND_ifgreater_float"
-                    float inputs:in1.connect = None
-                    float inputs:in2.connect = </Root/placeHolder_Z_Positive/Material_Z/nodegraph.inputs:Opacity>
-                    float inputs:value1.connect = </Root/placeHolder_Z_Positive/Material_Z/nodegraph.inputs:x>
-                    float inputs:value2.connect = </Root/placeHolder_Z_Positive/Material_Z/nodegraph/Separate2.outputs:outx>
-                    float outputs:out
-                    float2 ui:nodegraph:node:pos = (687.6565, 124.37821)
-                    float2 ui:nodegraph:node:size = (109, 163)
-                    int ui:nodegraph:node:stackingOrder = 2675
-                    string[] ui:nodegraph:realitykit:node:attributesShowingChildren = ["inputs:in1", "inputs:value2", "inputs:value1", "inputs:in1"]
-                }
-
-                def Shader "Texcoord"
-                {
-                    uniform token info:id = "ND_texcoord_vector2"
-                    float2 outputs:out
-                    float2 ui:nodegraph:node:pos = (-8.836226, 255.0784)
-                    float2 ui:nodegraph:node:size = (182, 53)
-                    int ui:nodegraph:node:stackingOrder = 2708
-                    string[] ui:nodegraph:realitykit:node:attributesShowingChildren = ["outputs:out"]
-                }
-
-                def Shader "Ifgreater_1"
-                {
-                    uniform token info:id = "ND_ifgreater_float"
-                    float inputs:in1
-                    float inputs:in2.connect = </Root/placeHolder_Z_Positive/Material_Z/nodegraph.inputs:Opacity>
-                    float inputs:value1.connect = </Root/placeHolder_Z_Positive/Material_Z/nodegraph.inputs:y>
-                    float inputs:value2.connect = </Root/placeHolder_Z_Positive/Material_Z/nodegraph/Dot.outputs:out>
-                    float outputs:out
-                    float2 ui:nodegraph:node:pos = (680.8892, 425.97546)
-                    float2 ui:nodegraph:node:size = (115, 163)
-                    int ui:nodegraph:node:stackingOrder = 2805
-                    string[] ui:nodegraph:realitykit:node:attributesShowingChildren = ["inputs:in1", "inputs:value2", "inputs:value1", "inputs:in1"]
-                }
-
-                def Shader "Min"
-                {
-                    uniform token info:id = "ND_min_float"
-                    float inputs:in1.connect = </Root/placeHolder_Z_Positive/Material_Z/nodegraph/Ifgreater.outputs:out>
-                    float inputs:in2.connect = </Root/placeHolder_Z_Positive/Material_Z/nodegraph/Ifgreater_1.outputs:out>
-                    float outputs:out
-                    float2 ui:nodegraph:node:pos = (862.89154, 301.87238)
-                    float2 ui:nodegraph:node:size = (114, 40)
-                    int ui:nodegraph:node:stackingOrder = 2787
-                }
-
-                def Shader "Dot"
-                {
-                    uniform token info:id = "ND_dot_float"
-                    float inputs:in.connect = </Root/placeHolder_Z_Positive/Material_Z/nodegraph/Separate2.outputs:outy>
-                    float outputs:out
-                    float2 ui:nodegraph:node:pos = (352.34045, 424.14096)
-                    float2 ui:nodegraph:node:size = (44, 18)
-                    int ui:nodegraph:node:stackingOrder = 2807
-                }
+                float inputs:Opacity.connect = </Root/placeHolder_Z_Positive/Material_Z/opacityCorrection.outputs:return>
+                float2 ui:nodegraph:node:pos = (1344.5654, 157.81253)
+                float2 ui:nodegraph:node:size = (105, 109)
+                int ui:nodegraph:node:stackingOrder = 3724
+                float2 ui:nodegraph:realitykit:subgraphOutputs:size = (137, 81)
             }
 
-            def Shader "IfGreaterOrEqual"
+            def "opacityCorrection" (
+                active = true
+                instanceable = true
+                references = </Root/opacityCorrection>
+            )
             {
-                uniform token info:id = "ND_ifgreatereq_float"
-                float inputs:in1.connect = </Root/placeHolder_Z_Positive/Material_Z/nodegraph.outputs:Min_out>
-                float inputs:in2 = 0
-                float inputs:in2.connect = None
-                float inputs:value1.connect = </Root/placeHolder_Z_Positive/Material_Z.inputs:ZLayer>
-                float inputs:value2.connect = </Root/placeHolder_Z_Positive/Material_Z.inputs:z>
-                float outputs:out
-                float2 ui:nodegraph:node:pos = (764.9963, 190.20581)
-                float2 ui:nodegraph:node:size = (157, 163)
-                int ui:nodegraph:node:stackingOrder = 3770
-                string[] ui:nodegraph:realitykit:node:attributesShowingChildren = ["inputs:in2"]
+                float inputs:opacityCorrection (
+                    customData = {
+                        dictionary realitykit = {
+                            float2 positionInSubgraph = (461.80106, -156.40652)
+                            float2 sizeInSubgraph = (180, 53)
+                            int stackingOrderInSubgraph = 1106
+                        }
+                    }
+                )
+                float inputs:opacityCorrection.connect = </Root/placeHolder_Z_Positive/Material_Z.inputs:opacityCorrection>
+                float inputs:v (
+                    customData = {
+                        dictionary realitykit = {
+                            float2 positionInSubgraph = (485.76352, -284.85245)
+                            float2 sizeInSubgraph = (98, 53)
+                            int stackingOrderInSubgraph = 1089
+                        }
+                    }
+                )
+                float inputs:v.connect = </Root/placeHolder_Z_Positive/Material_Z/clipZ.outputs:out>
+                float outputs:return.connect = </Root/placeHolder_Z_Positive/Material_Z/opacityCorrection/Subtract_1.outputs:out>
+                float2 ui:nodegraph:node:pos = (1115.1625, 158.98422)
+                float2 ui:nodegraph:node:size = (163, 127)
+                int ui:nodegraph:node:stackingOrder = 3774
+                string[] ui:nodegraph:realitykit:node:attributesShowingChildren = ["inputs:smoothStepWidth", "inputs:smoothStepWidth", "inputs:smoothStepStep", "inputs:smoothStepStep", "inputs:smoothStepStep", "inputs:smoothStepWidth", "inputs:smoothStepStep", "inputs:opacityCorrection"]
+                float2 ui:nodegraph:realitykit:subgraphOutputs:size = (145.5, 81)
             }
 
-            def "transfer_1" (
+            def "transfer" (
                 active = true
                 instanceable = true
                 references = </Root/transfer>
@@ -1887,120 +1805,161 @@ def Xform "Root"
                         }
                     }
                 )
-                float inputs:v.connect = </Root/placeHolder_Z_Positive/Material_Z/trim_1.outputs:Min_out>
-                float2 ui:nodegraph:node:pos = (1588.6436, -9.549738)
+                float inputs:v.connect = </Root/placeHolder_Z_Positive/Material_Z/trim.outputs:Min_out>
+                float2 ui:nodegraph:node:pos = (1588.6436, 83.33072)
                 float2 ui:nodegraph:node:size = (140, 145)
-                int ui:nodegraph:node:stackingOrder = 3780
-                string[] ui:nodegraph:realitykit:node:attributesShowingChildren = ["inputs:smoothStepWidth", "inputs:smoothStepWidth", "inputs:smoothStepStep", "inputs:smoothStepStep", "inputs:smoothStepStep", "inputs:smoothStepWidth", "inputs:smoothStepStep", "inputs:smoothStepStep", "inputs:smoothStepShift", "inputs:smoothStepShift"]
+                int ui:nodegraph:node:stackingOrder = 3798
+                string[] ui:nodegraph:realitykit:node:attributesShowingChildren = ["inputs:smoothStepWidth", "inputs:smoothStepWidth", "inputs:smoothStepStep", "inputs:smoothStepStep", "inputs:smoothStepStep", "inputs:smoothStepWidth", "inputs:smoothStepStep", "inputs:smoothStepStep", "inputs:smoothStepShift", "inputs:smoothStepShift", "inputs:smoothStepStart"]
                 float2 ui:nodegraph:realitykit:subgraphOutputs:size = (144, 81)
             }
 
-            def Shader "Image"
-            {
-                uniform token info:id = "ND_image_float"
-                float inputs:default
-                asset inputs:file.connect = </Root/placeHolder_Z_Positive/Material_Z.inputs:Image>
-                string inputs:filtertype
-                float2 inputs:texcoord
-                string inputs:uaddressmode
-                string inputs:vaddressmode
-                float outputs:out
-                float2 ui:nodegraph:node:pos = (17.920326, 37.773895)
-                float2 ui:nodegraph:node:size = (149, 199)
-                int ui:nodegraph:node:stackingOrder = 3776
-                string[] ui:nodegraph:realitykit:node:attributesShowingChildren = ["inputs:uaddressmode"]
-            }
-
-            def Shader "Image_1"
-            {
-                uniform token info:id = "ND_image_color3"
-                color3f inputs:default
-                asset inputs:file.connect = </Root/placeHolder_Z_Positive/Material_Z/Dot.outputs:out>
-                string inputs:filtertype
-                float2 inputs:texcoord
-                string inputs:uaddressmode
-                string inputs:vaddressmode
-                color3f outputs:out
-                float2 ui:nodegraph:node:pos = (854.1362, -275.53766)
-                float2 ui:nodegraph:node:size = (149, 199)
-                int ui:nodegraph:node:stackingOrder = 3475
-                string[] ui:nodegraph:realitykit:node:attributesShowingChildren = ["inputs:uaddressmode", "inputs:uaddressmode"]
-            }
-
-            def Shader "Dot"
-            {
-                uniform token info:id = "ND_dot_filename"
-                asset inputs:in.connect = </Root/placeHolder_Z_Positive/Material_Z.inputs:Image>
-                asset outputs:out
-                float2 ui:nodegraph:node:pos = (228.78418, -314.31775)
-                float2 ui:nodegraph:node:size = (44, 18)
-                int ui:nodegraph:node:stackingOrder = 3386
-            }
-
-            def Shader "Dot_1"
-            {
-                uniform token info:id = "ND_dot_color3"
-                color3f inputs:in.connect = </Root/placeHolder_Z_Positive/Material_Z/Image_1.outputs:out>
-                color3f outputs:out
-                float2 ui:nodegraph:node:pos = (1664.6353, -190.39912)
-                float2 ui:nodegraph:node:size = (44, 18)
-                int ui:nodegraph:node:stackingOrder = 3476
-            }
-
-            def "trim_1" (
-                active = true
-                instanceable = true
-                references = </Root/trim>
-            )
+            def NodeGraph "clip"
             {
                 float inputs:Opacity (
                     customData = {
                         dictionary realitykit = {
-                            float2 positionInSubgraph = (519.5298, 268.8333)
-                            float2 sizeInSubgraph = (116.5, 53)
-                            int stackingOrderInSubgraph = 3252
+                            float2 positionInSubgraph = (501.00006, 280.88766)
+                            float2 sizeInSubgraph = (117, 53)
+                            int stackingOrderInSubgraph = 2809
                         }
                     }
                 )
-                float inputs:Opacity.connect = </Root/placeHolder_Z_Positive/Material_Z/opacityCorrection_1.outputs:return>
-                float2 ui:nodegraph:node:pos = (1344.5654, 157.81253)
-                float2 ui:nodegraph:node:size = (105, 109)
-                int ui:nodegraph:node:stackingOrder = 3724
-                float2 ui:nodegraph:realitykit:subgraphOutputs:size = (152, 81)
+                float inputs:Opacity.connect = </Root/placeHolder_Z_Positive/Material_Z/Image.outputs:out>
+                float inputs:x (
+                    customData = {
+                        dictionary realitykit = {
+                            float2 positionInSubgraph = (276.9795, 5.5900807)
+                            float2 sizeInSubgraph = (98, 53)
+                            int stackingOrderInSubgraph = 2811
+                        }
+                    }
+                )
+                float inputs:x.connect = </Root/placeHolder_Z_Positive/Material_Z.inputs:x>
+                float inputs:y (
+                    customData = {
+                        dictionary realitykit = {
+                            float2 positionInSubgraph = (444.4671, 375.54602)
+                            float2 sizeInSubgraph = (98, 53)
+                            int stackingOrderInSubgraph = 2809
+                        }
+                    }
+                )
+                float inputs:y.connect = </Root/placeHolder_Z_Positive/Material_Z.inputs:y>
+                float outputs:Min_out.connect = </Root/placeHolder_Z_Positive/Material_Z/clip/Min.outputs:out>
+                float2 ui:nodegraph:node:pos = (356.98157, 222.28746)
+                float2 ui:nodegraph:node:size = (106, 145)
+                int ui:nodegraph:node:stackingOrder = 3875
+                string[] ui:nodegraph:realitykit:node:attributesShowingChildren = ["inputs:Ifgreater_1_in2", "inputs:Ocopacity", "inputs:y", "inputs:Ocopacity", "inputs:Ocopacity"]
+                float2 ui:nodegraph:realitykit:subgraphOutputs:pos = (1036.9363, 278.91962)
+                float2 ui:nodegraph:realitykit:subgraphOutputs:size = (137.7934, 81)
+                int ui:nodegraph:realitykit:subgraphOutputs:stackingOrder = 2787
+
+                def Shader "Separate2"
+                {
+                    uniform token info:id = "ND_separate2_vector2"
+                    float2 inputs:in.connect = </Root/placeHolder_Z_Positive/Material_Z/clip/Texcoord.outputs:out>
+                    float outputs:outx
+                    float outputs:outy
+                    float2 ui:nodegraph:node:pos = (214.44858, 248.63914)
+                    float2 ui:nodegraph:node:size = (116, 127)
+                    int ui:nodegraph:node:stackingOrder = 2688
+                    string[] ui:nodegraph:realitykit:node:attributesShowingChildren = ["inputs:in"]
+                }
+
+                def Shader "Ifgreater"
+                {
+                    uniform token info:id = "ND_ifgreater_float"
+                    float inputs:in1.connect = None
+                    float inputs:in2.connect = </Root/placeHolder_Z_Positive/Material_Z/clip.inputs:Opacity>
+                    float inputs:value1.connect = </Root/placeHolder_Z_Positive/Material_Z/clip.inputs:x>
+                    float inputs:value2.connect = </Root/placeHolder_Z_Positive/Material_Z/clip/Separate2.outputs:outx>
+                    float outputs:out
+                    float2 ui:nodegraph:node:pos = (687.6565, 124.37821)
+                    float2 ui:nodegraph:node:size = (109, 163)
+                    int ui:nodegraph:node:stackingOrder = 2675
+                    string[] ui:nodegraph:realitykit:node:attributesShowingChildren = ["inputs:in1", "inputs:value2", "inputs:value1", "inputs:in1"]
+                }
+
+                def Shader "Texcoord"
+                {
+                    uniform token info:id = "ND_texcoord_vector2"
+                    float2 outputs:out
+                    float2 ui:nodegraph:node:pos = (-8.836226, 255.0784)
+                    float2 ui:nodegraph:node:size = (182, 53)
+                    int ui:nodegraph:node:stackingOrder = 2708
+                    string[] ui:nodegraph:realitykit:node:attributesShowingChildren = ["outputs:out"]
+                }
+
+                def Shader "Ifgreater_1"
+                {
+                    uniform token info:id = "ND_ifgreater_float"
+                    float inputs:in1
+                    float inputs:in2.connect = </Root/placeHolder_Z_Positive/Material_Z/clip.inputs:Opacity>
+                    float inputs:value1.connect = </Root/placeHolder_Z_Positive/Material_Z/clip.inputs:y>
+                    float inputs:value2.connect = </Root/placeHolder_Z_Positive/Material_Z/clip/Dot.outputs:out>
+                    float outputs:out
+                    float2 ui:nodegraph:node:pos = (680.8892, 425.97546)
+                    float2 ui:nodegraph:node:size = (115, 163)
+                    int ui:nodegraph:node:stackingOrder = 2805
+                    string[] ui:nodegraph:realitykit:node:attributesShowingChildren = ["inputs:in1", "inputs:value2", "inputs:value1", "inputs:in1"]
+                }
+
+                def Shader "Min"
+                {
+                    uniform token info:id = "ND_min_float"
+                    float inputs:in1.connect = </Root/placeHolder_Z_Positive/Material_Z/clip/Ifgreater.outputs:out>
+                    float inputs:in2.connect = </Root/placeHolder_Z_Positive/Material_Z/clip/Ifgreater_1.outputs:out>
+                    float outputs:out
+                    float2 ui:nodegraph:node:pos = (862.89154, 301.87238)
+                    float2 ui:nodegraph:node:size = (114, 40)
+                    int ui:nodegraph:node:stackingOrder = 2787
+                }
+
+                def Shader "Dot"
+                {
+                    uniform token info:id = "ND_dot_float"
+                    float inputs:in.connect = </Root/placeHolder_Z_Positive/Material_Z/clip/Separate2.outputs:outy>
+                    float outputs:out
+                    float2 ui:nodegraph:node:pos = (352.34045, 424.14096)
+                    float2 ui:nodegraph:node:size = (44, 18)
+                    int ui:nodegraph:node:stackingOrder = 2807
+                }
             }
 
-            def "opacityCorrection_1" (
+            def Shader "clipZ"
+            {
+                uniform token info:id = "ND_ifgreatereq_float"
+                float inputs:in1.connect = </Root/placeHolder_Z_Positive/Material_Z/clip.outputs:Min_out>
+                float inputs:in2 = 0
+                float inputs:in2.connect = None
+                float inputs:value1.connect = </Root/placeHolder_Z_Positive/Material_Z.inputs:ZLayer>
+                float inputs:value2.connect = </Root/placeHolder_Z_Positive/Material_Z.inputs:z>
+                float outputs:out
+                float2 ui:nodegraph:node:pos = (764.9963, 190.20581)
+                float2 ui:nodegraph:node:size = (140, 163)
+                int ui:nodegraph:node:stackingOrder = 3878
+                string[] ui:nodegraph:realitykit:node:attributesShowingChildren = ["inputs:in2"]
+            }
+
+            def Shader "UnlitSurface" (
                 active = true
-                instanceable = true
-                references = </Root/opacityCorrection>
             )
             {
-                float inputs:opacityCorrection (
-                    customData = {
-                        dictionary realitykit = {
-                            float2 positionInSubgraph = (461.80106, -156.40652)
-                            float2 sizeInSubgraph = (180, 53)
-                            int stackingOrderInSubgraph = 1106
-                        }
-                    }
+                uniform token info:id = "ND_realitykit_unlit_surfaceshader"
+                bool inputs:applyPostProcessToneMap = 0
+                color3f inputs:color = (1, 0.14913142, 0) (
+                    colorSpace = "srgb_texture"
                 )
-                float inputs:opacityCorrection.connect = </Root/placeHolder_Z_Positive/Material_Z.inputs:opacityCorrection>
-                float inputs:v (
-                    customData = {
-                        dictionary realitykit = {
-                            float2 positionInSubgraph = (485.76352, -284.85245)
-                            float2 sizeInSubgraph = (98, 53)
-                            int stackingOrderInSubgraph = 1089
-                        }
-                    }
-                )
-                float inputs:v.connect = </Root/placeHolder_Z_Positive/Material_Z/IfGreaterOrEqual.outputs:out>
-                float outputs:return.connect = </Root/placeHolder_Z_Positive/Material_Z/opacityCorrection_1/Subtract_1.outputs:out>
-                float2 ui:nodegraph:node:pos = (1115.1625, 158.98422)
-                float2 ui:nodegraph:node:size = (176, 127)
-                int ui:nodegraph:node:stackingOrder = 3774
-                string[] ui:nodegraph:realitykit:node:attributesShowingChildren = ["inputs:smoothStepWidth", "inputs:smoothStepWidth", "inputs:smoothStepStep", "inputs:smoothStepStep", "inputs:smoothStepStep", "inputs:smoothStepWidth", "inputs:smoothStepStep", "inputs:opacityCorrection"]
-                float2 ui:nodegraph:realitykit:subgraphOutputs:size = (145.5, 81)
+                color3f inputs:color.connect = </Root/placeHolder_Z_Positive/Material_Z/Dot_1.outputs:out>
+                bool inputs:hasPremultipliedAlpha = 0
+                float inputs:opacity = 1
+                float inputs:opacity.connect = </Root/placeHolder_Z_Positive/Material_Z/transfer.outputs:return>
+                float inputs:opacityThreshold
+                token outputs:out
+                float2 ui:nodegraph:node:pos = (1848.8475, 142.4462)
+                float2 ui:nodegraph:node:size = (195, 181)
+                int ui:nodegraph:node:stackingOrder = 3880
+                string[] ui:nodegraph:realitykit:node:attributesShowingChildren = ["inputs:color", "inputs:opacity", "inputs:opacityThreshold", "inputs:opacityThreshold", "outputs:out", "inputs:hasPremultipliedAlpha", "inputs:opacityThreshold", "inputs:hasPremultipliedAlpha", "inputs:opacity", "inputs:opacityThreshold", "inputs:opacityThreshold", "inputs:opacity", "inputs:hasPremultipliedAlpha", "inputs:color", "inputs:color", "inputs:hasPremultipliedAlpha"]
             }
         }
     }
@@ -2022,7 +1981,7 @@ def Xform "Root"
 
         def Material "Material_Z"
         {
-            reorder nameChildren = ["trim_1", "transfer_1", "nodegraph", "opacityCorrection_1", "Image_1", "UnlitSurface_1", "Image", "UsdPreviewSurface", "IfGreaterOrEqual"]
+            reorder nameChildren = ["trim", "transfer", "nodegraph", "opacityCorrection", "Image_1", "UnlitSurface_1", "Image", "UsdPreviewSurface", "IfGreaterOrEqual"]
             asset inputs:Image (
                 customData = {
                     dictionary realitykit = {
@@ -2097,31 +2056,13 @@ def Xform "Root"
                     }
                 }
             )
-            token outputs:mtlx:surface.connect = </Root/placeHolder_Z_Negative/Material_Z/UnlitSurface_1.outputs:out>
+            token outputs:mtlx:surface.connect = </Root/placeHolder_Z_Negative/Material_Z/UnlitSurface.outputs:out>
             token outputs:realitykit:vertex.connect = </Root/placeHolder_Z_Positive/Material/GeometryModifier.outputs:out>
             token outputs:surface.connect = </Root/placeHolder_Z_Positive/Material/UsdPreviewSurface.outputs:surface>
             string[] ui:nodegraph:realitykit:node:attributesShowingChildren = ["outputs:realitykit:vertex"]
             float2 ui:nodegraph:realitykit:subgraphOutputs:pos = (2321.8513, 131.92197)
             float2 ui:nodegraph:realitykit:subgraphOutputs:size = (182, 99)
             int ui:nodegraph:realitykit:subgraphOutputs:stackingOrder = 3396
-
-            def Shader "UnlitSurface_1" (
-                active = true
-            )
-            {
-                uniform token info:id = "ND_realitykit_unlit_surfaceshader"
-                bool inputs:applyPostProcessToneMap = 0
-                color3f inputs:color.connect = </Root/placeHolder_Z_Negative/Material_Z/Dot_1.outputs:out>
-                bool inputs:hasPremultipliedAlpha = 0
-                float inputs:opacity = 0
-                float inputs:opacity.connect = </Root/placeHolder_Z_Negative/Material_Z/transfer_1.outputs:return>
-                float inputs:opacityThreshold.connect = None
-                token outputs:out
-                float2 ui:nodegraph:node:pos = (2077.159, 90.74272)
-                float2 ui:nodegraph:node:size = (195, 181)
-                int ui:nodegraph:node:stackingOrder = 3474
-                string[] ui:nodegraph:realitykit:node:attributesShowingChildren = ["inputs:color", "inputs:opacity", "inputs:applyPostProcessToneMap", "inputs:opacityThreshold", "inputs:opacityThreshold", "outputs:out", "inputs:applyPostProcessToneMap", "inputs:hasPremultipliedAlpha", "inputs:opacityThreshold", "inputs:hasPremultipliedAlpha", "inputs:opacity", "inputs:opacityThreshold", "inputs:opacityThreshold", "inputs:applyPostProcessToneMap"]
-            }
 
             def Shader "UsdPreviewSurface" (
                 active = false
@@ -2131,142 +2072,27 @@ def Xform "Root"
                 token outputs:surface
             }
 
-            def Shader "IfGreaterOrEqual"
+            def Shader "Dot_1"
             {
-                uniform token info:id = "ND_ifgreatereq_float"
-                float inputs:in1.connect = </Root/placeHolder_Z_Negative/Material_Z/nodegraph.outputs:Min_out>
-                float inputs:in2 = 0
-                float inputs:in2.connect = None
-                float inputs:value1.connect = </Root/placeHolder_Z_Negative/Material_Z.inputs:ZLayer>
-                float inputs:value2.connect = </Root/placeHolder_Z_Negative/Material_Z.inputs:z>
-                float outputs:out
-                float2 ui:nodegraph:node:pos = (701.15216, 181.31311)
-                float2 ui:nodegraph:node:size = (157, 163)
-                int ui:nodegraph:node:stackingOrder = 3510
+                uniform token info:id = "ND_dot_color3"
+                color3f inputs:in.connect = </Root/placeHolder_Z_Negative/Material_Z/Combine3.outputs:out>
+                color3f outputs:out
+                float2 ui:nodegraph:node:pos = (1859.8337, -168.35944)
+                float2 ui:nodegraph:node:size = (44, 18)
+                int ui:nodegraph:node:stackingOrder = 3466
             }
 
-            def NodeGraph "nodegraph"
+            def Shader "Combine3"
             {
-                float inputs:Opacity (
-                    customData = {
-                        dictionary realitykit = {
-                            float2 positionInSubgraph = (601.78815, 282.2745)
-                            float2 sizeInSubgraph = (116.5, 53)
-                            int stackingOrderInSubgraph = 3088
-                        }
-                    }
-                )
-                float inputs:Opacity.connect = </Root/placeHolder_Z_Negative/Material_Z/Image.outputs:out>
-                float inputs:x (
-                    customData = {
-                        dictionary realitykit = {
-                            float2 positionInSubgraph = (334.7672, 20.735537)
-                            float2 sizeInSubgraph = (98, 53)
-                            int stackingOrderInSubgraph = 3088
-                        }
-                    }
-                )
-                prepend float inputs:x.connect = </Root/placeHolder_Z_Negative/Material_Z.inputs:x>
-                float inputs:y (
-                    customData = {
-                        dictionary realitykit = {
-                            float2 positionInSubgraph = (599.34375, 383.83594)
-                            float2 sizeInSubgraph = (98, 53)
-                            int stackingOrderInSubgraph = 3087
-                        }
-                    }
-                )
-                prepend float inputs:y.connect = </Root/placeHolder_Z_Negative/Material_Z.inputs:y>
-                prepend float outputs:Min_out.connect = </Root/placeHolder_Z_Negative/Material_Z/nodegraph/Min.outputs:out>
-                float2 ui:nodegraph:node:pos = (347.55362, 211.31807)
-                float2 ui:nodegraph:node:size = (120, 145)
-                int ui:nodegraph:node:stackingOrder = 3510
-                string[] ui:nodegraph:realitykit:node:attributesShowingChildren = ["inputs:Ifgreater_1_value1", "inputs:Ifgreater_in2", "inputs:Ocucapity", "inputs:Opacity"]
-                float2 ui:nodegraph:realitykit:subgraphOutputs:pos = (1176, 178)
-                float2 ui:nodegraph:realitykit:subgraphOutputs:size = (137.17842, 81)
-
-                def Shader "Subtract"
-                {
-                    uniform token info:id = "ND_subtract_float"
-                    float inputs:in1 = 1
-                    float inputs:in1.connect = None
-                    float inputs:in2.connect = </Root/placeHolder_Z_Negative/Material_Z/nodegraph.inputs:x>
-                    float outputs:out
-                    float2 ui:nodegraph:node:pos = (513.8893, 79.2848)
-                    float2 ui:nodegraph:node:size = (61.5, 36)
-                    int ui:nodegraph:node:stackingOrder = 3086
-                }
-
-                def Shader "Ifgreater"
-                {
-                    uniform token info:id = "ND_ifgreater_float"
-                    float inputs:in1.connect = None
-                    float inputs:in2.connect = </Root/placeHolder_Z_Negative/Material_Z/nodegraph.inputs:Opacity>
-                    float inputs:value1.connect = </Root/placeHolder_Z_Negative/Material_Z/nodegraph/Separate2.outputs:outx>
-                    float inputs:value2.connect = </Root/placeHolder_Z_Negative/Material_Z/nodegraph/Subtract.outputs:out>
-                    float outputs:out
-                    float2 ui:nodegraph:node:pos = (808.5, 123)
-                    float2 ui:nodegraph:node:size = (109, 163)
-                    int ui:nodegraph:node:stackingOrder = 3079
-                    string[] ui:nodegraph:realitykit:node:attributesShowingChildren = ["inputs:in1", "inputs:value2", "inputs:value1", "inputs:in1", "inputs:value2"]
-                }
-
-                def Shader "Min"
-                {
-                    uniform token info:id = "ND_min_float"
-                    float inputs:in1.connect = </Root/placeHolder_Z_Negative/Material_Z/nodegraph/Ifgreater.outputs:out>
-                    float inputs:in2.connect = </Root/placeHolder_Z_Negative/Material_Z/nodegraph/Ifgreater_1.outputs:out>
-                    float outputs:out
-                    float2 ui:nodegraph:node:pos = (983, 178)
-                    float2 ui:nodegraph:node:size = (113, 40)
-                    int ui:nodegraph:node:stackingOrder = 3078
-                }
-
-                def Shader "Ifgreater_1"
-                {
-                    uniform token info:id = "ND_ifgreater_float"
-                    float inputs:in1
-                    float inputs:in2.connect = </Root/placeHolder_Z_Negative/Material_Z/nodegraph.inputs:Opacity>
-                    float inputs:value1.connect = </Root/placeHolder_Z_Negative/Material_Z/nodegraph.inputs:y>
-                    float inputs:value2.connect = </Root/placeHolder_Z_Negative/Material_Z/nodegraph/Dot.outputs:out>
-                    float outputs:out
-                    float2 ui:nodegraph:node:pos = (808.5, 396)
-                    float2 ui:nodegraph:node:size = (113.5, 163)
-                    int ui:nodegraph:node:stackingOrder = 3077
-                    string[] ui:nodegraph:realitykit:node:attributesShowingChildren = ["inputs:in1", "inputs:value2", "inputs:value1", "inputs:in1"]
-                }
-
-                def Shader "Separate2"
-                {
-                    uniform token info:id = "ND_separate2_vector2"
-                    float2 inputs:in.connect = </Root/placeHolder_Z_Negative/Material_Z/nodegraph/Texcoord.outputs:out>
-                    float outputs:outx
-                    float outputs:outy
-                    float2 ui:nodegraph:node:pos = (316, 221.5)
-                    float2 ui:nodegraph:node:size = (115, 127)
-                    int ui:nodegraph:node:stackingOrder = 3074
-                    string[] ui:nodegraph:realitykit:node:attributesShowingChildren = ["inputs:in"]
-                }
-
-                def Shader "Texcoord"
-                {
-                    uniform token info:id = "ND_texcoord_vector2"
-                    float2 outputs:out
-                    float2 ui:nodegraph:node:pos = (91, 221.5)
-                    float2 ui:nodegraph:node:size = (180.5, 53)
-                    int ui:nodegraph:node:stackingOrder = 3073
-                    string[] ui:nodegraph:realitykit:node:attributesShowingChildren = ["outputs:out"]
-                }
-
-                def Shader "Dot"
-                {
-                    uniform token info:id = "ND_dot_float"
-                    float inputs:in.connect = </Root/placeHolder_Z_Negative/Material_Z/nodegraph/Separate2.outputs:outy>
-                    float outputs:out
-                    float2 ui:nodegraph:node:pos = (570.5, 518)
-                    float2 ui:nodegraph:node:size = (44, 18)
-                    int ui:nodegraph:node:stackingOrder = 3076
-                }
+                uniform token info:id = "ND_combine3_color3"
+                float inputs:in1.connect = </Root/placeHolder_Z_Negative/Material_Z/Image.outputs:out>
+                float inputs:in2.connect = </Root/placeHolder_Z_Negative/Material_Z/Image.outputs:out>
+                float inputs:in3.connect = </Root/placeHolder_Z_Negative/Material_Z/Image.outputs:out>
+                color3f outputs:out
+                float2 ui:nodegraph:node:pos = (794.24524, -136.33482)
+                float2 ui:nodegraph:node:size = (146, 54)
+                int ui:nodegraph:node:stackingOrder = 3873
+                string[] ui:nodegraph:realitykit:node:attributesShowingChildren = ["inputs:in2"]
             }
 
             def Shader "Image"
@@ -2277,64 +2103,14 @@ def Xform "Root"
                 string inputs:filtertype
                 float2 inputs:texcoord
                 string inputs:uaddressmode
-                string inputs:vaddressmode
                 float outputs:out
-                float2 ui:nodegraph:node:pos = (82.826355, 84.58367)
+                float2 ui:nodegraph:node:pos = (93.721115, -68.46155)
                 float2 ui:nodegraph:node:size = (149, 199)
-                int ui:nodegraph:node:stackingOrder = 3366
-                string[] ui:nodegraph:realitykit:node:attributesShowingChildren = ["inputs:uaddressmode", "inputs:texcoord", "inputs:texcoord", "inputs:texcoord", "inputs:file", "inputs:texcoord"]
+                int ui:nodegraph:node:stackingOrder = 3872
+                string[] ui:nodegraph:realitykit:node:attributesShowingChildren = ["inputs:vaddressmode", "inputs:file", "inputs:vaddressmode"]
             }
 
-            def "opacityCorrection_1" (
-                active = true
-                instanceable = true
-                references = </Root/opacityCorrection>
-            )
-            {
-                float inputs:opacityCorrection (
-                    customData = {
-                        dictionary realitykit = {
-                            float2 positionInSubgraph = (461.80106, -156.40652)
-                            float2 sizeInSubgraph = (180, 53)
-                            int stackingOrderInSubgraph = 1105
-                        }
-                    }
-                )
-                float inputs:opacityCorrection.connect = </Root/placeHolder_Z_Negative/Material_Z.inputs:opacityCorrection>
-                float inputs:v (
-                    customData = {
-                        dictionary realitykit = {
-                            float2 positionInSubgraph = (485.76352, -284.85245)
-                            float2 sizeInSubgraph = (98, 53)
-                            int stackingOrderInSubgraph = 1089
-                        }
-                    }
-                )
-                float inputs:v.connect = </Root/placeHolder_Z_Negative/Material_Z/IfGreaterOrEqual.outputs:out>
-                float2 ui:nodegraph:node:pos = (1115.5098, 189.28633)
-                float2 ui:nodegraph:node:size = (176, 127)
-                int ui:nodegraph:node:stackingOrder = 3519
-                string[] ui:nodegraph:realitykit:node:attributesShowingChildren = ["inputs:smoothStepWidth", "inputs:smoothStepWidth", "inputs:smoothStepStep", "inputs:smoothStepStep", "inputs:smoothStepStep", "inputs:smoothStepWidth", "inputs:smoothStepStep", "inputs:opacityCorrection"]
-                float2 ui:nodegraph:realitykit:subgraphOutputs:size = (145.5, 81)
-            }
-
-            def Shader "Image_1"
-            {
-                uniform token info:id = "ND_image_color3"
-                color3f inputs:default
-                asset inputs:file.connect = </Root/placeHolder_Z_Negative/Material_Z/Dot.outputs:out>
-                string inputs:filtertype
-                float2 inputs:texcoord
-                string inputs:uaddressmode
-                string inputs:vaddressmode
-                color3f outputs:out
-                float2 ui:nodegraph:node:pos = (1011.19604, -254.37733)
-                float2 ui:nodegraph:node:size = (149, 199)
-                int ui:nodegraph:node:stackingOrder = 3461
-                string[] ui:nodegraph:realitykit:node:attributesShowingChildren = ["inputs:uaddressmode", "inputs:texcoord", "inputs:texcoord", "inputs:texcoord", "inputs:file", "inputs:texcoord"]
-            }
-
-            def "trim_1" (
+            def "trim" (
                 active = true
                 instanceable = true
                 references = </Root/trim>
@@ -2344,39 +2120,19 @@ def Xform "Root"
                     customData = {
                         dictionary realitykit = {
                             float2 positionInSubgraph = (519.5298, 268.8333)
-                            float2 sizeInSubgraph = (116.5, 53)
+                            float2 sizeInSubgraph = (117, 53)
                             int stackingOrderInSubgraph = 3252
                         }
                     }
                 )
-                float inputs:Opacity.connect = </Root/placeHolder_Z_Negative/Material_Z/opacityCorrection_1.outputs:return>
+                float inputs:Opacity.connect = </Root/placeHolder_Z_Negative/Material_Z/opacityCorrection.outputs:return>
                 float2 ui:nodegraph:node:pos = (1306.2732, 185.96971)
                 float2 ui:nodegraph:node:size = (105, 109)
                 int ui:nodegraph:node:stackingOrder = 3510
                 float2 ui:nodegraph:realitykit:subgraphOutputs:size = (152, 81)
             }
 
-            def Shader "Dot"
-            {
-                uniform token info:id = "ND_dot_filename"
-                asset inputs:in.connect = </Root/placeHolder_Z_Negative/Material_Z.inputs:Image>
-                asset outputs:out
-                float2 ui:nodegraph:node:pos = (44.744816, -284.39206)
-                float2 ui:nodegraph:node:size = (44, 18)
-                int ui:nodegraph:node:stackingOrder = 3463
-            }
-
-            def Shader "Dot_1"
-            {
-                uniform token info:id = "ND_dot_color3"
-                color3f inputs:in.connect = </Root/placeHolder_Z_Negative/Material_Z/Image_1.outputs:out>
-                color3f outputs:out
-                float2 ui:nodegraph:node:pos = (1859.8337, -168.35944)
-                float2 ui:nodegraph:node:size = (44, 18)
-                int ui:nodegraph:node:stackingOrder = 3466
-            }
-
-            def "transfer_1" (
+            def "transfer" (
                 active = true
                 instanceable = true
                 references = </Root/transfer>
@@ -2411,12 +2167,201 @@ def Xform "Root"
                         }
                     }
                 )
-                float inputs:v.connect = </Root/placeHolder_Z_Negative/Material_Z/trim_1.outputs:Min_out>
-                float outputs:return.connect = </Root/placeHolder_Z_Negative/Material_Z/transfer_1/Multiply_2.outputs:out>
+                float inputs:v.connect = </Root/placeHolder_Z_Negative/Material_Z/trim.outputs:Min_out>
+                float outputs:return.connect = </Root/placeHolder_Z_Negative/Material_Z/transfer/Multiply_2.outputs:out>
                 float2 ui:nodegraph:node:pos = (1692.5476, 64.16387)
                 float2 ui:nodegraph:node:size = (140, 145)
                 int ui:nodegraph:node:stackingOrder = 3516
-                float2 ui:nodegraph:realitykit:subgraphOutputs:size = (128.5, 81)
+                float2 ui:nodegraph:realitykit:subgraphOutputs:size = (144, 81)
+            }
+
+            def "opacityCorrection" (
+                active = true
+                instanceable = true
+                references = </Root/opacityCorrection>
+            )
+            {
+                float inputs:opacityCorrection (
+                    customData = {
+                        dictionary realitykit = {
+                            float2 positionInSubgraph = (461.80106, -156.40652)
+                            float2 sizeInSubgraph = (180, 53)
+                            int stackingOrderInSubgraph = 1105
+                        }
+                    }
+                )
+                float inputs:opacityCorrection.connect = </Root/placeHolder_Z_Negative/Material_Z.inputs:opacityCorrection>
+                float inputs:v (
+                    customData = {
+                        dictionary realitykit = {
+                            float2 positionInSubgraph = (485.76352, -284.85245)
+                            float2 sizeInSubgraph = (98, 53)
+                            int stackingOrderInSubgraph = 1089
+                        }
+                    }
+                )
+                float inputs:v.connect = </Root/placeHolder_Z_Negative/Material_Z/clipZ.outputs:out>
+                float2 ui:nodegraph:node:pos = (1115.5098, 189.28633)
+                float2 ui:nodegraph:node:size = (163, 127)
+                int ui:nodegraph:node:stackingOrder = 3519
+                string[] ui:nodegraph:realitykit:node:attributesShowingChildren = ["inputs:smoothStepWidth", "inputs:smoothStepWidth", "inputs:smoothStepStep", "inputs:smoothStepStep", "inputs:smoothStepStep", "inputs:smoothStepWidth", "inputs:smoothStepStep", "inputs:opacityCorrection"]
+                float2 ui:nodegraph:realitykit:subgraphOutputs:size = (146, 81)
+            }
+
+            def NodeGraph "clip"
+            {
+                float inputs:Opacity (
+                    customData = {
+                        dictionary realitykit = {
+                            float2 positionInSubgraph = (601.78815, 282.2745)
+                            float2 sizeInSubgraph = (117, 53)
+                            int stackingOrderInSubgraph = 3088
+                        }
+                    }
+                )
+                float inputs:Opacity.connect = </Root/placeHolder_Z_Negative/Material_Z/Image.outputs:out>
+                float inputs:x (
+                    customData = {
+                        dictionary realitykit = {
+                            float2 positionInSubgraph = (334.7672, 20.735537)
+                            float2 sizeInSubgraph = (98, 53)
+                            int stackingOrderInSubgraph = 3088
+                        }
+                    }
+                )
+                prepend float inputs:x.connect = </Root/placeHolder_Z_Negative/Material_Z.inputs:x>
+                float inputs:y (
+                    customData = {
+                        dictionary realitykit = {
+                            float2 positionInSubgraph = (599.34375, 383.83594)
+                            float2 sizeInSubgraph = (98, 53)
+                            int stackingOrderInSubgraph = 3087
+                        }
+                    }
+                )
+                prepend float inputs:y.connect = </Root/placeHolder_Z_Negative/Material_Z.inputs:y>
+                prepend float outputs:Min_out.connect = </Root/placeHolder_Z_Negative/Material_Z/clip/Min.outputs:out>
+                float2 ui:nodegraph:node:pos = (347.55362, 211.31807)
+                float2 ui:nodegraph:node:size = (106, 145)
+                int ui:nodegraph:node:stackingOrder = 3892
+                string[] ui:nodegraph:realitykit:node:attributesShowingChildren = ["inputs:Ifgreater_1_value1", "inputs:Ifgreater_in2", "inputs:Ocucapity", "inputs:Opacity"]
+                float2 ui:nodegraph:realitykit:subgraphOutputs:pos = (1176, 178)
+                float2 ui:nodegraph:realitykit:subgraphOutputs:size = (137.99918, 81)
+
+                def Shader "Subtract"
+                {
+                    uniform token info:id = "ND_subtract_float"
+                    float inputs:in1 = 1
+                    float inputs:in1.connect = None
+                    float inputs:in2.connect = </Root/placeHolder_Z_Negative/Material_Z/clip.inputs:x>
+                    float outputs:out
+                    float2 ui:nodegraph:node:pos = (513.8893, 79.2848)
+                    float2 ui:nodegraph:node:size = (63, 36)
+                    int ui:nodegraph:node:stackingOrder = 3086
+                }
+
+                def Shader "Ifgreater"
+                {
+                    uniform token info:id = "ND_ifgreater_float"
+                    float inputs:in1.connect = None
+                    float inputs:in2.connect = </Root/placeHolder_Z_Negative/Material_Z/clip.inputs:Opacity>
+                    float inputs:value1.connect = </Root/placeHolder_Z_Negative/Material_Z/clip/Separate2.outputs:outx>
+                    float inputs:value2.connect = </Root/placeHolder_Z_Negative/Material_Z/clip/Subtract.outputs:out>
+                    float outputs:out
+                    float2 ui:nodegraph:node:pos = (808.5, 123)
+                    float2 ui:nodegraph:node:size = (109, 163)
+                    int ui:nodegraph:node:stackingOrder = 3079
+                    string[] ui:nodegraph:realitykit:node:attributesShowingChildren = ["inputs:in1", "inputs:value2", "inputs:value1", "inputs:in1", "inputs:value2"]
+                }
+
+                def Shader "Min"
+                {
+                    uniform token info:id = "ND_min_float"
+                    float inputs:in1.connect = </Root/placeHolder_Z_Negative/Material_Z/clip/Ifgreater.outputs:out>
+                    float inputs:in2.connect = </Root/placeHolder_Z_Negative/Material_Z/clip/Ifgreater_1.outputs:out>
+                    float outputs:out
+                    float2 ui:nodegraph:node:pos = (983, 178)
+                    float2 ui:nodegraph:node:size = (114, 40)
+                    int ui:nodegraph:node:stackingOrder = 3078
+                }
+
+                def Shader "Ifgreater_1"
+                {
+                    uniform token info:id = "ND_ifgreater_float"
+                    float inputs:in1
+                    float inputs:in2.connect = </Root/placeHolder_Z_Negative/Material_Z/clip.inputs:Opacity>
+                    float inputs:value1.connect = </Root/placeHolder_Z_Negative/Material_Z/clip.inputs:y>
+                    float inputs:value2.connect = </Root/placeHolder_Z_Negative/Material_Z/clip/Dot.outputs:out>
+                    float outputs:out
+                    float2 ui:nodegraph:node:pos = (808.5, 396)
+                    float2 ui:nodegraph:node:size = (115, 163)
+                    int ui:nodegraph:node:stackingOrder = 3077
+                    string[] ui:nodegraph:realitykit:node:attributesShowingChildren = ["inputs:in1", "inputs:value2", "inputs:value1", "inputs:in1"]
+                }
+
+                def Shader "Separate2"
+                {
+                    uniform token info:id = "ND_separate2_vector2"
+                    float2 inputs:in.connect = </Root/placeHolder_Z_Negative/Material_Z/clip/Texcoord.outputs:out>
+                    float outputs:outx
+                    float outputs:outy
+                    float2 ui:nodegraph:node:pos = (316, 221.5)
+                    float2 ui:nodegraph:node:size = (116, 127)
+                    int ui:nodegraph:node:stackingOrder = 3074
+                    string[] ui:nodegraph:realitykit:node:attributesShowingChildren = ["inputs:in"]
+                }
+
+                def Shader "Texcoord"
+                {
+                    uniform token info:id = "ND_texcoord_vector2"
+                    float2 outputs:out
+                    float2 ui:nodegraph:node:pos = (91, 221.5)
+                    float2 ui:nodegraph:node:size = (182, 53)
+                    int ui:nodegraph:node:stackingOrder = 3073
+                    string[] ui:nodegraph:realitykit:node:attributesShowingChildren = ["outputs:out"]
+                }
+
+                def Shader "Dot"
+                {
+                    uniform token info:id = "ND_dot_float"
+                    float inputs:in.connect = </Root/placeHolder_Z_Negative/Material_Z/clip/Separate2.outputs:outy>
+                    float outputs:out
+                    float2 ui:nodegraph:node:pos = (570.5, 518)
+                    float2 ui:nodegraph:node:size = (44, 18)
+                    int ui:nodegraph:node:stackingOrder = 3076
+                }
+            }
+
+            def Shader "clipZ"
+            {
+                uniform token info:id = "ND_ifgreatereq_float"
+                float inputs:in1.connect = </Root/placeHolder_Z_Negative/Material_Z/clip.outputs:Min_out>
+                float inputs:in2 = 0
+                float inputs:in2.connect = None
+                float inputs:value1.connect = </Root/placeHolder_Z_Negative/Material_Z.inputs:ZLayer>
+                float inputs:value2.connect = </Root/placeHolder_Z_Negative/Material_Z.inputs:z>
+                float outputs:out
+                float2 ui:nodegraph:node:pos = (701.15216, 181.31311)
+                float2 ui:nodegraph:node:size = (140, 163)
+                int ui:nodegraph:node:stackingOrder = 3894
+            }
+
+            def Shader "UnlitSurface" (
+                active = true
+            )
+            {
+                uniform token info:id = "ND_realitykit_unlit_surfaceshader"
+                bool inputs:applyPostProcessToneMap = 0
+                color3f inputs:color.connect = </Root/placeHolder_Z_Negative/Material_Z/Dot_1.outputs:out>
+                bool inputs:hasPremultipliedAlpha = 0
+                float inputs:opacity = 0
+                float inputs:opacity.connect = </Root/placeHolder_Z_Negative/Material_Z/transfer.outputs:return>
+                float inputs:opacityThreshold.connect = None
+                token outputs:out
+                float2 ui:nodegraph:node:pos = (2077.159, 90.74272)
+                float2 ui:nodegraph:node:size = (195, 181)
+                int ui:nodegraph:node:stackingOrder = 3897
+                string[] ui:nodegraph:realitykit:node:attributesShowingChildren = ["inputs:color", "inputs:opacity", "inputs:applyPostProcessToneMap", "inputs:opacityThreshold", "inputs:opacityThreshold", "outputs:out", "inputs:applyPostProcessToneMap", "inputs:hasPremultipliedAlpha", "inputs:opacityThreshold", "inputs:hasPremultipliedAlpha", "inputs:opacity", "inputs:opacityThreshold", "inputs:opacityThreshold", "inputs:applyPostProcessToneMap"]
             }
         }
     }
@@ -2464,7 +2409,7 @@ def Xform "Root"
         int ui:nodegraph:node:stackingOrder = 3034
         string[] ui:nodegraph:realitykit:node:attributesShowingChildren = ["inputs:smoothStepWidth", "inputs:smoothStepWidth", "inputs:smoothStepStep", "inputs:smoothStepStep", "inputs:smoothStepStep", "inputs:smoothStepWidth", "inputs:smoothStepStep"]
         float2 ui:nodegraph:realitykit:subgraphOutputs:pos = (1586.1802, 23.692131)
-        float2 ui:nodegraph:realitykit:subgraphOutputs:size = (128.92651, 81)
+        float2 ui:nodegraph:realitykit:subgraphOutputs:size = (129, 81)
         int ui:nodegraph:realitykit:subgraphOutputs:stackingOrder = 950
 
         def Shader "Multiply_1"
@@ -2475,7 +2420,7 @@ def Xform "Root"
             float inputs:in2.connect = </Root/transfer/Clamp.outputs:out>
             float outputs:out
             float2 ui:nodegraph:node:pos = (809, 26)
-            float2 ui:nodegraph:node:size = (60, 36)
+            float2 ui:nodegraph:node:size = (61, 36)
             int ui:nodegraph:node:stackingOrder = 941
             string[] ui:nodegraph:realitykit:node:attributesShowingChildren = ["inputs:in1", "inputs:in2"]
         }
@@ -2487,7 +2432,7 @@ def Xform "Root"
             float inputs:in2.connect = </Root/transfer.inputs:smoothStepStart>
             float outputs:out
             float2 ui:nodegraph:node:pos = (409.98773, 41.660812)
-            float2 ui:nodegraph:node:size = (61.5, 36)
+            float2 ui:nodegraph:node:size = (63, 36)
             int ui:nodegraph:node:stackingOrder = 928
         }
 
@@ -2499,7 +2444,7 @@ def Xform "Root"
             float inputs:low
             float outputs:out
             float2 ui:nodegraph:node:pos = (673.5, 116.5)
-            float2 ui:nodegraph:node:size = (91, 145)
+            float2 ui:nodegraph:node:size = (92, 145)
             int ui:nodegraph:node:stackingOrder = 947
             string[] ui:nodegraph:realitykit:node:attributesShowingChildren = ["inputs:in", "inputs:in"]
         }
@@ -2511,7 +2456,7 @@ def Xform "Root"
             float inputs:in2.connect = </Root/transfer/Clamp.outputs:out>
             float outputs:out
             float2 ui:nodegraph:node:pos = (929.75, 114)
-            float2 ui:nodegraph:node:size = (60, 36)
+            float2 ui:nodegraph:node:size = (61, 36)
             int ui:nodegraph:node:stackingOrder = 940
             string[] ui:nodegraph:realitykit:node:attributesShowingChildren = ["inputs:in1"]
         }
@@ -2523,7 +2468,7 @@ def Xform "Root"
             float inputs:in2.connect = </Root/transfer.inputs:smoothStepShift>
             float outputs:out
             float2 ui:nodegraph:node:pos = (537.25, 116.5)
-            float2 ui:nodegraph:node:size = (61.5, 36)
+            float2 ui:nodegraph:node:size = (63, 36)
             int ui:nodegraph:node:stackingOrder = 946
         }
 
@@ -2534,7 +2479,7 @@ def Xform "Root"
             float inputs:in2.connect = </Root/transfer/Multiply_1.outputs:out>
             float outputs:out
             float2 ui:nodegraph:node:pos = (929.75, 18)
-            float2 ui:nodegraph:node:size = (61.5, 36)
+            float2 ui:nodegraph:node:size = (63, 36)
             int ui:nodegraph:node:stackingOrder = 943
         }
 
@@ -2545,7 +2490,7 @@ def Xform "Root"
             float inputs:in2.connect = </Root/transfer/Multiply.outputs:out>
             float outputs:out
             float2 ui:nodegraph:node:pos = (1050.5, 38)
-            float2 ui:nodegraph:node:size = (60, 36)
+            float2 ui:nodegraph:node:size = (61, 36)
             int ui:nodegraph:node:stackingOrder = 944
         }
     }
@@ -2594,7 +2539,7 @@ def Xform "Root"
             float inputs:in2.connect = </Root/opacityCorrection.inputs:opacityCorrection>
             float outputs:out
             float2 ui:nodegraph:node:pos = (669.73804, -161.50824)
-            float2 ui:nodegraph:node:size = (61.5, 36)
+            float2 ui:nodegraph:node:size = (63, 36)
             int ui:nodegraph:node:stackingOrder = 1113
             string[] ui:nodegraph:realitykit:node:attributesShowingChildren = ["inputs:in2", "outputs:out", "outputs:out", "outputs:out", "outputs:out"]
         }
@@ -2606,7 +2551,7 @@ def Xform "Root"
             float inputs:in2.connect = </Root/opacityCorrection/Divide.outputs:out>
             float outputs:out
             float2 ui:nodegraph:node:pos = (812.45404, -224.0462)
-            float2 ui:nodegraph:node:size = (123.5, 40)
+            float2 ui:nodegraph:node:size = (124, 40)
             int ui:nodegraph:node:stackingOrder = 1109
         }
 
@@ -2617,7 +2562,7 @@ def Xform "Root"
             float inputs:in2.connect = </Root/opacityCorrection.inputs:v>
             float outputs:out
             float2 ui:nodegraph:node:pos = (629.31116, -292.79443)
-            float2 ui:nodegraph:node:size = (61.5, 36)
+            float2 ui:nodegraph:node:size = (63, 36)
             int ui:nodegraph:node:stackingOrder = 1115
             string[] ui:nodegraph:realitykit:node:attributesShowingChildren = ["inputs:in2"]
         }
@@ -2629,7 +2574,7 @@ def Xform "Root"
             float inputs:in2.connect = </Root/opacityCorrection/Power.outputs:out>
             float outputs:out
             float2 ui:nodegraph:node:pos = (946.2585, -280.47968)
-            float2 ui:nodegraph:node:size = (61.5, 36)
+            float2 ui:nodegraph:node:size = (63, 36)
             int ui:nodegraph:node:stackingOrder = 1080
         }
     }
@@ -2640,7 +2585,7 @@ def Xform "Root"
             customData = {
                 dictionary realitykit = {
                     float2 positionInSubgraph = (519.5298, 268.8333)
-                    float2 sizeInSubgraph = (116.5, 53)
+                    float2 sizeInSubgraph = (117, 53)
                     int stackingOrderInSubgraph = 3252
                 }
             }
@@ -2659,7 +2604,7 @@ def Xform "Root"
             uniform token info:id = "ND_texcoord_vector2"
             float2 outputs:out
             float2 ui:nodegraph:node:pos = (111, 243)
-            float2 ui:nodegraph:node:size = (180.5, 53)
+            float2 ui:nodegraph:node:size = (182, 53)
             int ui:nodegraph:node:stackingOrder = 3252
             string[] ui:nodegraph:realitykit:node:attributesShowingChildren = ["outputs:out"]
         }
@@ -2671,7 +2616,7 @@ def Xform "Root"
             float inputs:in2.connect = </Root/trim/Ifgreater_1.outputs:out>
             float outputs:out
             float2 ui:nodegraph:node:pos = (911.5781, 197.6211)
-            float2 ui:nodegraph:node:size = (118, 53)
+            float2 ui:nodegraph:node:size = (119, 53)
             int ui:nodegraph:node:stackingOrder = 3252
         }
 
@@ -2701,7 +2646,7 @@ def Xform "Root"
             float inputs:value2.connect = </Root/trim/Min.outputs:out>
             float outputs:out
             float2 ui:nodegraph:node:pos = (716.5, 324.5)
-            float2 ui:nodegraph:node:size = (113.5, 163)
+            float2 ui:nodegraph:node:size = (115, 163)
             int ui:nodegraph:node:stackingOrder = 3252
             string[] ui:nodegraph:realitykit:node:attributesShowingChildren = ["inputs:value1", "inputs:value1", "inputs:value1", "inputs:value1"]
         }
@@ -2713,7 +2658,7 @@ def Xform "Root"
             float inputs:in2.connect = </Root/trim/Separate2.outputs:outy>
             float outputs:out
             float2 ui:nodegraph:node:pos = (518.5, 179.5)
-            float2 ui:nodegraph:node:size = (113, 40)
+            float2 ui:nodegraph:node:size = (114, 40)
             int ui:nodegraph:node:stackingOrder = 3252
         }
 
@@ -2724,7 +2669,7 @@ def Xform "Root"
             float inputs:in2.connect = </Root/trim/Separate2.outputs:outy>
             float outputs:out
             float2 ui:nodegraph:node:pos = (518.5, 401)
-            float2 ui:nodegraph:node:size = (113, 40)
+            float2 ui:nodegraph:node:size = (114, 40)
             int ui:nodegraph:node:stackingOrder = 3252
         }
 
@@ -2735,7 +2680,7 @@ def Xform "Root"
             float outputs:outx
             float outputs:outy
             float2 ui:nodegraph:node:pos = (320, 243)
-            float2 ui:nodegraph:node:size = (115, 127)
+            float2 ui:nodegraph:node:size = (116, 127)
             int ui:nodegraph:node:stackingOrder = 3252
             string[] ui:nodegraph:realitykit:node:attributesShowingChildren = ["inputs:in"]
         }
