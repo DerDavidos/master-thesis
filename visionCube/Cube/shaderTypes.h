@@ -41,6 +41,8 @@ struct ShaderRenderParamaters {
     vector_float3 cameraPosInTextureSpace;
     vector_float3 minBounds;
     vector_float3 maxBounds;
+    matrix_float4x4 modelView;
+    matrix_float4x4 modelViewIT;
 };
 
 typedef struct

@@ -57,6 +57,8 @@ class FullView {
         var cameraPosInTextureSpace: simd_float3
         var minBounds: simd_float3
         var maxBounds: simd_float3
+        var modelView: simd_float4x4
+        var modelViewIT: simd_float4x4
     }
     
     init(_ layerRenderer: LayerRenderer, volumeModell: VolumeModell) {
@@ -155,6 +157,8 @@ class FullView {
             renderParams.cameraPosInTextureSpace = simd_make_float3(viewToTexture * simd_float4(0, 0, 0, 1))
             renderParams.minBounds = simd_make_float3(minBounds)
             renderParams.maxBounds = simd_make_float3(maxBounds)
+            renderParams.modelView = viewMatrix * modelMatrix * clipBox
+            renderParams.modelViewIT = simd_transpose(simd_inverse(viewMatrix * modelMatrix * clipBox));
             
             matrix.clip = clipBox
             matrix.modelViewProjection = projection * viewMatrix * modelMatrix * clipBox

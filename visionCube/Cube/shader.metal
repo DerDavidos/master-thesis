@@ -67,6 +67,43 @@ half4 fragment fragmentMain( v2f in [[stage_in]],
     return half4( result );
 }
 
+float3 lighting(float3 vPosition, float3 vNormal, float3 color) {
+        
+    float3 vLightAmbient  = float3(0.1,0.1,0.1);
+    float3 vLightDiffuse  = float3(0.5,0.5,0.5);
+    float3 vLightSpecular = float3(0.8,0.8,0.8);
+    float3 lightDir = float3(0.0,0.0,1.0);
+
+
+    float3 vViewDir    = normalize(vPosition);
+    float3 vReflection = normalize(reflect(vViewDir, vNormal));
+    return clamp(color*vLightAmbient+
+       color*vLightDiffuse*max(abs(dot(vNormal, lightDir)),0.0)+
+       vLightSpecular*pow(max(dot(vReflection, lightDir),0.0),8.0), 0.0,1.0);
+}
+
+float3 computeGradient(float3 vCenter, float3 sampleDelta, texture3d< half, access::sample > volume [[texture(0)]]) {
+
+    constexpr sampler s( address::clamp_to_border, filter::linear );
+
+    float fVolumValXp = volume.sample(s, vCenter+float3(+sampleDelta.x,0,0)).r;
+    float fVolumValXm = volume.sample(s, vCenter+float3(-sampleDelta.x,0,0)).r;
+    float fVolumValYp = volume.sample(s, vCenter+float3(0,-sampleDelta.y,0)).r;
+    float fVolumValYm = volume.sample(s, vCenter+float3(0,+sampleDelta.y,0)).r;
+    float fVolumValZp = volume.sample(s, vCenter+float3(0,0,+sampleDelta.z)).r;
+    float fVolumValZm = volume.sample(s, vCenter+float3(0,0,-sampleDelta.z)).r;
+    return float3(fVolumValXm - fVolumValXp,
+    fVolumValYp - fVolumValYm,
+    fVolumValZm - fVolumValZp) / 2.0;
+}
+
+float3 computeNormal(float3 vCenter, float3 volSize, float3 DomainScale, texture3d< half, access::sample > volume [[texture(0)]]) {
+    float3 vGradient = computeGradient(vCenter, 1/volSize, volume);
+    float3 vNormal   = vGradient * DomainScale;
+    float l = length(vNormal); if (l>0.0) vNormal /= l; // safe normalization
+    return vNormal;
+}
+
 
 half4 fragment fragmentMainLighting( v2f in [[stage_in]],
                             ushort amp_id [[amplification_id]],
@@ -88,12 +125,18 @@ half4 fragment fragmentMainLighting( v2f in [[stage_in]],
     float3 currentPoint = in.entryPoint;
     float4 result = 0.0;
     do {
-        float volumeValue = volume.sample( s, currentPoint ).r;
-        currentPoint += delta;
-        float4 current = transferFunction(volumeValue, renderParams);
-        current.a = 1.0 - pow(1.0 - current.a, opacityCorrection);
-        result = under(current, result);
-        if (result.a > 0.95) break;
+          float volumeValue = volume.sample( s, currentPoint ).r;
+          currentPoint += delta;
+          float4 current = transferFunction(volumeValue, renderParams);
+
+          float3 normal = computeNormal(currentPoint, voxelCount, float3(1,1,1), volume);
+          current.rgb = lighting((renderParams.modelView*float4((currentPoint-0.5)*2,1)).xyz,
+                                 (renderParams.modelViewIT*float4(normal,0)).xyz, current.rgb);
+
+//        current.rgb = normal;
+          current.a = 1.0 - pow(1.0 - current.a, opacityCorrection);
+          result = under(current, result);
+          if (result.a > 0.95) break;
     } while (inBounds(currentPoint,renderParams));
 
     return half4( result );
