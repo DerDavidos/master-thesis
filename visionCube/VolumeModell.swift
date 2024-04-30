@@ -6,12 +6,11 @@ import ARKit
 import Accelerate
 
 let START_TRANSLATION = SIMD3<Float>(x: 0, y: 1.8, z: -2)
-//let START_TRANSLATION = Vector3D(x: 0, y: 0, z: 0)
 
 @Observable
 class VolumeModell {
-    var smoothStepStart: Float = 0.5
-    var smoothStepShift: Float = 0.5
+    var smoothStepStart: Float = 0
+    var smoothStepShift: Float = 0
     
     var rotation: Rotation3D = .identity
     
@@ -34,13 +33,8 @@ class VolumeModell {
 
     var selectedVolume = ""
     
-
-//    var zPositiveEntities: axisList = axisList(entity: Entity(), materialEntity: [])
-//    var zNegativeEntities: axisList = axisList(entity: Entity(), materialEntity: [])
-//    var xPositiveEntities: axisList = axisList(entity: Entity(), materialEntity: [])
-//    var xNegativeEntities: axisList = axisList(entity: Entity(), materialEntity: [])
-//    var yPositiveEntities: axisList = axisList(entity: Entity(), materialEntity: [])
-//    var yNegativeEntities: axisList = axisList(entity: Entity(), materialEntity: [])
+    var lighting = false;
+    var lightingNeedsUpdate = false;
     
     init() {
         selectedVolume = listRawFiles(at: Bundle.main.resourcePath!).first!
@@ -50,8 +44,8 @@ class VolumeModell {
     func reset(selectedVolume: String) {
         dataset = try! QVis(filename: getFromResource(strFileName: selectedVolume, ext: "dat"))
         
-        smoothStepStart = 0.5
-        smoothStepShift = 0.5
+        smoothStepStart = 0
+        smoothStepShift = 0
         rotation = .identity
         
         scale = 1.0
@@ -59,8 +53,6 @@ class VolumeModell {
         XClip = 0
         YClip = 0
         ZClip = 0
-        
-//        updateTranslation(translation: START_TRANSLATION)
     }
     
     func updateTranslation(translation: SIMD3<Float>) {

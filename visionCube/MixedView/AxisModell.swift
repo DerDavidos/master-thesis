@@ -135,12 +135,12 @@ class AxisModell {
         volumeModell.loading = true
         
         let scene = try! await Entity(named: "Plane", in: realityKitContentBundle)
-
+        
         if (volumeModell.root == nil) {
             volumeModell.root = scene.findEntity(named: "root")!
         }
         volumeModell.root!.children.removeAll();
-        
+
         rotater =  scene.findEntity(named: "Rotater")!
         rotater.components.set(InputTargetComponent())
         rotater.generateCollisionShapes(recursive: false)

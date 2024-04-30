@@ -66,3 +66,35 @@ half4 fragment fragmentMain( v2f in [[stage_in]],
 
     return half4( result );
 }
+
+
+half4 fragment fragmentMainLighting( v2f in [[stage_in]],
+                            ushort amp_id [[amplification_id]],
+                            texture3d< half, access::sample > volume [[texture(0)]],
+                            device const ParamsArray& renderArray [[buffer(0)]])
+{
+    
+    ShaderRenderParamaters renderParams = renderArray.params[amp_id];
+    constexpr sampler s( address::clamp_to_border, filter::linear );
+    float3 voxelCount = float3(volume.get_width(), volume.get_height(), volume.get_depth());
+    
+    float3 rayDirectionInTextureSpace = normalize(in.entryPoint-renderParams.cameraPosInTextureSpace);
+    
+    // compute delta
+    float samples = dot(abs(rayDirectionInTextureSpace),voxelCount);
+    float opacityCorrection = 100/(samples*renderParams.oversampling);
+    float3 delta = rayDirectionInTextureSpace/(samples*renderParams.oversampling);
+    
+    float3 currentPoint = in.entryPoint;
+    float4 result = 0.0;
+    do {
+        float volumeValue = volume.sample( s, currentPoint ).r;
+        currentPoint += delta;
+        float4 current = transferFunction(volumeValue, renderParams);
+        current.a = 1.0 - pow(1.0 - current.a, opacityCorrection);
+        result = under(current, result);
+        if (result.a > 0.95) break;
+    } while (inBounds(currentPoint,renderParams));
+
+    return half4( result );
+}

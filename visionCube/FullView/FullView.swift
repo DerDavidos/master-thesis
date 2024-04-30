@@ -20,8 +20,6 @@ class FullView {
     var depthState: MTLDepthStencilState
     var texture: MTLTexture
 
-    let inFlightSemaphore = DispatchSemaphore(value: maxBuffersInFlight)
-
     let arSession: ARKitSession
     let worldTracking: WorldTrackingProvider
     let layerRenderer: LayerRenderer
@@ -68,12 +66,9 @@ class FullView {
         self.device = layerRenderer.device
         self.commandQueue = self.device.makeCommandQueue()!
 
-        let mtlVertexDescriptor = buildMetalVertexDescriptor()
-
         do {
             pipelineState = try buildRenderPipelineWithDevice(device: device,
-                                                                       layerRenderer: layerRenderer,
-                                                                       mtlVertexDescriptor: mtlVertexDescriptor)
+                                                              layerRenderer: layerRenderer, lighting: volumeModell.lighting)
         } catch {
             fatalError("Unable to compile render pipeline state.  Error info: \(error)")
         }
@@ -205,6 +200,11 @@ class FullView {
             texture = try! loadTexture(device: device, dataset: volumeModell.dataset)
         }
         
+        if (volumeModell.lightingNeedsUpdate) {
+            pipelineState = try! buildRenderPipelineWithDevice(device: device,
+                                                                       layerRenderer: layerRenderer, lighting: volumeModell.lighting)
+        }
+        
         frame.startUpdate()
         frame.endUpdate()
         
@@ -217,7 +217,6 @@ class FullView {
         
         // Perform frame independent work
         guard let drawable = frame.queryDrawable() else { return }
-        _ = inFlightSemaphore.wait(timeout: DispatchTime.distantFuture)
         
         frame.startSubmission()
         
@@ -225,11 +224,6 @@ class FullView {
         let deviceAnchor = worldTracking.queryDeviceAnchor(atTimestamp: time)
         
         drawable.deviceAnchor = deviceAnchor
-        
-        let semaphore = inFlightSemaphore
-        commandBuffer.addCompletedHandler { (_ commandBuffer)-> Swift.Void in
-            semaphore.signal()
-        }
         
         updateMatrices(drawable: drawable, deviceAnchor: deviceAnchor)
         clipCubeToNearplane()

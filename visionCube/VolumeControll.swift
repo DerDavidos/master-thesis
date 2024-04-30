@@ -69,6 +69,22 @@ struct VolumeControll: View {
                         .onChange(of: axisModell.clipBoxZEnabled) { _, newValue in
                             axisModell.setClipPlanes()
                         }
+                }.opacity(axisModell.volumeModell.loading ? 0.0 : 1.0)
+                
+                GridRow {
+                    Text("Lighting").opacity(axisModell.volumeModell.axisView ? 0.0 : 1.0)
+                    Toggle("", isOn: $axisModell.volumeModell.lighting)
+                        .font(.extraLargeTitle)
+                        .onChange(of: axisModell.volumeModell.lighting) { _, newValue in
+                            axisModell.volumeModell.lightingNeedsUpdate = true
+                        }.opacity(axisModell.volumeModell.axisView ? 0.0 : 1.0)
+                    Button(action: {
+                        Task {
+                            await axisModell.reset(selectedVolume: axisModell.volumeModell.selectedVolume)
+                        }
+                    }, label: {
+                        Text("Reset")
+                    })
                 }
                 
                 NavigationStack {
@@ -83,18 +99,8 @@ struct VolumeControll: View {
                                     await axisModell.reset(selectedVolume: axisModell.volumeModell.selectedVolume)
                                 }
                             }
-                        }
+                        }.opacity(axisModell.volumeModell.loading ? 0.0 : 1.0)
                     }
-                }
-                
-                GridRow {
-                    Button(action: {
-                        Task {
-                            await axisModell.reset(selectedVolume: axisModell.volumeModell.selectedVolume)
-                        }
-                    }, label: {
-                        Text("Reset")
-                    })
                 }
                 
             }.frame(alignment: .center)

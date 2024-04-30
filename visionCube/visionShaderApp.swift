@@ -20,7 +20,7 @@ struct visionShaderApp: App {
         WindowGroup {
             ContentView(volumeModell: volumeModell, visionProPose: visionProPose)
         }.windowStyle(.plain)
-            .defaultSize(width: 1000, height: 500)
+            .defaultSize(width: 300, height: 150)
         
         ImmersiveSpace(id: "AxisView") {
             AxisView(axisModell: axisModell, visionProPose: visionProPose)

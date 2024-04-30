@@ -116,10 +116,9 @@ struct AxisView: View {
             axisModell.volumeModell.scale = axisModell.volumeModell.root!.scale.x
         })
         .onAppear {
-            Timer.scheduledTimer(withTimeInterval: 0.05, repeats: true) { _ in
+            Timer.scheduledTimer(withTimeInterval: 0.2, repeats: true) { _ in
                 Task {
                     await updateSliceStack()
-                    
                 }
             }
         }
