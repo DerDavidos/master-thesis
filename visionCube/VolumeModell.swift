@@ -5,13 +5,17 @@ import RealityKitContent
 import ARKit
 import Accelerate
 
-let START_TRANSLATION = SIMD3<Float>(x: 0, y: 1.8, z: -2)
+let START_TRANSLATION = SIMD3<Float>(x: 0, y: 1.0, z: -1.2)
 //let START_TRANSLATION = SIMD3<Float>(x: 0, y: 0, z: 0)
+let START_SCALE: Float = 0.7
+let START_SMOOTH_STEP_START: Float = 0.1
+let START_SMOOTH_STEP_SHIFT: Float = 0.5
+
 
 @Observable
 class VolumeModell {
-    var smoothStepStart: Float = 0
-    var smoothStepShift: Float = 0
+    var smoothStepStart: Float = START_SMOOTH_STEP_START
+    var smoothStepShift: Float = START_SMOOTH_STEP_SHIFT
     
     var rotation: Rotation3D = .identity
     
@@ -21,8 +25,8 @@ class VolumeModell {
     
     var axisLoaded = false
     
-    var scale: Float = 1.0
-    
+    var scale: Float = START_SCALE
+
     var lastTranslation: SIMD3<Float> = START_TRANSLATION
     
     var loading = false
@@ -38,18 +42,19 @@ class VolumeModell {
     var lightingNeedsUpdate = false;
     
     init() {
-        selectedVolume = listRawFiles(at: Bundle.main.resourcePath!).first!
+//        selectedVolume = listRawFiles(at: Bundle.main.resourcePath!).first!
+        selectedVolume = "c60"
         dataset = try! QVis(filename: getFromResource(strFileName: selectedVolume, ext: "dat"))
     }
     
     func reset(selectedVolume: String) {
         dataset = try! QVis(filename: getFromResource(strFileName: selectedVolume, ext: "dat"))
         
-        smoothStepStart = 0
-        smoothStepShift = 0
+        smoothStepStart = START_SMOOTH_STEP_START
+        smoothStepShift = START_SMOOTH_STEP_SHIFT
         rotation = .identity
         
-        scale = 1.0
+        scale = START_SCALE
         
         XClip = 0
         YClip = 0

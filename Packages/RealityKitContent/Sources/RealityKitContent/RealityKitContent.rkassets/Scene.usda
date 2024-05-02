@@ -1667,9 +1667,9 @@ def Xform "Root"
             token outputs:realitykit:vertex.connect = </Root/placeHolder_Z_Positive/Material/GeometryModifier.outputs:out>
             token outputs:surface.connect = </Root/placeHolder_Z_Positive/Material/UsdPreviewSurface.outputs:surface>
             string[] ui:nodegraph:realitykit:node:attributesShowingChildren = ["outputs:realitykit:vertex"]
-            float2 ui:nodegraph:realitykit:subgraphOutputs:pos = (2181.1409, 167.09026)
+            float2 ui:nodegraph:realitykit:subgraphOutputs:pos = (2444.796, 132.2503)
             float2 ui:nodegraph:realitykit:subgraphOutputs:size = (182, 99)
-            int ui:nodegraph:realitykit:subgraphOutputs:stackingOrder = 3791
+            int ui:nodegraph:realitykit:subgraphOutputs:stackingOrder = 3886
 
             def Shader "UsdPreviewSurface" (
                 active = false
@@ -1956,9 +1956,9 @@ def Xform "Root"
                 float inputs:opacity.connect = </Root/placeHolder_Z_Positive/Material_Z/transfer.outputs:return>
                 float inputs:opacityThreshold
                 token outputs:out
-                float2 ui:nodegraph:node:pos = (1848.8475, 142.4462)
+                float2 ui:nodegraph:node:pos = (2010.3666, 197.30215)
                 float2 ui:nodegraph:node:size = (195, 181)
-                int ui:nodegraph:node:stackingOrder = 3880
+                int ui:nodegraph:node:stackingOrder = 3885
                 string[] ui:nodegraph:realitykit:node:attributesShowingChildren = ["inputs:color", "inputs:opacity", "inputs:opacityThreshold", "inputs:opacityThreshold", "outputs:out", "inputs:hasPremultipliedAlpha", "inputs:opacityThreshold", "inputs:hasPremultipliedAlpha", "inputs:opacity", "inputs:opacityThreshold", "inputs:opacityThreshold", "inputs:opacity", "inputs:hasPremultipliedAlpha", "inputs:color", "inputs:color", "inputs:hasPremultipliedAlpha"]
             }
         }

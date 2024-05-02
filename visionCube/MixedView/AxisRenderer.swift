@@ -162,10 +162,10 @@ class AxisRenderer {
         image = CGImage(width: imageWidth, height: imageHeight, bitsPerComponent: bitsPerComponent, bitsPerPixel: bitsPerPixel, bytesPerRow: imageWidth, space: colorSpace, bitmapInfo: bitmapInfo, provider: provider!, decode: nil, shouldInterpolate: false, intent: renderingIntent)!
         
 //        if (OVERSAMPLING < 1.0) {
-//            image = UIImage(cgImage: image).resize(height: CGFloat(height) / 1 / CGFloat(OVERSAMPLING)).cgImage!
+//            image = UIImage(cgImage: image).resize(height:CGFloat(image.height) / (1 / CGFloat(OVERSAMPLING))).cgImage!
 //        }
         
-        let textureResource = try! TextureResource.generate(from: image, options: TextureResource.CreateOptions(semantic: .color, mipmapsMode: .allocateAll))
+        let textureResource = try! TextureResource.generate(from: image, options: TextureResource.CreateOptions(semantic: .color, mipmapsMode: .allocateAndGenerateAll))
         return textureResource
     }
 

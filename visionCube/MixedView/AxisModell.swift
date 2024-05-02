@@ -71,21 +71,15 @@ class AxisModell {
     
     @MainActor
     fileprivate func updateAxis(axisList: inout axisList) async {
-//        print(axisList.materialEntity[0].entity.components.has(HoverEffectComponent.self))
         for i in 0...axisList.materialEntity.count - 1 {
             axisList.materialEntity[i].entity.components.set(ModelComponent(
                 mesh: .generatePlane(width: axisList.materialEntity[i].width, height: axisList.materialEntity[i].height),
                 materials: [axisList.materialEntity[i].material]
             ))
-            
-            axisList.materialEntity[i].entity.components.remove(AdaptiveResolutionComponent.self)
-            axisList.materialEntity[i].entity.components.remove(PhysicsBodyComponent.self)
         }
     }
     
     func addEntities(root: Entity, axisList: inout axisList) {
-        axisList.listEntity.components.remove(AdaptiveResolutionComponent.self)
-        axisList.listEntity.components.remove(PhysicsBodyComponent.self)
         for i in 0...axisList.materialEntity.count - 1 {
             axisList.listEntity.addChild(axisList.materialEntity[i].entity)
         }
@@ -145,8 +139,6 @@ class AxisModell {
         
         if (volumeModell.root == nil) {
             volumeModell.root = scene.findEntity(named: "root")!
-            volumeModell.root!.components.remove(AdaptiveResolutionComponent.self)
-            volumeModell.root!.components.remove(PhysicsBodyComponent.self)
         }
         volumeModell.root!.children.removeAll();
 

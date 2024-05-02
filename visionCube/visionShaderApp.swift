@@ -25,6 +25,10 @@ struct visionShaderApp: App {
         ImmersiveSpace(id: "AxisView") {
             AxisView(axisModell: axisModell, visionProPose: visionProPose)
         }.immersionStyle(selection: .constant(.mixed), in: .mixed)
+
+//        WindowGroup(id: "AxisView") {
+//            AxisView(axisModell: axisModell, visionProPose: visionProPose)
+//        }.windowStyle(.volumetric)
         
         WindowGroup(id: "VolumeControll") {
             VolumeControll(axisModell: axisModell)

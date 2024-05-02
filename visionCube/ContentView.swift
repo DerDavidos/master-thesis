@@ -28,6 +28,7 @@ struct ContentView: View {
             } else {
                 openWindow(id: "VolumeControll")
             }
+//            openWindow(id: "AxisView")
             switch await openImmersiveSpace(id: viewName) {
             case .opened:
                 immersiveSpaceIsShown = true

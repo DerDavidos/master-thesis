@@ -118,7 +118,7 @@ class FullView {
         if (volumeModell.root != nil) {
             translate = (volumeModell.root?.transform.translation)!
         }
-        let scale = SIMD3<Float>(volumeModell.scale * Float(volumeModell.dataset.volume.width), volumeModell.scale * Float(volumeModell.dataset.volume.height), volumeModell.scale * Float(volumeModell.dataset.volume.depth)) / Float(volumeModell.dataset.volume.maxSize)
+        let scale = SIMD3<Float>(volumeModell.scale * Float(volumeModell.dataset.volume.width), volumeModell.scale * Float(volumeModell.dataset.volume.height), volumeModell.scale * Float(volumeModell.dataset.volume.depth)) / Float(volumeModell.dataset.volume.maxSize) / 2
         
         let modelMatrix = Transform(scale: scale, rotation: simd_quatf(volumeModell.rotation), translation: translate).matrix
     
@@ -206,7 +206,8 @@ class FullView {
         
         if (volumeModell.lightingNeedsUpdate) {
             pipelineState = try! buildRenderPipelineWithDevice(device: device,
-                                                                       layerRenderer: layerRenderer, lighting: volumeModell.lighting)
+                                                               layerRenderer: layerRenderer, lighting: volumeModell.lighting)
+            volumeModell.lightingNeedsUpdate = false
         }
         
         frame.startUpdate()

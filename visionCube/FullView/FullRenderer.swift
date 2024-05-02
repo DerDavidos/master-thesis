@@ -94,7 +94,7 @@ struct ContentStageConfiguration: CompositorLayerConfiguration {
         configuration.colorFormat = .bgra8Unorm_srgb
     
         let foveationEnabled = capabilities.supportsFoveation
-        configuration.isFoveationEnabled = foveationEnabled
+        configuration.isFoveationEnabled = true
         
         let options: LayerRenderer.Capabilities.SupportedLayoutsOptions = foveationEnabled ? [.foveationEnabled] : []
         let supportedLayouts = capabilities.supportedLayouts(options: options)

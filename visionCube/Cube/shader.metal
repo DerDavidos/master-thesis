@@ -133,7 +133,6 @@ half4 fragment fragmentMainLighting( v2f in [[stage_in]],
           current.rgb = lighting((renderParams.modelView*float4((currentPoint-0.5)*2,1)).xyz,
                                  (renderParams.modelViewIT*float4(normal,0)).xyz, current.rgb);
 
-//        current.rgb = normal;
           current.a = 1.0 - pow(1.0 - current.a, opacityCorrection);
           result = under(current, result);
           if (result.a > 0.95) break;
