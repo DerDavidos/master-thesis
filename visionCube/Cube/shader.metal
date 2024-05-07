@@ -7,22 +7,6 @@ struct v2f {
     float3 entryPoint;
 };
 
-float4 transferFunction(float v, ShaderRenderParamaters params) {
-    v = clamp((v - params.smoothStepStart) / (params.smoothStepShift), 0.0, 1.0);
-    return float4(v * v * (3-2*v));
-}
-
-float4 under(float4 current, float4 last) {
-    last.rgb = last.rgb + (1.0-last.a) * current.a * current.rgb;
-    last.a   = last.a   + (1.0-last.a) * current.a;
-    return last;
-}
-
-bool inBounds(float3 pos, ShaderRenderParamaters params) {
-    return pos.x >= params.minBounds.x && pos.y >= params.minBounds.y && pos.z >= params.minBounds.z &&
-    pos.x <= params.maxBounds.x && pos.y <= params.maxBounds.y && pos.z <= params.maxBounds.z;
-}
-
 v2f vertex vertexMain( uint vertexId [[vertex_id]],
                       ushort amp_id [[amplification_id]],
                       device const float4* position [[buffer(0)]],
@@ -36,35 +20,20 @@ v2f vertex vertexMain( uint vertexId [[vertex_id]],
     return o;
 }
 
-half4 fragment fragmentMain( v2f in [[stage_in]],
-                            ushort amp_id [[amplification_id]],
-                            texture3d< half, access::sample > volume [[texture(0)]],
-                            device const ParamsArray& renderArray [[buffer(0)]])
-{
-    
-    ShaderRenderParamaters renderParams = renderArray.params[amp_id];
-    constexpr sampler s( address::clamp_to_border, filter::linear );
-    float3 voxelCount = float3(volume.get_width(), volume.get_height(), volume.get_depth());
-    
-    float3 rayDirectionInTextureSpace = normalize(in.entryPoint-renderParams.cameraPosInTextureSpace);
-    
-    // compute delta
-    float samples = dot(abs(rayDirectionInTextureSpace),voxelCount);
-    float opacityCorrection = 100/(samples*renderParams.oversampling);
-    float3 delta = rayDirectionInTextureSpace/(samples*renderParams.oversampling);
-    
-    float3 currentPoint = in.entryPoint;
-    float4 result = 0.0;
-    do {
-        float volumeValue = volume.sample( s, currentPoint ).r;
-        currentPoint += delta;
-        float4 current = transferFunction(volumeValue, renderParams);
-        current.a = 1.0 - pow(1.0 - current.a, opacityCorrection);
-        result = under(current, result);
-        if (result.a > 0.95) break;
-    } while (inBounds(currentPoint,renderParams));
+float transferFunction(float v, ShaderRenderParamaters params) {
+    v = clamp((v - params.smoothStepStart) / (params.smoothStepShift), 0.0, 1.0);
+    return float(v * v * (3-2*v));
+}
 
-    return half4( result );
+float4 under(float4 current, float4 last) {
+    last.rgb = last.rgb + (1.0-last.a) * current.a * current.rgb;
+    last.a   = last.a   + (1.0-last.a) * current.a;
+    return last;
+}
+
+bool inBounds(float3 pos, ShaderRenderParamaters params) {
+    return pos.x >= params.minBounds.x && pos.y >= params.minBounds.y && pos.z >= params.minBounds.z &&
+    pos.x <= params.maxBounds.x && pos.y <= params.maxBounds.y && pos.z <= params.maxBounds.z;
 }
 
 float3 lighting(float3 vPosition, float3 vNormal, float3 color) {
@@ -104,6 +73,37 @@ float3 computeNormal(float3 vCenter, float3 volSize, float3 DomainScale, texture
     return vNormal;
 }
 
+half4 fragment fragmentMain( v2f in [[stage_in]],
+                            ushort amp_id [[amplification_id]],
+                            texture3d< half, access::sample > volume [[texture(0)]],
+                            device const ParamsArray& renderArray [[buffer(0)]])
+{
+    
+    ShaderRenderParamaters renderParams = renderArray.params[amp_id];
+    constexpr sampler s( address::clamp_to_border, filter::linear );
+    float3 voxelCount = float3(volume.get_width(), volume.get_height(), volume.get_depth());
+    
+    float3 rayDirectionInTextureSpace = normalize(in.entryPoint-renderParams.cameraPosInTextureSpace);
+    
+    // compute delta
+    float samples = dot(abs(rayDirectionInTextureSpace),voxelCount);
+    float opacityCorrection = 100/(samples*renderParams.oversampling);
+    float3 delta = rayDirectionInTextureSpace/(samples*renderParams.oversampling);
+    
+    float3 currentPoint = in.entryPoint;
+    float4 result = 0.0;
+    do {
+        float volumeValue = volume.sample( s, currentPoint ).r;
+        currentPoint += delta;
+        float4 current = float4(volumeValue);
+        current.a = transferFunction(current.a, renderParams);
+        current.a = 1.0 - pow(1.0 - current.a, opacityCorrection);
+        result = under(current, result);
+        if (result.a > 0.95) break;
+    } while (inBounds(currentPoint,renderParams));
+
+    return half4( result );
+}
 
 half4 fragment fragmentMainLighting( v2f in [[stage_in]],
                             ushort amp_id [[amplification_id]],
@@ -125,18 +125,19 @@ half4 fragment fragmentMainLighting( v2f in [[stage_in]],
     float3 currentPoint = in.entryPoint;
     float4 result = 0.0;
     do {
-          float volumeValue = volume.sample( s, currentPoint ).r;
-          currentPoint += delta;
-          float4 current = transferFunction(volumeValue, renderParams);
+        float volumeValue = volume.sample( s, currentPoint ).r;
+        currentPoint += delta;
+        float4 current = float4(volumeValue);
+        current.a = transferFunction(current.a, renderParams);
 
-          float3 normal = computeNormal(currentPoint, voxelCount, float3(1,1,1), volume);
-          current.rgb = lighting((renderParams.modelView*float4((currentPoint-0.5)*2,1)).xyz,
-                                 (renderParams.modelViewIT*float4(normal,0)).xyz, current.rgb);
+        float3 normal = computeNormal(currentPoint, voxelCount, float3(1,1,1), volume);
+        current.rgb = lighting((renderParams.modelView*float4((currentPoint-0.5)*2,1)).xyz,
+                         (renderParams.modelViewIT*float4(normal,0)).xyz, current.rgb);
 
-          current.a = 1.0 - pow(1.0 - current.a, opacityCorrection);
-          result = under(current, result);
-          if (result.a > 0.95) break;
-    } while (inBounds(currentPoint,renderParams));
+        current.a = 1.0 - pow(1.0 - current.a, opacityCorrection);
+        result = under(current, result);
+        if (result.a > 0.95) break;
+    } while (inBounds(currentPoint, renderParams));
 
     return half4( result );
 }

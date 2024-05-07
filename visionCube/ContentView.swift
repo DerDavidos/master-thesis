@@ -37,6 +37,7 @@ struct ContentView: View {
             @unknown default:
                 immersiveSpaceIsShown = false
             }
+            volumeModell.resetTranslation()
         } else {
             if (immersiveSpaceIsShown) {
                 await dismissImmersiveSpace()

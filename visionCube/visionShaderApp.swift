@@ -39,6 +39,14 @@ struct visionShaderApp: App {
             CompositorLayer(configuration: ContentStageConfiguration()) { layerRenderer in
                 let fullView = FullView(layerRenderer, volumeModell: volumeModell)
                 fullView.startRenderLoop()
+                
+                layerRenderer.onSpatialEvent = { eventCollection in
+//                    print(eventCollection.first)
+//                    print()
+                    print(eventCollection.first!.kind)
+                    print()
+//                                   var events = eventCollection.map { mySpatialEvent($0) }
+                }
             }
         }.immersionStyle(selection: .constant(.full), in: .full)
     }

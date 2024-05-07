@@ -6,9 +6,8 @@ import ARKit
 import Accelerate
 
 let START_TRANSLATION = SIMD3<Float>(x: 0, y: 1.0, z: -1.2)
-//let START_TRANSLATION = SIMD3<Float>(x: 0, y: 0, z: 0)
 let START_SCALE: Float = 0.7
-let START_SMOOTH_STEP_START: Float = 0.1
+let START_SMOOTH_STEP_START: Float = 0
 let START_SMOOTH_STEP_SHIFT: Float = 0.5
 
 
@@ -59,6 +58,13 @@ class VolumeModell {
         XClip = 0
         YClip = 0
         ZClip = 0
+        
+        resetTranslation()
+    }
+    
+    func resetTranslation() {
+        lastTranslation = START_TRANSLATION
+        updateTranslation(translation: .zero)
     }
     
     func updateTranslation(translation: SIMD3<Float>) {
