@@ -9,13 +9,12 @@
 /* Begin PBXBuildFile section */
 		630868282B8F589700D14763 /* FullView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 630868272B8F589700D14763 /* FullView.swift */; };
 		6308682D2B8F5A7D00D14763 /* shader.metal in Sources */ = {isa = PBXBuildFile; fileRef = 6308682C2B8F5A7D00D14763 /* shader.metal */; };
-		630868312B8F656600D14763 /* FullRenderer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 630868302B8F656600D14763 /* FullRenderer.swift */; };
+		630868312B8F656600D14763 /* FullConfigs.swift in Sources */ = {isa = PBXBuildFile; fileRef = 630868302B8F656600D14763 /* FullConfigs.swift */; };
 		63318D562BA30FBC004F8061 /* VolumeModell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63318D552BA30FBC004F8061 /* VolumeModell.swift */; };
 		63344C8A2BE11085004E06C5 /* bonsai256.raw in Resources */ = {isa = PBXBuildFile; fileRef = 63344C882BE11085004E06C5 /* bonsai256.raw */; };
 		63344C8B2BE11085004E06C5 /* bonsai256.dat in Resources */ = {isa = PBXBuildFile; fileRef = 63344C892BE11085004E06C5 /* bonsai256.dat */; };
 		63344C8F2BE11143004E06C5 /* head.dat in Resources */ = {isa = PBXBuildFile; fileRef = 63344C8D2BE110B2004E06C5 /* head.dat */; };
-		6346945E2B7107720063817D /* AxisRenderer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6346945D2B7107720063817D /* AxisRenderer.swift */; };
-		63747CC22BEA312D0011C5DC /* head.raw in Resources */ = {isa = PBXBuildFile; fileRef = 63747CC12BEA30F80011C5DC /* head.raw */; };
+		6346945E2B7107720063817D /* AxisLoader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6346945D2B7107720063817D /* AxisLoader.swift */; };
 		6374FEA42B83811000F74D28 /* VisionProPosition.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6374FEA32B83811000F74D28 /* VisionProPosition.swift */; };
 		637F4EC52BA0BE2E0042A671 /* VolumeControll.swift in Sources */ = {isa = PBXBuildFile; fileRef = 637F4EC42BA0BE2E0042A671 /* VolumeControll.swift */; };
 		637F4EC72BA1A0CD0042A671 /* AxisModell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 637F4EC62BA1A0CD0042A671 /* AxisModell.swift */; };
@@ -35,7 +34,6 @@
 		638E69372B6AE99D00DC2E98 /* engine.raw in Resources */ = {isa = PBXBuildFile; fileRef = 638E69312B6AE99D00DC2E98 /* engine.raw */; };
 		63C245542B66CDC90037B3E1 /* RealityKitContent in Frameworks */ = {isa = PBXBuildFile; productRef = 63C245532B66CDC90037B3E1 /* RealityKitContent */; };
 		63C245562B66CDC90037B3E1 /* visionShaderApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63C245552B66CDC90037B3E1 /* visionShaderApp.swift */; };
-		63C245582B66CDC90037B3E1 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63C245572B66CDC90037B3E1 /* ContentView.swift */; };
 		63C2455A2B66CDC90037B3E1 /* AxisView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63C245592B66CDC90037B3E1 /* AxisView.swift */; };
 		63C2455C2B66CDCB0037B3E1 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 63C2455B2B66CDCB0037B3E1 /* Assets.xcassets */; };
 		63C2455F2B66CDCB0037B3E1 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 63C2455E2B66CDCB0037B3E1 /* Preview Assets.xcassets */; };
@@ -49,7 +47,7 @@
 		630868272B8F589700D14763 /* FullView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FullView.swift; sourceTree = "<group>"; };
 		6308682C2B8F5A7D00D14763 /* shader.metal */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.metal; path = shader.metal; sourceTree = "<group>"; };
 		6308682E2B8F5A8B00D14763 /* shaderTypes.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = shaderTypes.h; sourceTree = "<group>"; };
-		630868302B8F656600D14763 /* FullRenderer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FullRenderer.swift; sourceTree = "<group>"; };
+		630868302B8F656600D14763 /* FullConfigs.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FullConfigs.swift; sourceTree = "<group>"; };
 		6329F23D2BDFE47B007C0274 /* hand162.1dt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = hand162.1dt; sourceTree = "<group>"; };
 		6329F23E2BDFE47C007C0274 /* hand.raw */ = {isa = PBXFileReference; lastKnownFileType = file; path = hand.raw; sourceTree = "<group>"; };
 		6329F23F2BDFE47C007C0274 /* hand.dat */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = hand.dat; sourceTree = "<group>"; };
@@ -57,8 +55,7 @@
 		63344C882BE11085004E06C5 /* bonsai256.raw */ = {isa = PBXFileReference; lastKnownFileType = file; path = bonsai256.raw; sourceTree = "<group>"; };
 		63344C892BE11085004E06C5 /* bonsai256.dat */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = bonsai256.dat; sourceTree = "<group>"; };
 		63344C8D2BE110B2004E06C5 /* head.dat */ = {isa = PBXFileReference; lastKnownFileType = text; path = head.dat; sourceTree = "<group>"; };
-		6346945D2B7107720063817D /* AxisRenderer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AxisRenderer.swift; sourceTree = "<group>"; };
-		63747CC12BEA30F80011C5DC /* head.raw */ = {isa = PBXFileReference; lastKnownFileType = file; path = head.raw; sourceTree = "<group>"; };
+		6346945D2B7107720063817D /* AxisLoader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AxisLoader.swift; sourceTree = "<group>"; };
 		6374FEA32B83811000F74D28 /* VisionProPosition.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VisionProPosition.swift; sourceTree = "<group>"; };
 		637F4EC42BA0BE2E0042A671 /* VolumeControll.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VolumeControll.swift; sourceTree = "<group>"; };
 		637F4EC62BA1A0CD0042A671 /* AxisModell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AxisModell.swift; sourceTree = "<group>"; };
@@ -76,7 +73,6 @@
 		63C2454E2B66CDC90037B3E1 /* visionCube.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = visionCube.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		63C245522B66CDC90037B3E1 /* RealityKitContent */ = {isa = PBXFileReference; lastKnownFileType = wrapper; path = RealityKitContent; sourceTree = "<group>"; };
 		63C245552B66CDC90037B3E1 /* visionShaderApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = visionShaderApp.swift; sourceTree = "<group>"; };
-		63C245572B66CDC90037B3E1 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		63C245592B66CDC90037B3E1 /* AxisView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AxisView.swift; sourceTree = "<group>"; };
 		63C2455B2B66CDCB0037B3E1 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		63C2455E2B66CDCB0037B3E1 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
@@ -102,10 +98,9 @@
 		63318D572BA30FCA004F8061 /* MixedView */ = {
 			isa = PBXGroup;
 			children = (
-				6374FEA32B83811000F74D28 /* VisionProPosition.swift */,
 				63C245592B66CDC90037B3E1 /* AxisView.swift */,
 				637F4EC62BA1A0CD0042A671 /* AxisModell.swift */,
-				6346945D2B7107720063817D /* AxisRenderer.swift */,
+				6346945D2B7107720063817D /* AxisLoader.swift */,
 			);
 			path = MixedView;
 			sourceTree = "<group>";
@@ -114,7 +109,7 @@
 			isa = PBXGroup;
 			children = (
 				630868272B8F589700D14763 /* FullView.swift */,
-				630868302B8F656600D14763 /* FullRenderer.swift */,
+				630868302B8F656600D14763 /* FullConfigs.swift */,
 			);
 			path = FullView;
 			sourceTree = "<group>";
@@ -133,7 +128,6 @@
 		63344C8C2BE110AA004E06C5 /* head */ = {
 			isa = PBXGroup;
 			children = (
-				63747CC12BEA30F80011C5DC /* head.raw */,
 				63344C8D2BE110B2004E06C5 /* head.dat */,
 			);
 			path = head;
@@ -201,9 +195,9 @@
 				6346945F2B71A5490063817D /* dat */,
 				638E692B2B6AE84900DC2E98 /* Cube */,
 				63C245552B66CDC90037B3E1 /* visionShaderApp.swift */,
-				63C245572B66CDC90037B3E1 /* ContentView.swift */,
 				63318D552BA30FBC004F8061 /* VolumeModell.swift */,
 				637F4EC42BA0BE2E0042A671 /* VolumeControll.swift */,
+				6374FEA32B83811000F74D28 /* VisionProPosition.swift */,
 				63318D582BA30FD2004F8061 /* FullView */,
 				63318D572BA30FCA004F8061 /* MixedView */,
 				63C2455B2B66CDCB0037B3E1 /* Assets.xcassets */,
@@ -301,7 +295,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				63747CC22BEA312D0011C5DC /* head.raw in Resources */,
 				63344C8F2BE11143004E06C5 /* head.dat in Resources */,
 				63344C8A2BE11085004E06C5 /* bonsai256.raw in Resources */,
 				63F8299F2BE0DC260040334D /* foot256.dat in Resources */,
@@ -339,12 +332,11 @@
 				638E69282B6AE81600DC2E98 /* Clipper.swift in Sources */,
 				638E69292B6AE81600DC2E98 /* QVis.swift in Sources */,
 				638E692A2B6AE81600DC2E98 /* Volumes.swift in Sources */,
-				630868312B8F656600D14763 /* FullRenderer.swift in Sources */,
-				63C245582B66CDC90037B3E1 /* ContentView.swift in Sources */,
+				630868312B8F656600D14763 /* FullConfigs.swift in Sources */,
 				637F4EC52BA0BE2E0042A671 /* VolumeControll.swift in Sources */,
 				63C245562B66CDC90037B3E1 /* visionShaderApp.swift in Sources */,
 				637F4EC72BA1A0CD0042A671 /* AxisModell.swift in Sources */,
-				6346945E2B7107720063817D /* AxisRenderer.swift in Sources */,
+				6346945E2B7107720063817D /* AxisLoader.swift in Sources */,
 				63C2455A2B66CDC90037B3E1 /* AxisView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -413,7 +405,7 @@
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				TVOS_DEPLOYMENT_TARGET = 17.3;
-				XROS_DEPLOYMENT_TARGET = 1.2;
+				XROS_DEPLOYMENT_TARGET = 1.1;
 			};
 			name = Debug;
 		};
@@ -471,7 +463,7 @@
 				SWIFT_COMPILATION_MODE = wholemodule;
 				TVOS_DEPLOYMENT_TARGET = 17.3;
 				VALIDATE_PRODUCT = YES;
-				XROS_DEPLOYMENT_TARGET = 1.2;
+				XROS_DEPLOYMENT_TARGET = 1.1;
 			};
 			name = Release;
 		};
@@ -498,7 +490,7 @@
 				SWIFT_OBJC_BRIDGING_HEADER = visionCube/Cube/ShaderTypes.h;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2,7";
-				XROS_DEPLOYMENT_TARGET = 1.2;
+				XROS_DEPLOYMENT_TARGET = 1.1;
 			};
 			name = Debug;
 		};
@@ -525,7 +517,7 @@
 				SWIFT_OBJC_BRIDGING_HEADER = visionCube/Cube/ShaderTypes.h;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2,7";
-				XROS_DEPLOYMENT_TARGET = 1.2;
+				XROS_DEPLOYMENT_TARGET = 1.1;
 			};
 			name = Release;
 		};

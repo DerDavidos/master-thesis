@@ -20,14 +20,16 @@ class AxisModell {
     var clipBoxX = Entity()
     var clipBoxY = Entity()
     var clipBoxZ = Entity()
-    var clipBoxXEnabled = false
-    var clipBoxYEnabled = false
-    var clipBoxZEnabled = false
+    
+    var lastX: Float = -0.55
+    var lastY: Float = -0.55
+    var lastZ: Float = -0.55
     
     var axises: [axisList] = Array()
     
     init(volumeModell: VolumeModell) {
         self.volumeModell = volumeModell
+        resetClipPlanes()
     }
     
     @MainActor
@@ -87,10 +89,17 @@ class AxisModell {
         axises.append(axisList)
     }
 
-    func setClipPlanes() {
-        clipBoxX.isEnabled = clipBoxXEnabled
-        clipBoxY.isEnabled = clipBoxYEnabled
-        clipBoxZ.isEnabled = clipBoxZEnabled
+    fileprivate func resetClipPlanes() {
+        print("reset")
+        clipBoxZ.position.z = -0.55
+        clipBoxX.position.x = -0.55
+        clipBoxY.position.y = -0.55
+        clipBoxX.isEnabled = false
+        clipBoxY.isEnabled = false
+        clipBoxZ.isEnabled = false
+        lastX = -0.55
+        lastY = -0.55
+        lastZ = -0.55
     }
     
     @MainActor
@@ -100,13 +109,6 @@ class AxisModell {
         
         await loadAllEntities()
         
-        clipBoxZ.position.z = -0.55
-        clipBoxX.position.x = -0.55
-        clipBoxY.position.y = -0.55
-        clipBoxXEnabled = false
-        clipBoxYEnabled = false
-        clipBoxZEnabled = false
-        setClipPlanes()
         volumeModell.updateTransformation(.identity)
         
         volumeModell.axisLoaded = true
@@ -150,7 +152,7 @@ class AxisModell {
         clipBoxX = scene.findEntity(named: "clipBoxX")!
         clipBoxY = scene.findEntity(named: "clipBoxY")!
         clipBoxZ = scene.findEntity(named: "clipBoxZ")!
-        setClipPlanes()
+        resetClipPlanes()
         
         volumeModell.root!.addChild(clipBoxX)
         volumeModell.root!.addChild(clipBoxY)

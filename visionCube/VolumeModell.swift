@@ -6,10 +6,9 @@ import ARKit
 import Accelerate
 
 let START_TRANSLATION = SIMD3<Float>(x: 0, y: 1.0, z: -1.2)
-let START_SCALE: Float = 0.7
+let START_SCALE: Float = 0.5
 let START_SMOOTH_STEP_START: Float = 0
 let START_SMOOTH_STEP_SHIFT: Float = 0.5
-
 
 @Observable
 class VolumeModell {
@@ -30,19 +29,18 @@ class VolumeModell {
     
     var loading = false
     var axisView = false
+    var fullView = false
     
     var dataset: QVis!
     
     var root: Entity?
 
-    var selectedVolume = ""
+    var selectedVolume = START_VOLUME
     
     var lighting = false;
     var lightingNeedsUpdate = false;
     
     init() {
-//        selectedVolume = listRawFiles(at: Bundle.main.resourcePath!).first!
-        selectedVolume = "c60"
         dataset = try! QVis(filename: getFromResource(strFileName: selectedVolume, ext: "dat"))
     }
     

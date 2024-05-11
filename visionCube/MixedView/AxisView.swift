@@ -8,53 +8,51 @@ struct AxisView: View {
 
     init(axisModell: AxisModell, visionProPose: VisionProPositon) {
         self.axisModell = axisModell
+        self.volumeModell = axisModell.volumeModell
         self.visionProPose = visionProPose
     }
     
     var axisModell: AxisModell
+    var volumeModell: VolumeModell
     
     var visionProPose: VisionProPositon
     
-    @State var lastX: Float = -0.55
-    @State var lastY: Float = -0.55
-    @State var lastZ: Float = -0.55
-    
     var dragX: some Gesture {
         DragGesture(coordinateSpace: .local).targetedToEntity(axisModell.clipBoxX).onChanged{value in
-            let newPosition = lastX + Float((value.translation.width)/2500)
+            let newPosition = axisModell.lastX + Float((value.translation.width)/2500)
             axisModell.clipBoxX.position.x = max(-0.55, min(newPosition, 0.55))
-            axisModell.volumeModell.XClip = max(-0.5, min(axisModell.clipBoxX.position.x, 0.5)) + 0.5
         }.onEnded{_ in
-            lastX = axisModell.clipBoxX.position.x
+            volumeModell.XClip = max(-0.5, min(axisModell.clipBoxX.position.x, 0.5)) + 0.5
+            axisModell.lastX = axisModell.clipBoxX.position.x
             axisModell.updateAllAxis()
         }
     }
     
     var dragY: some Gesture {
         DragGesture(coordinateSpace: .local).targetedToEntity(axisModell.clipBoxY).onChanged{value in
-            let newPosition = lastY + Float(-(value.translation.height)/2500)
+            let newPosition = axisModell.lastY + Float(-(value.translation.height)/2500)
             axisModell.clipBoxY.position.y = max(-0.55, min(newPosition, 0.55))
-            axisModell.volumeModell.YClip = max(-0.5, min(axisModell.clipBoxY.position.y, 0.5)) + 0.5
         }.onEnded{_ in
-            lastY = axisModell.clipBoxY.position.y
+            volumeModell.YClip = max(-0.5, min(axisModell.clipBoxY.position.y, 0.5)) + 0.5
+            axisModell.lastY = axisModell.clipBoxY.position.y
             axisModell.updateAllAxis()
         }
     }
     
     var dragZ: some Gesture {
         DragGesture(coordinateSpace: .local).targetedToEntity(axisModell.clipBoxZ).onChanged{value in
-            let newPosition = lastZ + Float(-(value.translation.width)/2500)
+            let newPosition = axisModell.lastZ + Float(-(value.translation.width)/2500)
             axisModell.clipBoxZ.position.z = max(-0.55, min(newPosition, 0.55))
-            axisModell.volumeModell.ZClip = max(-0.5, min(axisModell.clipBoxZ.position.z, 0.5)) + 0.5
         }.onEnded{_ in
-            lastZ = axisModell.clipBoxZ.position.z
+            volumeModell.ZClip = max(-0.5, min(axisModell.clipBoxZ.position.z, 0.5)) + 0.5
+            axisModell.lastZ = axisModell.clipBoxZ.position.z
             axisModell.updateAllAxis()
         }
     }
     
     @MainActor
     fileprivate func updateSliceStack() async {
-        if (!axisModell.volumeModell.axisLoaded) {
+        if (!volumeModell.axisLoaded) {
             return
         }
         
@@ -63,7 +61,7 @@ struct AxisView: View {
             return
         }
         
-        let modelMatrix = axisModell.volumeModell.root!.transform.matrix
+        let modelMatrix = volumeModell.root!.transform.matrix
         
         let modelViewMatrixInv = modelMatrix.inverse * viewMatrixInv!
         let viewVector = modelViewMatrixInv * simd_float4(0, 0, 0, 1)
@@ -93,15 +91,16 @@ struct AxisView: View {
 
     var body: some View {
         @Bindable var axisModell = axisModell
+        @Bindable var volumeModell = volumeModell
         
         RealityView {content in
   
-            if (axisModell.volumeModell.root == nil) {
+            if (volumeModell.root == nil) {
                 await axisModell.loadAllEntities()
             }
-            content.add(axisModell.volumeModell.root!)
+            content.add(volumeModell.root!)
 
-            axisModell.volumeModell.axisLoaded = true
+            volumeModell.axisLoaded = true
             axisModell.updateAllAxis()
             print("Loaded")
         }
@@ -109,11 +108,11 @@ struct AxisView: View {
         .gesture(dragY)
         .gesture(dragZ)
         .gesture(manipulationGesture.onChanged{ value in
-            axisModell.volumeModell.updateTransformation(value)
+            volumeModell.updateTransformation(value)
         }.onEnded { value in
-            axisModell.volumeModell.rotation = axisModell.volumeModell.rotation.rotated(by: value.rotation!)
-            axisModell.volumeModell.lastTranslation += SIMD3<Float>(makeToOtherCordinate(vector: SIMD3<Float>(value.translation.vector)))
-            axisModell.volumeModell.scale = axisModell.volumeModell.root!.scale.x
+            volumeModell.rotation = volumeModell.rotation.rotated(by: value.rotation!)
+            volumeModell.lastTranslation += SIMD3<Float>(makeToOtherCordinate(vector: SIMD3<Float>(value.translation.vector)))
+            volumeModell.scale = volumeModell.root!.scale.x
         })
         .onAppear {
             Timer.scheduledTimer(withTimeInterval: 0.2, repeats: true) { _ in

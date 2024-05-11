@@ -32,7 +32,7 @@
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "1"
             endingLineNumber = "1"
-            landmarkName = "lastTrans"
+            landmarkName = "lastTranslation"
             landmarkType = "37">
          </BreakpointContent>
       </BreakpointProxy>

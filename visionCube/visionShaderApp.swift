@@ -2,6 +2,7 @@ import SwiftUI
 import CompositorServices
 
 let OVERSAMPLING: Float = 1
+let START_VOLUME: String = "c60"
 
 @main
 struct visionShaderApp: App {
@@ -18,22 +19,12 @@ struct visionShaderApp: App {
     
     var body: some Scene {
         WindowGroup {
-            ContentView(volumeModell: volumeModell, visionProPose: visionProPose)
+            VolumeControll(axisModell: axisModell, volumeModell: volumeModell, visionProPose: visionProPose)
         }.windowStyle(.plain)
-            .defaultSize(width: 300, height: 150)
         
         ImmersiveSpace(id: "AxisView") {
             AxisView(axisModell: axisModell, visionProPose: visionProPose)
         }.immersionStyle(selection: .constant(.mixed), in: .mixed)
-
-//        WindowGroup(id: "AxisView") {
-//            AxisView(axisModell: axisModell, visionProPose: visionProPose)
-//        }.windowStyle(.volumetric)
-        
-        WindowGroup(id: "VolumeControll") {
-            VolumeControll(axisModell: axisModell)
-        }.windowStyle(.plain)
-            .defaultSize(width: 550, height: 500)
         
         ImmersiveSpace(id: "FullView") {
             CompositorLayer(configuration: ContentStageConfiguration()) { layerRenderer in
@@ -42,10 +33,7 @@ struct visionShaderApp: App {
                 
                 layerRenderer.onSpatialEvent = { eventCollection in
 //                    print(eventCollection.first)
-//                    print()
-                    print(eventCollection.first!.kind)
-                    print()
-//                                   var events = eventCollection.map { mySpatialEvent($0) }
+//                    var events = eventCollection.map { mySpatialEvent($0) }
                 }
             }
         }.immersionStyle(selection: .constant(.full), in: .full)

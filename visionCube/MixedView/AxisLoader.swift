@@ -34,7 +34,7 @@ class AxisRenderer {
         self.width = Int(dataset.volume.width)
         
         self.maxValue = Float(max(depth, height, width))
-        self.layerDistance = 1 / maxValue / 2
+        self.layerDistance = 1 / maxValue
     }
 
     func getTexture(id: Float, axis: String) -> TextureResource {
@@ -255,7 +255,7 @@ class AxisRenderer {
                 
                 try? material?.setParameter(name: "opacityCorrection", value: .float(Float(layers) * OVERSAMPLING))
                 
-                let materialEntity = MaterialEntity(entity: entity, material: material!, width: pWidth / 2, height: pHeight / 2)
+                let materialEntity = MaterialEntity(entity: entity, material: material!, width: pWidth, height: pHeight)
                 entities.append(materialEntity)
             }
         }
@@ -294,4 +294,3 @@ extension UIImage {
         }
     }
 }
-
