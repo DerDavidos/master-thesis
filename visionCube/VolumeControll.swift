@@ -21,7 +21,6 @@ func listRawFiles(at directoryPath: String) -> [String] {
 }
 
 struct VolumeControll: View {
-    
     @Environment(\.openImmersiveSpace) var openImmersiveSpace
     @Environment(\.dismissImmersiveSpace) var dismissImmersiveSpace
     
@@ -156,6 +155,13 @@ struct VolumeControll: View {
             .onAppear {
                 Task {
                     await visionProPose.runArSession()
+                }
+            }
+            .onDisappear {
+                Task {
+                    if immersiveSpaceIsShown {
+                        await dismissImmersiveSpace()
+                    }
                 }
             }
         }

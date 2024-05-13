@@ -105,7 +105,7 @@ class FullView {
         
         print("init")
     }
-
+    
     func buildBuffers() {
         print("buildBuffers")
         let matrixDataSize = MemoryLayout<Matrices>.stride

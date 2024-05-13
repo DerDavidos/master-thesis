@@ -6,7 +6,7 @@ import ARKit
 import Accelerate
 
 let START_TRANSLATION = SIMD3<Float>(x: 0, y: 1.0, z: -1.2)
-let START_SCALE = SIMD3<Float>(1 , 1, 1) * 0.5
+let START_SCALE = SIMD3<Float>(1 , 1, 1) * 0.3
 let START_ROTATION: simd_quatf = simd_quatf(.identity)
 let START_SMOOTH_STEP_START: Float = 0
 let START_SMOOTH_STEP_SHIFT: Float = 0.5
@@ -32,7 +32,6 @@ class VolumeModell {
     var fullView = false
     
     var dataset: QVis!
-
     var selectedVolume = START_VOLUME
     
     var lighting = false;
@@ -98,5 +97,4 @@ class VolumeModell {
         let scale: Float = Float(value.scale.width + value.scale.height + value.scale.depth) / 3
         transform.scale = lastTransform.scale * scale
     }
-
 }
