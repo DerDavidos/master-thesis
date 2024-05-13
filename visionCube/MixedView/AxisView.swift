@@ -6,9 +6,9 @@ import Accelerate
 
 struct AxisView: View {
 
-    init(axisModell: AxisModell, visionProPose: VisionProPositon) {
-        self.axisModell = axisModell
-        self.volumeModell = axisModell.volumeModell
+    init(volumeModell: VolumeModell, visionProPose: VisionProPositon) {
+        self.axisModell = volumeModell.axisModell
+        self.volumeModell = volumeModell
         self.visionProPose = visionProPose
     }
     
@@ -24,7 +24,7 @@ struct AxisView: View {
         }.onEnded{_ in
             volumeModell.XClip = max(-0.5, min(axisModell.clipBoxX.position.x, 0.5)) + 0.5
             axisModell.lastX = axisModell.clipBoxX.position.x
-            axisModell.updateAllAxis()
+            volumeModell.updateAllAxis()
         }
     }
     
@@ -35,7 +35,7 @@ struct AxisView: View {
         }.onEnded{_ in
             volumeModell.YClip = max(-0.5, min(axisModell.clipBoxY.position.y, 0.5)) + 0.5
             axisModell.lastY = axisModell.clipBoxY.position.y
-            axisModell.updateAllAxis()
+            volumeModell.updateAllAxis()
         }
     }
     
@@ -46,13 +46,13 @@ struct AxisView: View {
         }.onEnded{_ in
             volumeModell.ZClip = max(-0.5, min(axisModell.clipBoxZ.position.z, 0.5)) + 0.5
             axisModell.lastZ = axisModell.clipBoxZ.position.z
-            axisModell.updateAllAxis()
+            volumeModell.updateAllAxis()
         }
     }
     
     @MainActor
     fileprivate func updateSliceStack() async {
-        if (!volumeModell.axisLoaded) {
+        if (!volumeModell.axisModell.axisLoaded) {
             return
         }
         
@@ -61,7 +61,7 @@ struct AxisView: View {
             return
         }
         
-        let modelMatrix = volumeModell.root!.transform.matrix
+        let modelMatrix = volumeModell.axisModell.root!.transform.matrix
         
         let modelViewMatrixInv = modelMatrix.inverse * viewMatrixInv!
         let viewVector = modelViewMatrixInv * simd_float4(0, 0, 0, 1)
@@ -94,25 +94,19 @@ struct AxisView: View {
         @Bindable var volumeModell = volumeModell
         
         RealityView {content in
-  
-            if (volumeModell.root == nil) {
-                await axisModell.loadAllEntities()
-            }
-            content.add(volumeModell.root!)
-
-            volumeModell.axisLoaded = true
-            axisModell.updateAllAxis()
-            print("Loaded")
+            await volumeModell.initAxisView()
+            volumeModell.axisModell.root!.transform = volumeModell.transform
+            volumeModell.updateAllAxis()
+            content.add(volumeModell.axisModell.root!)
         }
         .gesture(dragX)
         .gesture(dragY)
         .gesture(dragZ)
         .gesture(manipulationGesture.onChanged{ value in
             volumeModell.updateTransformation(value)
+            volumeModell.axisModell.root!.transform = volumeModell.transform
         }.onEnded { value in
-            volumeModell.rotation = volumeModell.rotation.rotated(by: value.rotation!)
-            volumeModell.lastTranslation += SIMD3<Float>(makeToOtherCordinate(vector: SIMD3<Float>(value.translation.vector)))
-            volumeModell.scale = volumeModell.root!.scale.x
+            volumeModell.lastTransform = volumeModell.transform
         })
         .onAppear {
             Timer.scheduledTimer(withTimeInterval: 0.2, repeats: true) { _ in

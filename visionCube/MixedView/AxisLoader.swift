@@ -253,7 +253,7 @@ class AxisRenderer {
                 default:
                     fatalError("Unexpected value \(axis)")}
                 
-                try? material?.setParameter(name: "opacityCorrection", value: .float(Float(layers) * OVERSAMPLING))
+                try? material?.setParameter(name: "opacityCorrection", value: .float(Float(maxValue) * OVERSAMPLING))
                 
                 let materialEntity = MaterialEntity(entity: entity, material: material!, width: pWidth, height: pHeight)
                 entities.append(materialEntity)

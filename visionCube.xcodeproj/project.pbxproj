@@ -15,6 +15,7 @@
 		63344C8B2BE11085004E06C5 /* bonsai256.dat in Resources */ = {isa = PBXBuildFile; fileRef = 63344C892BE11085004E06C5 /* bonsai256.dat */; };
 		63344C8F2BE11143004E06C5 /* head.dat in Resources */ = {isa = PBXBuildFile; fileRef = 63344C8D2BE110B2004E06C5 /* head.dat */; };
 		6346945E2B7107720063817D /* AxisLoader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6346945D2B7107720063817D /* AxisLoader.swift */; };
+		635E81512BF22CAB00978F4B /* head.raw in Resources */ = {isa = PBXBuildFile; fileRef = 635E81502BF22C9D00978F4B /* head.raw */; };
 		6374FEA42B83811000F74D28 /* VisionProPosition.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6374FEA32B83811000F74D28 /* VisionProPosition.swift */; };
 		637F4EC52BA0BE2E0042A671 /* VolumeControll.swift in Sources */ = {isa = PBXBuildFile; fileRef = 637F4EC42BA0BE2E0042A671 /* VolumeControll.swift */; };
 		637F4EC72BA1A0CD0042A671 /* AxisModell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 637F4EC62BA1A0CD0042A671 /* AxisModell.swift */; };
@@ -56,6 +57,7 @@
 		63344C892BE11085004E06C5 /* bonsai256.dat */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = bonsai256.dat; sourceTree = "<group>"; };
 		63344C8D2BE110B2004E06C5 /* head.dat */ = {isa = PBXFileReference; lastKnownFileType = text; path = head.dat; sourceTree = "<group>"; };
 		6346945D2B7107720063817D /* AxisLoader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AxisLoader.swift; sourceTree = "<group>"; };
+		635E81502BF22C9D00978F4B /* head.raw */ = {isa = PBXFileReference; lastKnownFileType = file; path = head.raw; sourceTree = "<group>"; };
 		6374FEA32B83811000F74D28 /* VisionProPosition.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VisionProPosition.swift; sourceTree = "<group>"; };
 		637F4EC42BA0BE2E0042A671 /* VolumeControll.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VolumeControll.swift; sourceTree = "<group>"; };
 		637F4EC62BA1A0CD0042A671 /* AxisModell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AxisModell.swift; sourceTree = "<group>"; };
@@ -128,6 +130,7 @@
 		63344C8C2BE110AA004E06C5 /* head */ = {
 			isa = PBXGroup;
 			children = (
+				635E81502BF22C9D00978F4B /* head.raw */,
 				63344C8D2BE110B2004E06C5 /* head.dat */,
 			);
 			path = head;
@@ -295,6 +298,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				635E81512BF22CAB00978F4B /* head.raw in Resources */,
 				63344C8F2BE11143004E06C5 /* head.dat in Resources */,
 				63344C8A2BE11085004E06C5 /* bonsai256.raw in Resources */,
 				63F8299F2BE0DC260040334D /* foot256.dat in Resources */,

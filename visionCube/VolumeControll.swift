@@ -30,7 +30,7 @@ struct VolumeControll: View {
     
     @State private var immersiveSpaceIsShown = false
     
-    var axisModell: AxisModell
+    var axisModell: AxisModell? = nil
     var volumeModell: VolumeModell
     var visionProPose: VisionProPositon
     
@@ -51,7 +51,7 @@ struct VolumeControll: View {
             @unknown default:
                 immersiveSpaceIsShown = false
             }
-            volumeModell.resetTranslation()
+//            volumeModell.resetTransformation()
         } else {
             if (immersiveSpaceIsShown) {
                 await dismissImmersiveSpace()
@@ -61,8 +61,8 @@ struct VolumeControll: View {
     }
     
     var body: some View {
-        @Bindable var axisModell = axisModell
         @Bindable var volumeModell = volumeModell
+        @Bindable var axisModell = volumeModell.axisModell
         
         VStack {
             Grid(verticalSpacing: 15) {
@@ -70,7 +70,7 @@ struct VolumeControll: View {
                     Toggle("Axis View", isOn: $volumeModell.axisView).font(.largeTitle)
                     Toggle("Full View", isOn: $volumeModell.fullView).font(.largeTitle)
                 }
-                .opacity(axisModell.volumeModell.loading ? 0.0 : 1.0)
+                .opacity(volumeModell.loading ? 0.0 : 1.0)
                 .onChange(of: volumeModell.axisView) { _, showAxisView in
                     Task {
                         if volumeModell.axisView {
@@ -92,16 +92,16 @@ struct VolumeControll: View {
                 GridRow {
                     Text("Start:").font(.title)
                     Slider(value: $volumeModell.smoothStepStart, in: 0...1) { editing in
-                        if (!editing && volumeModell.axisLoaded) {
-                            axisModell.updateAllAxis()
+                        if (!editing) {
+                            volumeModell.updateAllAxis()
                         }
-                    }.opacity(axisModell.volumeModell.loading ? 0.0 : 1.0)
+                    }.opacity(volumeModell.loading ? 0.0 : 1.0)
                 }
                 GridRow {
                     Text("Shift:").font(.title)
                     Slider(value: $volumeModell.smoothStepShift, in: 0...1) { editing in
-                        if (!editing && volumeModell.axisLoaded) {
-                            axisModell.updateAllAxis()
+                        if (!editing) {
+                            volumeModell.updateAllAxis()
                         }
                     }.opacity(volumeModell.loading ? 0.0 : 1.0)
                 }
@@ -113,8 +113,7 @@ struct VolumeControll: View {
                         .font(.title)
                     Toggle("Z Clip", isOn: $axisModell.clipBoxZ.isEnabled)
                         .font(.title)
-                }.opacity(axisModell.volumeModell.loading ? 0.0 : 1.0)
-                    .padding(10)
+                }.padding(10)
                   
                 GridRow {
                     Text("Lighting").font(.title).opacity(volumeModell.fullView ? 1.0 : 0.0)
@@ -134,7 +133,7 @@ struct VolumeControll: View {
                                 }
                             }.onChange(of: volumeModell.selectedVolume) {
                                 Task {
-                                    await axisModell.reset(selectedVolume: volumeModell.selectedVolume)
+                                    await volumeModell.reset(selectedVolume: volumeModell.selectedVolume)
                                 }
                             }
                             .font(.title    )
@@ -144,7 +143,7 @@ struct VolumeControll: View {
                 
                 Button(action: {
                     Task {
-                        await axisModell.reset(selectedVolume: volumeModell.selectedVolume)
+                        await volumeModell.reset(selectedVolume: volumeModell.selectedVolume)
                     }
                 }, label: {
                     Text("Reset").font(.title)

@@ -6,34 +6,32 @@ import ARKit
 import Accelerate
 
 let START_TRANSLATION = SIMD3<Float>(x: 0, y: 1.0, z: -1.2)
-let START_SCALE: Float = 0.5
+let START_SCALE = SIMD3<Float>(1 , 1, 1) * 0.5
+let START_ROTATION: simd_quatf = simd_quatf(.identity)
 let START_SMOOTH_STEP_START: Float = 0
 let START_SMOOTH_STEP_SHIFT: Float = 0.5
 
+let START_TRANSFORM = Transform(scale: START_SCALE, rotation: START_ROTATION, translation: START_TRANSLATION)
+
 @Observable
 class VolumeModell {
+    var axisModell: AxisModell = AxisModell(loadedVolume: START_VOLUME)
+    
     var smoothStepStart: Float = START_SMOOTH_STEP_START
     var smoothStepShift: Float = START_SMOOTH_STEP_SHIFT
-    
-    var rotation: Rotation3D = .identity
-    
+
     var XClip: Float = 0.0
     var YClip: Float = 0.0
     var ZClip: Float = 0.0
     
-    var axisLoaded = false
-    
-    var scale: Float = START_SCALE
+    var transform: Transform = START_TRANSFORM
+    var lastTransform: Transform = START_TRANSFORM
 
-    var lastTranslation: SIMD3<Float> = START_TRANSLATION
-    
     var loading = false
     var axisView = false
     var fullView = false
     
     var dataset: QVis!
-    
-    var root: Entity?
 
     var selectedVolume = START_VOLUME
     
@@ -43,46 +41,62 @@ class VolumeModell {
     init() {
         dataset = try! QVis(filename: getFromResource(strFileName: selectedVolume, ext: "dat"))
     }
+
+    @MainActor
+    func initAxisView() async {
+        if !axisModell.axisLoaded || axisModell.loadedVolume != selectedVolume {
+            loading = true
+            await axisModell.loadAllEntities()
+            await axisModell.createEntityList(dataset: dataset, loadedVolume: selectedVolume)
+            axisModell.axisLoaded = true
+            loading = false
+        }
+    }
     
-    func reset(selectedVolume: String) {
+    func resetTransformation() {
+        transform = START_TRANSFORM
+        lastTransform = START_TRANSFORM
+    }
+    
+    @MainActor
+    func reset(selectedVolume: String) async {
+        loading = true
         dataset = try! QVis(filename: getFromResource(strFileName: selectedVolume, ext: "dat"))
         
         smoothStepStart = START_SMOOTH_STEP_START
         smoothStepShift = START_SMOOTH_STEP_SHIFT
-        rotation = .identity
-        
-        scale = START_SCALE
+        resetTransformation()
         
         XClip = 0
         YClip = 0
         ZClip = 0
         
-        resetTranslation()
+        axisModell.resetClipPlanes()
+        
+        if axisView {
+            await initAxisView()
+            axisModell.root!.transform = transform
+            updateAllAxis()
+        }
+        loading = false
     }
     
-    func resetTranslation() {
-        lastTranslation = START_TRANSLATION
-        updateTranslation(translation: .zero)
-    }
-    
-    func updateTranslation(translation: SIMD3<Float>) {
-        if root == nil {
+    func updateAllAxis() {
+        if !axisView {
             return
         }
-        root!.transform.translation.x = Float((lastTranslation.x + translation.x))
-        root!.transform.translation.y = Float((lastTranslation.y + translation.y))
-        root!.transform.translation.z = Float((lastTranslation.z + translation.z))
+        Task {
+            loading = true
+            await axisModell.updateAllAxis(volumeModell: self)
+            loading = false
+        }
     }
     
     func updateTransformation(_ value: AffineTransform3D!) {
-        if root == nil {
-            return
-        }
-        root!.orientation = simd_quatf(rotation.rotated(by: value.rotation!))
-        
-        updateTranslation(translation: makeToOtherCordinate(vector: SIMD3<Float>(value.translation.vector)))
-        var scale: Float = Float(value.scale.width + value.scale.height + value.scale.depth) / 3
-        scale *= self.scale
-        root!.scale = SIMD3<Float>(scale, scale, scale)
+        transform.rotation = lastTransform.rotation * simd_quatf(value.rotation!)
+        transform.translation = lastTransform.translation + makeToOtherCordinate(vector: SIMD3<Float>(value.translation.vector))
+        let scale: Float = Float(value.scale.width + value.scale.height + value.scale.depth) / 3
+        transform.scale = lastTransform.scale * scale
     }
+
 }

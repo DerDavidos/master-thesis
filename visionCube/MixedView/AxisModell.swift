@@ -12,9 +12,7 @@ struct axisList {
 }
 
 @Observable
-class AxisModell {
-    var volumeModell: VolumeModell
-
+class AxisModell {    
     var rotater = Entity()
     
     var clipBoxX = Entity()
@@ -27,8 +25,14 @@ class AxisModell {
     
     var axises: [axisList] = Array()
     
-    init(volumeModell: VolumeModell) {
-        self.volumeModell = volumeModell
+    var root: Entity?
+    
+    var axisLoaded = false
+    
+    var loadedVolume: String
+    
+    init(loadedVolume: String) {
+        self.loadedVolume = loadedVolume
         resetClipPlanes()
     }
     
@@ -44,24 +48,17 @@ class AxisModell {
         }
     }
     
-    func updateAllAxis() {
-        if ((!volumeModell.axisLoaded) || !volumeModell.axisView) {
+    func updateAllAxis(volumeModell: VolumeModell) async {
+        if !axisLoaded {
             return
         }
-        
-        Task {
-            volumeModell.loading = true
-        
-            for i in 0...axises.count-1 {
-                updatMaterials(axisList: &axises[i])
-                await updateAxis(axisList: &axises[i])
-            }
-       
-            volumeModell.loading = false
+        for i in 0...axises.count-1 {
+            updatMaterials(axisList: &axises[i], volumeModell: volumeModell)
+            await updateAxis(axisList: &axises[i])
         }
     }
     
-    fileprivate func updatMaterials(axisList: inout axisList) {
+    fileprivate func updatMaterials(axisList: inout axisList, volumeModell: VolumeModell) {
         for i in 0...axisList.materialEntity.count - 1 {
             try! axisList.materialEntity[i].material.setParameter(name: "smoothStepStart", value: MaterialParameters.Value.float(volumeModell.smoothStepStart))
             try! axisList.materialEntity[i].material.setParameter(name: "smoothStepShift", value: MaterialParameters.Value.float(volumeModell.smoothStepShift))
@@ -89,8 +86,7 @@ class AxisModell {
         axises.append(axisList)
     }
 
-    fileprivate func resetClipPlanes() {
-        print("reset")
+    func resetClipPlanes() {
         clipBoxZ.position.z = -0.55
         clipBoxX.position.x = -0.55
         clipBoxY.position.y = -0.55
@@ -103,20 +99,9 @@ class AxisModell {
     }
     
     @MainActor
-    func reset(selectedVolume: String) async {
-        volumeModell.axisLoaded = false
-        volumeModell.reset(selectedVolume: selectedVolume)
+    func createEntityList(dataset: QVis, loadedVolume: String) async {
+        self.loadedVolume = loadedVolume
         
-        await loadAllEntities()
-        
-        volumeModell.updateTransformation(.identity)
-        
-        volumeModell.axisLoaded = true
-        updateAllAxis()
-    }
-    
-    @MainActor
-    func createEntityList() async {
         axises.removeAll()
         
         axises.append(axisList(listEntity: Entity(), materialEntity: [], axisName: "zPositive"))
@@ -126,43 +111,34 @@ class AxisModell {
         axises.append(axisList(listEntity: Entity(), materialEntity: [], axisName: "yPositive"))
         axises.append(axisList(listEntity: Entity(), materialEntity: [], axisName: "yNegative"))
         
-        let axisRenderer: AxisRenderer = AxisRenderer(dataset: volumeModell.dataset)
+        let axisRenderer: AxisRenderer = AxisRenderer(dataset: dataset)
         for i in 0...axises.count-1 {
             axises[i].materialEntity = await axisRenderer.createEntities(axis: axises[i].axisName)
-            addEntities(root: volumeModell.root!, axisList: &axises[i])
+            addEntities(root: root!, axisList: &axises[i])
         }
     }
     
     @MainActor
     func loadAllEntities() async {
-        volumeModell.loading = true
-        
         let scene = try! await Entity(named: "Plane", in: realityKitContentBundle)
         
-        if (volumeModell.root == nil) {
-            volumeModell.root = scene.findEntity(named: "root")!
+        if (root == nil) {
+            root = scene.findEntity(named: "root")!
         }
-        volumeModell.root!.children.removeAll();
+        root!.children.removeAll();
 
         rotater = scene.findEntity(named: "Rotater")!
         rotater.components.set(InputTargetComponent())
         rotater.generateCollisionShapes(recursive: false)
-        volumeModell.root!.addChild(rotater)
+        root!.addChild(rotater)
 
         clipBoxX = scene.findEntity(named: "clipBoxX")!
         clipBoxY = scene.findEntity(named: "clipBoxY")!
         clipBoxZ = scene.findEntity(named: "clipBoxZ")!
         resetClipPlanes()
         
-        volumeModell.root!.addChild(clipBoxX)
-        volumeModell.root!.addChild(clipBoxY)
-        volumeModell.root!.addChild(clipBoxZ)
-        
-        await createEntityList()
-
-        volumeModell.root!.transform.translation = START_TRANSLATION
-        
-        volumeModell.updateTransformation(.identity)
-        volumeModell.loading = false
+        root!.addChild(clipBoxX)
+        root!.addChild(clipBoxY)
+        root!.addChild(clipBoxZ)
     }
 }

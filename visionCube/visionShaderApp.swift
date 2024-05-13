@@ -7,23 +7,19 @@ let START_VOLUME: String = "c60"
 @main
 struct visionShaderApp: App {
     @State private var volumeModell: VolumeModell
-    @State private var axisModell: AxisModell
-    
     @State private var visionProPose = VisionProPositon()
     
     init() {
-        let volumeModell = VolumeModell()
-        self.axisModell = AxisModell(volumeModell: volumeModell)
-        self.volumeModell = volumeModell
+        self.volumeModell = VolumeModell()
     }
     
     var body: some Scene {
         WindowGroup {
-            VolumeControll(axisModell: axisModell, volumeModell: volumeModell, visionProPose: visionProPose)
+            VolumeControll(volumeModell: volumeModell, visionProPose: visionProPose)
         }.windowStyle(.plain)
         
         ImmersiveSpace(id: "AxisView") {
-            AxisView(axisModell: axisModell, visionProPose: visionProPose)
+            AxisView(volumeModell: volumeModell, visionProPose: visionProPose)
         }.immersionStyle(selection: .constant(.mixed), in: .mixed)
         
         ImmersiveSpace(id: "FullView") {
