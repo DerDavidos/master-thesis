@@ -64,7 +64,7 @@ class FullView {
         
         do {
             pipelineState = try buildRenderPipelineWithDevice(device: device,
-                                                              layerRenderer: layerRenderer, lighting: volumeModell.lighting)
+                                                              layerRenderer: layerRenderer, shader: volumeModell.selectedShader)
         } catch {
             fatalError("Unable to compile render pipeline state.  Error info: \(error)")
         }
@@ -186,10 +186,10 @@ class FullView {
             texture = try! loadTexture(device: device, dataset: volumeModell.dataset)
         }
         
-        if (volumeModell.lightingNeedsUpdate) {
+        if (volumeModell.shaderNeedsUpdate) {
             pipelineState = try! buildRenderPipelineWithDevice(device: device,
-                                                               layerRenderer: layerRenderer, lighting: volumeModell.lighting)
-            volumeModell.lightingNeedsUpdate = false
+                                                               layerRenderer: layerRenderer, shader: volumeModell.selectedShader)
+            volumeModell.shaderNeedsUpdate = false
         }
         
         frame.startUpdate()

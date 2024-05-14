@@ -33,7 +33,7 @@ class FullControls {
                 } else {
                     v2 = event.inputDevicePose!.pose3D.position.vector
                 }
-                print(event.inputDevicePose!.pose3D.position)
+
             case .cancelled, .ended:
                 volumeModell.lastTransform.scale = volumeModell.transform.scale
                 tmpDistance = 0

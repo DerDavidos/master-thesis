@@ -73,7 +73,7 @@ float3 computeNormal(float3 vCenter, float3 volSize, float3 DomainScale, texture
     return vNormal;
 }
 
-half4 fragment fragmentMain( v2f in [[stage_in]],
+half4 fragment fragmentMainStandard( v2f in [[stage_in]],
                             ushort amp_id [[amplification_id]],
                             texture3d< half, access::sample > volume [[texture(0)]],
                             device const ParamsArray& renderArray [[buffer(0)]])
@@ -138,6 +138,74 @@ half4 fragment fragmentMainLighting( v2f in [[stage_in]],
         result = under(current, result);
         if (result.a > 0.95) break;
     } while (inBounds(currentPoint, renderParams));
+    
+    return half4( result );
+}
+
+half4 fragment fragmentMainISO( v2f in [[stage_in]],
+                               ushort amp_id [[amplification_id]],
+                               texture3d< half, access::sample > volume [[texture(0)]],
+                               device const ParamsArray& renderArray [[buffer(0)]])
+{
+    
+    ShaderRenderParamaters renderParams = renderArray.params[amp_id];
+    const float iso = renderParams.smoothStepStart;
+    
+    constexpr sampler s( address::clamp_to_border, filter::linear );
+    float3 voxelCount = float3(volume.get_width(), volume.get_height(), volume.get_depth());
+    
+    float3 rayDirectionInTextureSpace = normalize(in.entryPoint-renderParams.cameraPosInTextureSpace);
+    
+    // compute delta
+    float samples = dot(abs(rayDirectionInTextureSpace),voxelCount);
+    float3 delta = rayDirectionInTextureSpace/(samples*renderParams.oversampling);
+    
+    float3 currentPoint = in.entryPoint;
+    float4 result = 0.0;
+    do {
+        float volumeValue = volume.sample( s, currentPoint ).r;
+        currentPoint += delta;
+        float4 current = float4(volumeValue);
+        
+        if (current.a >= iso) {
+            return half4( half3(current.rgb) ,1 );
+        }
+    } while (inBounds(currentPoint,renderParams));
+    
+    return half4( result );
+}
+
+half4 fragment fragmentMainISOLighting( v2f in [[stage_in]],
+                                       ushort amp_id [[amplification_id]],
+                                       texture3d< half, access::sample > volume [[texture(0)]],
+                                       device const ParamsArray& renderArray [[buffer(0)]])
+{
+    ShaderRenderParamaters renderParams = renderArray.params[amp_id];
+    const float iso = renderParams.smoothStepStart;
+    
+    constexpr sampler s( address::clamp_to_border, filter::linear );
+    float3 voxelCount = float3(volume.get_width(), volume.get_height(), volume.get_depth());
+    
+    float3 rayDirectionInTextureSpace = normalize(in.entryPoint-renderParams.cameraPosInTextureSpace);
+    
+    // compute delta
+    float samples = dot(abs(rayDirectionInTextureSpace),voxelCount);
+    float3 delta = rayDirectionInTextureSpace/(samples*renderParams.oversampling);
+    
+    float3 currentPoint = in.entryPoint;
+    float4 result = 0.0;
+    do {
+        float volumeValue = volume.sample( s, currentPoint ).r;
+        currentPoint += delta;
+        float4 current = float4(volumeValue);
+        
+        if (current.a >= iso) {
+            float3 normal = computeNormal(currentPoint, voxelCount, float3(1,1,1), volume);
+            current.rgb = lighting((renderParams.modelView*float4((currentPoint-0.5)*2,1)).xyz,
+                                   (renderParams.modelViewIT*float4(normal,0)).xyz, float3(0.5,0.5,0.5));
+            return half4( half3(current.rgb) ,1 );
+        }
+    } while (inBounds(currentPoint,renderParams));
     
     return half4( result );
 }

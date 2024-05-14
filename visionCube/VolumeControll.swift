@@ -99,7 +99,7 @@ struct VolumeControll: View {
                 
                 Spacer()
                 GridRow {
-                    Text("Start:").font(.title)
+                    Text(volumeModell.selectedShader.contains("ISO") ? "ISO:" : "Start:").font(.title)
                     Slider(value: $volumeModell.smoothStepStart, in: 0...1) { editing in
                         if (!editing) {
                             volumeModell.updateAllAxis()
@@ -113,7 +113,7 @@ struct VolumeControll: View {
                             volumeModell.updateAllAxis()
                         }
                     }.opacity(volumeModell.loading ? 0.0 : 1.0)
-                }
+                }.opacity(volumeModell.selectedShader.contains("ISO") ? 0.0 : 1.0)
                 
                 GridRow {
                     Toggle("X Clip", isOn: $axisModell.clipBoxX.isEnabled)
@@ -122,29 +122,24 @@ struct VolumeControll: View {
                         .font(.title)
                     Toggle("Z Clip", isOn: $axisModell.clipBoxZ.isEnabled)
                         .font(.title)
-                }.padding(10)
+                }.padding(10).opacity(volumeModell.fullView ? 0.0 : 1.0)
                 
-                GridRow {
-                    Text("Lighting").font(.title)
-                    Toggle("", isOn: $volumeModell.lighting)
-                        .font(.extraLargeTitle)
-                        .onChange(of: volumeModell.lighting) { _, newValue in
-                            volumeModell.lightingNeedsUpdate = true
-                        }
-//                    NavigationStack {
-//                        Form {
-//                            Section {
-//                                Picker("Shader", selection: $volumeModell.selectedShader) {
-//                                    Text("Standard")
-//                                    Text("Lighting")
-//                                }.onChange(of: volumeModell.selectedShader) {
-//                                    volumeModell.shaderNeedsUpdate = true
-//                                }
-//                                .font(.title)
-//                            }.opacity(volumeModell.loading ? 0.0 : 1.0)
-//                        }
-//                    }.padding(10)
-                }.opacity(volumeModell.fullView ? 1.0 : 0.0)
+                NavigationStack {
+                    Form {
+                        Section {
+                            Picker("Shader", selection: $volumeModell.selectedShader) {
+                                
+                                ForEach(["Standard", "Lighting", "ISO", "ISOLighting"], id: \.self) {
+                                    Text($0)
+                                }
+                            }.onChange(of: volumeModell.selectedShader) {
+                                print(volumeModell.selectedShader)
+                                volumeModell.shaderNeedsUpdate = true
+                            }
+                            .font(.title)
+                        }.opacity(volumeModell.loading ? 0.0 : 1.0)
+                    }
+                }.padding(10).opacity(volumeModell.axisView ? 0.0 : 1.0)
                 
                 NavigationStack {
                     Form {
@@ -158,7 +153,7 @@ struct VolumeControll: View {
                                     await volumeModell.reset(selectedVolume: volumeModell.selectedVolume)
                                 }
                             }
-                            .font(.title    )
+                            .font(.title)
                         }.opacity(volumeModell.loading ? 0.0 : 1.0)
                     }
                 }.padding(10)

@@ -5,7 +5,7 @@ import RealityKitContent
 import ARKit
 import Accelerate
 
-let START_TRANSLATION = SIMD3<Float>(x: 0, y: 1.0, z: -1.2)
+let START_TRANSLATION = SIMD3<Float>(x: 0, y: 1.0, z: -1.15)
 let START_SCALE = SIMD3<Float>(1 , 1, 1) * 0.3
 let START_ROTATION: simd_quatf = simd_quatf(.identity)
 let START_SMOOTH_STEP_START: Float = 0
@@ -34,8 +34,8 @@ class VolumeModell {
     var dataset: QVis!
     var selectedVolume = START_VOLUME
     
-    var lighting = false;
-    var lightingNeedsUpdate = false;
+    var selectedShader = "Standard";
+    var shaderNeedsUpdate = false;
     
     init() {
         dataset = try! QVis(filename: getFromResource(strFileName: selectedVolume, ext: "dat"))

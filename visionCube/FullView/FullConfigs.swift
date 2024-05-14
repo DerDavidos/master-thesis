@@ -26,19 +26,14 @@ func buildMetalVertexDescriptor() -> MTLVertexDescriptor {
     return mtlVertexDescriptor
 }
 
-func buildRenderPipelineWithDevice(device: MTLDevice, layerRenderer: LayerRenderer, lighting: Bool) throws -> MTLRenderPipelineState {
+func buildRenderPipelineWithDevice(device: MTLDevice, layerRenderer: LayerRenderer, shader: String) throws -> MTLRenderPipelineState {
     let mtlVertexDescriptor = buildMetalVertexDescriptor()
     
     let library = device.makeDefaultLibrary()
     
     let vertexFunction = library?.makeFunction(name: "vertexMain")
-    
-    var fragmentFunction: MTLFunction!
-    if (lighting) {
-        fragmentFunction = library?.makeFunction(name: "fragmentMainLighting")
-    } else {
-        fragmentFunction = library?.makeFunction(name: "fragmentMain")
-    }
+
+    let fragmentFunction = library?.makeFunction(name: "fragmentMain" + shader)
     
     let pipelineDescriptor = MTLRenderPipelineDescriptor()
     pipelineDescriptor.label = "RenderPipeline"
