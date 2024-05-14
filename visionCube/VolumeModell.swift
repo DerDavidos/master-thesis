@@ -19,14 +19,14 @@ class VolumeModell {
     
     var smoothStepStart: Float = START_SMOOTH_STEP_START
     var smoothStepShift: Float = START_SMOOTH_STEP_SHIFT
-
+    
     var XClip: Float = 0.0
     var YClip: Float = 0.0
     var ZClip: Float = 0.0
     
     var transform: Transform = START_TRANSFORM
     var lastTransform: Transform = START_TRANSFORM
-
+    
     var loading = false
     var axisView = false
     var fullView = false
@@ -40,7 +40,7 @@ class VolumeModell {
     init() {
         dataset = try! QVis(filename: getFromResource(strFileName: selectedVolume, ext: "dat"))
     }
-
+    
     @MainActor
     func initAxisView() async {
         if !axisModell.axisLoaded || axisModell.loadedVolume != selectedVolume {

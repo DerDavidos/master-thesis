@@ -31,7 +31,7 @@ struct QVisDatLine {
             s.removeSubrange(lastNonWhitespaceIndex..<s.endIndex)
         }
     }
-
+    
     private func trim(_ s: inout String) {
         ltrim(&s)
         rtrim(&s)
@@ -46,6 +46,62 @@ class QVis {
         try load(filename: filename)
     }
     
+    fileprivate func convert16to8Bit(_ rawFile: Data) -> [UInt8]{
+        let data16Bit = rawFile.withUnsafeBytes { rawBufferPointer -> [UInt16] in
+            let bufferPointer = rawBufferPointer.bindMemory(to: UInt16.self)
+            return Array(bufferPointer)
+        }
+        
+        var minVal = data16Bit[0]
+        var maxVal = data16Bit[0]
+        for val in data16Bit {
+            minVal = min(minVal, val)
+            maxVal = max(maxVal, val)
+        }
+        
+        var data: [UInt8] = Array()
+        for i in 0..<data16Bit.count {
+            let tmp = 255 * (UInt(data16Bit[i] - minVal))
+            let normalizedValue = tmp / (UInt(maxVal - minVal) + 1)
+            
+            data.append(UInt8(normalizedValue))
+        }
+        return data
+    }
+    
+    fileprivate func readDataFile(_ lines: [String], _ p: URL, _ rawFilename: inout String, _ needsConversion: inout Bool) throws {
+        for line in lines {
+            let l = QVisDatLine(line)
+            if l.id == "objectfilename" {
+                if p.deletingLastPathComponent().path.isEmpty {
+                    rawFilename = l.value
+                } else {
+                    rawFilename = p.deletingLastPathComponent().path + "/" + l.value
+                }
+            } else if l.id == "resolution" {
+                let t = l.value.components(separatedBy: " ")
+                if t.count != 3 {
+                    throw QVisFileException(message: "invalid resolution tag")
+                }
+                guard let width = UInt(t[0]), let height = UInt(t[1]), let depth = UInt(t[2]) else {
+                    throw QVisFileException(message: "invalid resolution tag")
+                }
+                volume.width = width
+                volume.height = height
+                volume.depth = depth
+                volume.maxSize = max(width, max(height, depth))
+            } else if l.id == "format" {
+                if l.value != "char" && l.value != "uchar" && l.value != "byte" {
+                    needsConversion = true
+                }
+            } else if l.id == "endianess" {
+                if l.value != "little" {
+                    throw QVisFileException(message: "only little endian data supported by this mini-reader")
+                }
+            }
+        }
+    }
+    
     func load(filename: String) throws {
         guard let datfile = FileManager.default.contents(atPath: filename) else {
             throw QVisFileException(message: "Unable to read file \(filename)")
@@ -56,36 +112,7 @@ class QVis {
         var rawFilename = ""
         
         if let lines = String(data: datfile, encoding: .utf8)?.components(separatedBy: .newlines) {
-            for line in lines {
-                let l = QVisDatLine(line)
-                if l.id == "objectfilename" {
-                    if p.deletingLastPathComponent().path.isEmpty {
-                        rawFilename = l.value
-                    } else {
-                        rawFilename = p.deletingLastPathComponent().path + "/" + l.value
-                    }
-                } else if l.id == "resolution" {
-                    let t = l.value.components(separatedBy: " ")
-                    if t.count != 3 {
-                        throw QVisFileException(message: "invalid resolution tag")
-                    }
-                    guard let width = UInt(t[0]), let height = UInt(t[1]), let depth = UInt(t[2]) else {
-                        throw QVisFileException(message: "invalid resolution tag")
-                    }
-                    volume.width = width
-                    volume.height = height
-                    volume.depth = depth
-                    volume.maxSize = max(width, max(height, depth))
-                } else if l.id == "format" {
-                    if l.value != "char" && l.value != "uchar" && l.value != "byte" {
-                        needsConversion = true
-                    }
-                } else if l.id == "endianess" {
-                    if l.value != "little" {
-                        throw QVisFileException(message: "only little endian data supported by this mini-reader")
-                    }
-                }
-            }
+            try readDataFile(lines, p, &rawFilename, &needsConversion)
         }
         
         if rawFilename.isEmpty {
@@ -93,25 +120,9 @@ class QVis {
         }
         
         let rawFile = try Data(contentsOf: URL(fileURLWithPath: rawFilename))
-    
+        
         if needsConversion {
-            let data = rawFile.withUnsafeBytes { (ptr: UnsafePointer<UInt16>) in
-                return UnsafeBufferPointer(start: ptr, count: rawFile.count / 2)
-            }
-
-            var minVal = data[0]
-            var maxVal = data[0]
-            for val in data {
-                minVal = min(minVal, val)
-                maxVal = max(maxVal, val)
-            }
-            
-            for i in 0..<data.count {
-                let tmp = 255 * (UInt(data[i] - minVal))
-                let normalizedValue = tmp / (UInt(maxVal - minVal) + 1)
-                
-                volume.data.append(UInt8(normalizedValue))
-            }
+            volume.data = convert16to8Bit(rawFile)
         } else {
             volume.data = [UInt8](rawFile)
         }

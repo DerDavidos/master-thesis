@@ -5,17 +5,15 @@ import ARKit
 import Accelerate
 
 struct AxisView: View {
-
-    init(volumeModell: VolumeModell, visionProPose: VisionProPositon) {
+    @State private var updateStackTimer: Timer?
+    
+    init(volumeModell: VolumeModell) {
         self.axisModell = volumeModell.axisModell
         self.volumeModell = volumeModell
-        self.visionProPose = visionProPose
     }
     
     var axisModell: AxisModell
     var volumeModell: VolumeModell
-    
-    var visionProPose: VisionProPositon
     
     var dragX: some Gesture {
         DragGesture(coordinateSpace: .local).targetedToEntity(axisModell.clipBoxX).onChanged{value in
@@ -56,7 +54,7 @@ struct AxisView: View {
             return
         }
         
-        let viewMatrixInv = await visionProPose.getTransform()
+        let viewMatrixInv = await visionProPosition!.getTransform()
         if (viewMatrixInv == nil) {
             return
         }
@@ -65,7 +63,7 @@ struct AxisView: View {
         
         let modelViewMatrixInv = modelMatrix.inverse * viewMatrixInv!
         let viewVector = modelViewMatrixInv * simd_float4(0, 0, 0, 1)
-
+        
         if (viewVector.z.magnitude > viewVector.x.magnitude && viewVector.z.magnitude > viewVector.y.magnitude) {
             if (viewVector.z > 0) {
                 axisModell.enableAxis(axisName: "zPositive")
@@ -109,11 +107,14 @@ struct AxisView: View {
             volumeModell.lastTransform = volumeModell.transform
         })
         .onAppear {
-            Timer.scheduledTimer(withTimeInterval: 0.2, repeats: true) { _ in
+            updateStackTimer = Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true) { _ in
                 Task {
                     await updateSliceStack()
                 }
             }
+        }
+        .onDisappear{
+            updateStackTimer!.invalidate()
         }
     }
 }
@@ -135,14 +136,14 @@ var manipulationGesture: some Gesture<AffineTransform3D> {
 extension SimultaneousGesture<
     SimultaneousGesture<DragGesture, MagnifyGesture>,
     RotateGesture3D>.Value {
-    func components() -> (Vector3D, Size3D, Rotation3D) {
-        let translation = self.first?.first?.translation3D ?? .zero
-        let magnification = self.first?.second?.magnification ?? 1
-        let size = Size3D(width: magnification, height: magnification, depth: magnification)
-        let rotation = self.second?.rotation ?? .identity
-        return (translation, size, rotation)
+        func components() -> (Vector3D, Size3D, Rotation3D) {
+            let translation = self.first?.first?.translation3D ?? .zero
+            let magnification = self.first?.second?.magnification ?? 1
+            let size = Size3D(width: magnification, height: magnification, depth: magnification)
+            let rotation = self.second?.rotation ?? .identity
+            return (translation, size, rotation)
+        }
     }
-}
 
 func makeToOtherCordinate(vector: SIMD3<Float>) -> SIMD3<Float> {
     return simd_float3(vector.x / 1000, vector.y / -1000, vector.z / 1000)

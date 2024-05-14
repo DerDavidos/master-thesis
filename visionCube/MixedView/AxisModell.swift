@@ -38,7 +38,7 @@ class AxisModell {
     
     @MainActor
     func enableAxis(axisName: String) {
-//        print(axisName)
+        //        print(axisName)
         for axis in axises {
             if (axis.axisName == axisName) {
                 axis.listEntity.isEnabled = true
@@ -85,7 +85,7 @@ class AxisModell {
         root.addChild(axisList.listEntity)
         axises.append(axisList)
     }
-
+    
     func resetClipPlanes() {
         clipBoxZ.position.z = -0.55
         clipBoxX.position.x = -0.55
@@ -126,12 +126,12 @@ class AxisModell {
             root = scene.findEntity(named: "root")!
         }
         root!.children.removeAll();
-
+        
         rotater = scene.findEntity(named: "Rotater")!
         rotater.components.set(InputTargetComponent())
         rotater.generateCollisionShapes(recursive: false)
         root!.addChild(rotater)
-
+        
         clipBoxX = scene.findEntity(named: "clipBoxX")!
         clipBoxY = scene.findEntity(named: "clipBoxY")!
         clipBoxZ = scene.findEntity(named: "clipBoxZ")!

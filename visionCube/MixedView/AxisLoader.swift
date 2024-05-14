@@ -36,7 +36,7 @@ class AxisRenderer {
         self.maxValue = Float(max(depth, height, width))
         self.layerDistance = 1 / maxValue
     }
-
+    
     func getTexture(id: Float, axis: String) -> TextureResource {
         let bitsPerComponent = 8
         let bitsPerPixel = 8
@@ -161,19 +161,19 @@ class AxisRenderer {
         let provider = CGDataProvider(dataInfo: nil, data: imageRawPointer!, size: imageWidth*imageHeight) { _, _, _ in}
         image = CGImage(width: imageWidth, height: imageHeight, bitsPerComponent: bitsPerComponent, bitsPerPixel: bitsPerPixel, bytesPerRow: imageWidth, space: colorSpace, bitmapInfo: bitmapInfo, provider: provider!, decode: nil, shouldInterpolate: false, intent: renderingIntent)!
         
-//        if (OVERSAMPLING < 1.0) {
-//            image = UIImage(cgImage: image).resize(height:CGFloat(image.height) / (1 / CGFloat(OVERSAMPLING))).cgImage!
-//        }
+        //        if (OVERSAMPLING < 1.0) {
+        //            image = UIImage(cgImage: image).resize(height:CGFloat(image.height) / (1 / CGFloat(OVERSAMPLING))).cgImage!
+        //        }
         
         let textureResource = try! TextureResource.generate(from: image, options: TextureResource.CreateOptions(semantic: .color, mipmapsMode: .allocateAndGenerateAll))
         return textureResource
     }
-
+    
     @MainActor
-     func createEntities(axis: String) async -> [MaterialEntity] {
+    func createEntities(axis: String) async -> [MaterialEntity] {
         var entities: [MaterialEntity] = []
         if let scene = try? await Entity(named: "Scene", in: realityKitContentBundle) {
-                 
+            
             var layers = 0
             switch axis {
             case "zPositive", "zNegative":
@@ -185,7 +185,7 @@ class AxisRenderer {
             default:
                 fatalError("Unexpected value \(axis)")
             }
-           
+            
             print("loading \(axis)")
             for layer in stride(from: 0.0, through: Float(layers - 3), by: 1/OVERSAMPLING) {
                 let entity = Entity()

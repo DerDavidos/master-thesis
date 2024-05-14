@@ -6,23 +6,23 @@ import SwiftUI
 
 func buildMetalVertexDescriptor() -> MTLVertexDescriptor {
     let mtlVertexDescriptor = MTLVertexDescriptor()
-
+    
     mtlVertexDescriptor.attributes[VertexAttribute.position.rawValue].format = MTLVertexFormat.float3
     mtlVertexDescriptor.attributes[VertexAttribute.position.rawValue].offset = 0
     mtlVertexDescriptor.attributes[VertexAttribute.position.rawValue].bufferIndex = BufferIndex.meshPositions.rawValue
-
+    
     mtlVertexDescriptor.attributes[VertexAttribute.texcoord.rawValue].format = MTLVertexFormat.float2
     mtlVertexDescriptor.attributes[VertexAttribute.texcoord.rawValue].offset = 0
     mtlVertexDescriptor.attributes[VertexAttribute.texcoord.rawValue].bufferIndex = BufferIndex.meshGenerics.rawValue
-
+    
     mtlVertexDescriptor.layouts[BufferIndex.meshPositions.rawValue].stride = 12
     mtlVertexDescriptor.layouts[BufferIndex.meshPositions.rawValue].stepRate = 1
     mtlVertexDescriptor.layouts[BufferIndex.meshPositions.rawValue].stepFunction = MTLVertexStepFunction.perVertex
-
+    
     mtlVertexDescriptor.layouts[BufferIndex.meshGenerics.rawValue].stride = 8
     mtlVertexDescriptor.layouts[BufferIndex.meshGenerics.rawValue].stepRate = 1
     mtlVertexDescriptor.layouts[BufferIndex.meshGenerics.rawValue].stepFunction = MTLVertexStepFunction.perVertex
-
+    
     return mtlVertexDescriptor
 }
 
@@ -30,7 +30,7 @@ func buildRenderPipelineWithDevice(device: MTLDevice, layerRenderer: LayerRender
     let mtlVertexDescriptor = buildMetalVertexDescriptor()
     
     let library = device.makeDefaultLibrary()
-
+    
     let vertexFunction = library?.makeFunction(name: "vertexMain")
     
     var fragmentFunction: MTLFunction!
@@ -56,7 +56,7 @@ func buildRenderPipelineWithDevice(device: MTLDevice, layerRenderer: LayerRender
 }
 
 func loadTexture(device: MTLDevice,
-                       dataset: QVis) throws -> MTLTexture {
+                 dataset: QVis) throws -> MTLTexture {
     /// Load texture data with optimal parameters for sampling
     let volumeTextureDesc = MTLTextureDescriptor()
     volumeTextureDesc.width = Int(dataset.volume.width)
@@ -66,13 +66,13 @@ func loadTexture(device: MTLDevice,
     volumeTextureDesc.textureType = .type3D
     
     let texture = device.makeTexture(descriptor: volumeTextureDesc)
-
+    
     texture!.replace(
-            region: MTLRegionMake3D(0, 0, 0, Int(dataset.volume.width), Int(dataset.volume.height), Int(dataset.volume.depth)),
-            mipmapLevel: 0, slice: 0,
-            withBytes: dataset.volume.data,
-            bytesPerRow: Int(dataset.volume.width),
-            bytesPerImage: Int(dataset.volume.width) * Int(dataset.volume.height)
+        region: MTLRegionMake3D(0, 0, 0, Int(dataset.volume.width), Int(dataset.volume.height), Int(dataset.volume.depth)),
+        mipmapLevel: 0, slice: 0,
+        withBytes: dataset.volume.data,
+        bytesPerRow: Int(dataset.volume.width),
+        bytesPerImage: Int(dataset.volume.width) * Int(dataset.volume.height)
     )
     return texture!
 }
@@ -92,7 +92,7 @@ struct ContentStageConfiguration: CompositorLayerConfiguration {
     func makeConfiguration(capabilities: LayerRenderer.Capabilities, configuration: inout LayerRenderer.Configuration) {
         configuration.depthFormat = .depth32Float
         configuration.colorFormat = .bgra8Unorm_srgb
-    
+        
         let foveationEnabled = capabilities.supportsFoveation
         configuration.isFoveationEnabled = foveationEnabled
         

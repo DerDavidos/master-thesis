@@ -15,11 +15,11 @@ let maxBuffersInFlight = 10
 class FullView {
     public let device: MTLDevice
     let commandQueue: MTLCommandQueue
-
+    
     var pipelineState: MTLRenderPipelineState
     var depthState: MTLDepthStencilState
     var texture: MTLTexture
-
+    
     let arSession: ARKitSession
     let worldTracking: WorldTrackingProvider
     let layerRenderer: LayerRenderer
@@ -33,7 +33,7 @@ class FullView {
     
     var cube: Tesselation!
     var meshNeedsUpdate = true
-   
+    
     var volumeModell: VolumeModell
     
     var volumeName: String
@@ -67,19 +67,19 @@ class FullView {
         self.layerRenderer = layerRenderer
         self.device = layerRenderer.device
         self.commandQueue = self.device.makeCommandQueue()!
-
+        
         do {
             pipelineState = try buildRenderPipelineWithDevice(device: device,
                                                               layerRenderer: layerRenderer, lighting: volumeModell.lighting)
         } catch {
             fatalError("Unable to compile render pipeline state.  Error info: \(error)")
         }
-
+        
         let depthStateDescriptor = MTLDepthStencilDescriptor()
         depthStateDescriptor.depthCompareFunction = MTLCompareFunction.greater
         depthStateDescriptor.isDepthWriteEnabled = true
         self.depthState = device.makeDepthStencilState(descriptor:depthStateDescriptor)!
-
+        
         do {
             texture = try loadTexture(device: device, dataset: volumeModell.dataset)
         } catch {
@@ -89,11 +89,11 @@ class FullView {
         self.vertexBuffer = nil
         
         self.matrixBuffer = self.device.makeBuffer(length: MemoryLayout<Matrices>.stride * 2,
-                                                           options: [MTLResourceOptions.storageModeShared])!
+                                                   options: [MTLResourceOptions.storageModeShared])!
         matrix = UnsafeMutableRawPointer(matrixBuffer.contents()).bindMemory(to: MatricesArray.self, capacity: 1)
         
         self.parameterBuffer = self.device.makeBuffer(length: MemoryLayout<RenderParams>.stride * 2,
-                                                           options: [MTLResourceOptions.storageModeShared])!
+                                                      options: [MTLResourceOptions.storageModeShared])!
         param = UnsafeMutableRawPointer(parameterBuffer.contents()).bindMemory(to: ParamsArray.self, capacity: 1)
         
         worldTracking = WorldTrackingProvider()
@@ -101,7 +101,7 @@ class FullView {
         cube = Tesselation.genBrick(center: Vec3(x: 0, y: 0, z: 0), size: Vec3(x: 1, y: 1, z: 1), texScale: Vec3(x: 1, y: 1, z: 1) ).unpack()
         
         self.vertexBuffer = self.device.makeBuffer(length: MemoryLayout<Float>.stride * cube.vertices.count,
-                                                           options: [MTLResourceOptions.storageModeShared])!
+                                                   options: [MTLResourceOptions.storageModeShared])!
         
         print("init")
     }
@@ -120,7 +120,7 @@ class FullView {
         let scale = SIMD3<Float>(volumeModell.transform.scale.x * Float(volumeModell.dataset.volume.width), volumeModell.transform.scale.y * Float(volumeModell.dataset.volume.height), volumeModell.transform.scale.z * Float(volumeModell.dataset.volume.depth)) / Float(volumeModell.dataset.volume.maxSize)
         
         let modelMatrix = Transform(scale: scale, rotation: volumeModell.transform.rotation, translation: translate).matrix
-    
+        
         let simdDeviceAnchor = deviceAnchor?.originFromAnchorTransform ?? matrix_identity_float4x4
         
         clipBoxSize.x = 1 - volumeModell.XClip
@@ -138,7 +138,7 @@ class FullView {
             
             let view = drawable.views[forView]
             let viewMatrix: simd_float4x4 = (simdDeviceAnchor * view.transform).inverse
-           
+            
             let projection: simd_float4x4 = simd_float4x4(ProjectiveTransform3D(leftTangent: Double(view.tangents[0]),
                                                                                 rightTangent: Double(view.tangents[1]),
                                                                                 topTangent: Double(view.tangents[2]),
@@ -162,9 +162,9 @@ class FullView {
             matrix.clip = clipBox
             matrix.modelViewProjection = projection * viewMatrix * modelMatrix * clipBox
         }
-     
+        
         projection(forView: 0, renderParams: &param.pointee.params.0, matrix: &matrix.pointee.matrices.0)
-
+        
         if drawable.views.count > 1 {
             projection(forView: 1, renderParams: &param.pointee.params.1, matrix: &matrix.pointee.matrices.1)
         }
@@ -190,7 +190,7 @@ class FullView {
         )
         
         let vertexDataSize = MemoryLayout<Float>.stride * verts.count
-  
+        
         vertexBuffer.contents().copyMemory(from: verts, byteCount: vertexDataSize * 2)
         vertCount = verts.count / 4
     }
@@ -249,15 +249,15 @@ class FullView {
         guard let renderEncoder = commandBuffer.makeRenderCommandEncoder(descriptor: renderPassDescriptor) else {
             fatalError("Failed to create render encoder")
         }
-
+        
         renderEncoder.setCullMode(.back)
         renderEncoder.setFrontFacing(.counterClockwise)
         renderEncoder.setRenderPipelineState(pipelineState)
         renderEncoder.setDepthStencilState(depthState)
-
+        
         renderEncoder.setVertexBuffer(vertexBuffer, offset: 0, index: 0)
         renderEncoder.setVertexBuffer(matrixBuffer, offset: 0, index: 1)
-    
+        
         let viewports = drawable.views.map { $0.textureMap.viewport }
         renderEncoder.setViewports(viewports)
         
@@ -272,7 +272,7 @@ class FullView {
         renderEncoder.setFragmentTexture(texture, index: TextureIndex.color.rawValue)
         
         renderEncoder.setFragmentBuffer(parameterBuffer, offset: 0, index: 0)
-
+        
         renderEncoder.drawPrimitives(type: MTLPrimitiveType.triangle, vertexStart: 0, vertexCount: vertCount)
         
         renderEncoder.popDebugGroup()
@@ -312,6 +312,79 @@ class FullView {
                     self.renderFrame()
                 }
             }
+        }
+    }
+    
+    private var tmpTranslation: SIMD3<Float> = .zero
+    private var tmpRotation: simd_quatf = .init(.identity)
+    private var tmpDistance: Double = 0.0
+    
+    func distanceBetweenVectors(v1: SIMD3<Double>, v2: SIMD3<Double>) -> Double {
+        let deltaX = v2.x - v1.x
+        let deltaY = v2.y - v1.y
+        let deltaZ = v2.z - v1.z
+        return sqrt(deltaX * deltaX + deltaY * deltaY + deltaZ * deltaZ)
+    }
+    
+    func handleSpatialEvents(_ events: SpatialEventCollection) {
+        if (events.count == 2) {
+            var v1: SIMD3<Double>?
+            var v2: SIMD3<Double>?
+            for event in events {
+                switch event.phase {
+                case .active:
+                    if v1 == nil {
+                        v1 = event.inputDevicePose!.pose3D.position.vector
+                    } else {
+                        v2 = event.inputDevicePose!.pose3D.position.vector
+                    }
+                    print(event.inputDevicePose!.pose3D.position)
+                case .cancelled:
+                    print("Event cancelled")
+                case .ended:
+                    volumeModell.lastTransform.scale = volumeModell.transform.scale
+                    tmpDistance = 0
+                    print("Event ended normally")
+                default:
+                    break
+                }
+            }
+            if (v1 != nil && v2 != nil) {
+                let distance = distanceBetweenVectors(v1: v1!, v2: v2!)
+                if tmpDistance == 0.0 {
+                    tmpDistance = distance
+                }
+                volumeModell.transform.scale = SIMD3(repeating: volumeModell.lastTransform.scale.x * (Float(distance - tmpDistance) + 1))
+                print((Float(distance - tmpDistance) + 1))
+            }
+           
+            print()
+            return
+        }
+        let event = events.first!
+        switch event.phase {
+        case .active:
+            if let pose = event.inputDevicePose {
+                if tmpTranslation == .zero {
+                    tmpTranslation = SIMD3<Float>(pose.pose3D.position.vector)
+                    tmpRotation = simd_quatf(pose.pose3D.rotation)
+                }
+                
+                let translate = (SIMD3<Float>(pose.pose3D.position.vector) - tmpTranslation) * 2
+                
+                volumeModell.transform.rotation = volumeModell.lastTransform.rotation * simd_quatf(pose.pose3D.rotation) * tmpRotation.inverse
+                volumeModell.transform.translation = volumeModell.lastTransform.translation + translate
+            }
+        case .cancelled:
+            print("Event cancelled")
+        case .ended:
+            print("Event ended normally")
+            volumeModell.lastTransform.translation = volumeModell.transform.translation
+            volumeModell.lastTransform.rotation = volumeModell.transform.rotation
+            tmpTranslation = .zero
+            tmpRotation = .init(.identity)
+        default:
+            break
         }
     }
 }

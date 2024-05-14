@@ -3,21 +3,21 @@ import RealityKit
 import SwiftUI
 
 func listRawFiles(at directoryPath: String) -> [String] {
-  do {
-    let fileManager = FileManager.default
-    let items = try fileManager.contentsOfDirectory(atPath: directoryPath)
-    
-    var rawFiles: [String] = []
-    for item in items {
-      if item.hasSuffix(".raw") {
-          rawFiles.append(item.split(separator: ".").first!.description)
-      }
+    do {
+        let fileManager = FileManager.default
+        let items = try fileManager.contentsOfDirectory(atPath: directoryPath)
+        
+        var rawFiles: [String] = []
+        for item in items {
+            if item.hasSuffix(".raw") {
+                rawFiles.append(item.split(separator: ".").first!.description)
+            }
+        }
+        return rawFiles
+    } catch {
+        print("Error getting directory contents: \(error)")
+        return []
     }
-    return rawFiles
-  } catch {
-    print("Error getting directory contents: \(error)")
-    return []
-  }
 }
 
 struct VolumeControll: View {
@@ -31,7 +31,29 @@ struct VolumeControll: View {
     
     var axisModell: AxisModell? = nil
     var volumeModell: VolumeModell
-    var visionProPose: VisionProPositon
+    
+    @MainActor
+    fileprivate func dismissSpaceIfShown() async {
+        if (immersiveSpaceIsShown) {
+            visionProPosition!.stopArSession()
+            await dismissImmersiveSpace()
+            immersiveSpaceIsShown = false
+        }
+    }
+    
+    @MainActor
+    fileprivate func openSpace(_ viewName: String) async {
+        switch await openImmersiveSpace(id: viewName) {
+        case .opened:
+            visionProPosition = VisionProPositon()
+            await visionProPosition!.runArSession()
+            immersiveSpaceIsShown = true
+        case .error, .userCancelled:
+            fallthrough
+        @unknown default:
+            immersiveSpaceIsShown = false
+        }
+    }
     
     @MainActor
     func updateView(viewActive: Bool, viewName : String ) async {
@@ -39,23 +61,11 @@ struct VolumeControll: View {
             return
         }
         if viewActive {
-            if immersiveSpaceIsShown {
-                await dismissImmersiveSpace()
-            }
-            switch await openImmersiveSpace(id: viewName) {
-            case .opened:
-                immersiveSpaceIsShown = true
-            case .error, .userCancelled:
-                fallthrough
-            @unknown default:
-                immersiveSpaceIsShown = false
-            }
-//            volumeModell.resetTransformation()
+            await dismissSpaceIfShown()
+            await openSpace(viewName)
+            //            volumeModell.resetTransformation()
         } else {
-            if (immersiveSpaceIsShown) {
-                await dismissImmersiveSpace()
-                immersiveSpaceIsShown = false
-            }
+            await dismissSpaceIfShown()
         }
     }
     
@@ -104,7 +114,7 @@ struct VolumeControll: View {
                         }
                     }.opacity(volumeModell.loading ? 0.0 : 1.0)
                 }
-                                
+                
                 GridRow {
                     Toggle("X Clip", isOn: $axisModell.clipBoxX.isEnabled)
                         .font(.title)
@@ -113,7 +123,7 @@ struct VolumeControll: View {
                     Toggle("Z Clip", isOn: $axisModell.clipBoxZ.isEnabled)
                         .font(.title)
                 }.padding(10)
-                  
+                
                 GridRow {
                     Text("Lighting").font(.title).opacity(volumeModell.fullView ? 1.0 : 0.0)
                     Toggle("", isOn: $volumeModell.lighting)
@@ -149,21 +159,16 @@ struct VolumeControll: View {
                 })
                 
             }.frame(alignment: .center)
-            .frame(width: 500, height: 500)
-            .padding(40)
-            .glassBackgroundEffect()
-            .onAppear {
-                Task {
-                    await visionProPose.runArSession()
-                }
-            }
-            .onDisappear {
-                Task {
-                    if immersiveSpaceIsShown {
-                        await dismissImmersiveSpace()
+                .frame(width: 500, height: 500)
+                .padding(40)
+                .glassBackgroundEffect()
+                .onDisappear {
+                    Task {
+                        if immersiveSpaceIsShown {
+                            await dismissImmersiveSpace()
+                        }
                     }
                 }
-            }
         }
     }
 }
