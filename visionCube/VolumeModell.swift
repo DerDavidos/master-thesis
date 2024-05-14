@@ -93,7 +93,7 @@ class VolumeModell {
     
     func updateTransformation(_ value: AffineTransform3D!) {
         transform.rotation = lastTransform.rotation * simd_quatf(value.rotation!)
-        transform.translation = lastTransform.translation + makeToOtherCordinate(vector: SIMD3<Float>(value.translation.vector))
+        transform.translation = lastTransform.translation + convertToMeters(vector: SIMD3<Float>(value.translation.vector))
         let scale: Float = Float(value.scale.width + value.scale.height + value.scale.depth) / 3
         transform.scale = lastTransform.scale * scale
     }

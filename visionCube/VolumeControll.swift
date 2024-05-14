@@ -125,13 +125,26 @@ struct VolumeControll: View {
                 }.padding(10)
                 
                 GridRow {
-                    Text("Lighting").font(.title).opacity(volumeModell.fullView ? 1.0 : 0.0)
+                    Text("Lighting").font(.title)
                     Toggle("", isOn: $volumeModell.lighting)
                         .font(.extraLargeTitle)
                         .onChange(of: volumeModell.lighting) { _, newValue in
                             volumeModell.lightingNeedsUpdate = true
-                        }.opacity(volumeModell.fullView ? 1.0 : 0.0)
-                }
+                        }
+//                    NavigationStack {
+//                        Form {
+//                            Section {
+//                                Picker("Shader", selection: $volumeModell.selectedShader) {
+//                                    Text("Standard")
+//                                    Text("Lighting")
+//                                }.onChange(of: volumeModell.selectedShader) {
+//                                    volumeModell.shaderNeedsUpdate = true
+//                                }
+//                                .font(.title)
+//                            }.opacity(volumeModell.loading ? 0.0 : 1.0)
+//                        }
+//                    }.padding(10)
+                }.opacity(volumeModell.fullView ? 1.0 : 0.0)
                 
                 NavigationStack {
                     Form {

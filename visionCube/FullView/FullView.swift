@@ -26,13 +26,7 @@ class FullView {
     
     var vertCount: size_t = 0
     
-    var view = simd_float4x4()
-    var model = simd_float4x4()
-    var clipBoxSize = simd_float3(1, 1, 1)
-    var clipBoxShift = simd_float3(0, 0, 0)
-    
     var cube: Tesselation!
-    var meshNeedsUpdate = true
     
     var volumeModell: VolumeModell
     
@@ -123,13 +117,16 @@ class FullView {
         
         let simdDeviceAnchor = deviceAnchor?.originFromAnchorTransform ?? matrix_identity_float4x4
         
+        var clipBoxSize = simd_float3(1, 1, 1)
         clipBoxSize.x = 1 - volumeModell.XClip
         clipBoxSize.y = 1 - volumeModell.YClip
         clipBoxSize.z = 1 - volumeModell.ZClip
         
+        var clipBoxShift = simd_float3(0, 0, 0)
         clipBoxShift.x = volumeModell.XClip / 2
         clipBoxShift.y = volumeModell.YClip / 2
         clipBoxShift.z = volumeModell.ZClip / 2
+        
         let clipBox = Transform(scale: clipBoxSize, translation: clipBoxShift).matrix
         let minBounds = clipBox * simd_float4(-0.5, -0.5, -0.5, 1.0) + 0.5
         let maxBounds = clipBox * simd_float4(0.5, 0.5, 0.5, 1.0) + 0.5
@@ -168,29 +165,15 @@ class FullView {
         if drawable.views.count > 1 {
             projection(forView: 1, renderParams: &param.pointee.params.1, matrix: &matrix.pointee.matrices.1)
         }
-        
-        meshNeedsUpdate = true
     }
     
     func clipCubeToNearplane() {
-        if !meshNeedsUpdate {
-            print("NO UPDATE")
-            return
-        }
-        
-        meshNeedsUpdate = false
-        
-        let objectSpaceNearPlane = simd_transpose(view * model) * simd_float4(0, 0, 1.0, 0.1 + 0.01)
         let verts = meshPlane(
             posData: cube.vertices,
-            A: objectSpaceNearPlane.x,
-            B: objectSpaceNearPlane.y,
-            C: objectSpaceNearPlane.z,
-            D: objectSpaceNearPlane.w
+            A: 0, B: 0,C: 0,D: 0
         )
-        
+
         let vertexDataSize = MemoryLayout<Float>.stride * verts.count
-        
         vertexBuffer.contents().copyMemory(from: verts, byteCount: vertexDataSize * 2)
         vertCount = verts.count / 4
     }
@@ -312,79 +295,6 @@ class FullView {
                     self.renderFrame()
                 }
             }
-        }
-    }
-    
-    private var tmpTranslation: SIMD3<Float> = .zero
-    private var tmpRotation: simd_quatf = .init(.identity)
-    private var tmpDistance: Double = 0.0
-    
-    func distanceBetweenVectors(v1: SIMD3<Double>, v2: SIMD3<Double>) -> Double {
-        let deltaX = v2.x - v1.x
-        let deltaY = v2.y - v1.y
-        let deltaZ = v2.z - v1.z
-        return sqrt(deltaX * deltaX + deltaY * deltaY + deltaZ * deltaZ)
-    }
-    
-    func handleSpatialEvents(_ events: SpatialEventCollection) {
-        if (events.count == 2) {
-            var v1: SIMD3<Double>?
-            var v2: SIMD3<Double>?
-            for event in events {
-                switch event.phase {
-                case .active:
-                    if v1 == nil {
-                        v1 = event.inputDevicePose!.pose3D.position.vector
-                    } else {
-                        v2 = event.inputDevicePose!.pose3D.position.vector
-                    }
-                    print(event.inputDevicePose!.pose3D.position)
-                case .cancelled:
-                    print("Event cancelled")
-                case .ended:
-                    volumeModell.lastTransform.scale = volumeModell.transform.scale
-                    tmpDistance = 0
-                    print("Event ended normally")
-                default:
-                    break
-                }
-            }
-            if (v1 != nil && v2 != nil) {
-                let distance = distanceBetweenVectors(v1: v1!, v2: v2!)
-                if tmpDistance == 0.0 {
-                    tmpDistance = distance
-                }
-                volumeModell.transform.scale = SIMD3(repeating: volumeModell.lastTransform.scale.x * (Float(distance - tmpDistance) + 1))
-                print((Float(distance - tmpDistance) + 1))
-            }
-           
-            print()
-            return
-        }
-        let event = events.first!
-        switch event.phase {
-        case .active:
-            if let pose = event.inputDevicePose {
-                if tmpTranslation == .zero {
-                    tmpTranslation = SIMD3<Float>(pose.pose3D.position.vector)
-                    tmpRotation = simd_quatf(pose.pose3D.rotation)
-                }
-                
-                let translate = (SIMD3<Float>(pose.pose3D.position.vector) - tmpTranslation) * 2
-                
-                volumeModell.transform.rotation = volumeModell.lastTransform.rotation * simd_quatf(pose.pose3D.rotation) * tmpRotation.inverse
-                volumeModell.transform.translation = volumeModell.lastTransform.translation + translate
-            }
-        case .cancelled:
-            print("Event cancelled")
-        case .ended:
-            print("Event ended normally")
-            volumeModell.lastTransform.translation = volumeModell.transform.translation
-            volumeModell.lastTransform.rotation = volumeModell.transform.rotation
-            tmpTranslation = .zero
-            tmpRotation = .init(.identity)
-        default:
-            break
         }
     }
 }

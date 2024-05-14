@@ -28,8 +28,9 @@ struct visionShaderApp: App {
                 let fullView = FullView(layerRenderer, volumeModell: volumeModell)
                 fullView.startRenderLoop()
                 
+                let fullControlls = FullControls(volumeModell: volumeModell)
                 layerRenderer.onSpatialEvent = { events in
-                    fullView.handleSpatialEvents(events)
+                    fullControlls.handleSpatialEvents(events)
                 }
             }
         }.immersionStyle(selection: .constant(.full), in: .full)

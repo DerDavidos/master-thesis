@@ -48,7 +48,7 @@ func splitTriangle(a: Vec3, b: Vec3, c: Vec3, fa: Float, fb: Float, fc: Float, n
     var intersectionB = Vec3()
     if rayPlaneIntersection(la: mutableA, lb: mutableC, n: normal, D: D, hit: &intersectionA),
        rayPlaneIntersection(la: mutableB, lb: mutableC, n: normal, D: D, hit: &intersectionB) {
-        print("error")
+        print("Clipper error")
     }
     
     if fc >= 0 {

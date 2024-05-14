@@ -145,6 +145,6 @@ extension SimultaneousGesture<
         }
     }
 
-func makeToOtherCordinate(vector: SIMD3<Float>) -> SIMD3<Float> {
+func convertToMeters(vector: SIMD3<Float>) -> SIMD3<Float> {
     return simd_float3(vector.x / 1000, vector.y / -1000, vector.z / 1000)
 }
