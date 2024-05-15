@@ -54,7 +54,7 @@ struct AxisView: View {
             return
         }
         
-        let viewMatrixInv = await visionProPosition!.getTransform()
+        let viewMatrixInv = await volumeModell.visionProPosition!.getTransform()
         if (viewMatrixInv == nil) {
             return
         }

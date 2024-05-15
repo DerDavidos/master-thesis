@@ -1,10 +1,16 @@
 import SwiftUI
 import CompositorServices
 
-let OVERSAMPLING: Float = 1
 let START_VOLUME: String = "c60"
 
-var visionProPosition: VisionProPositon?
+let START_OVERSAMPLING: Float = 1
+
+let START_SMOOTH_STEP_START: Float = 0
+let START_SMOOTH_STEP_SHIFT: Float = 0.5
+
+let START_TRANSLATION = SIMD3<Float>(x: 0, y: 1.0, z: -1.15)
+let START_SCALE = SIMD3<Float>(1 , 1, 1) * 0.3
+let START_ROTATION: simd_quatf = simd_quatf(.identity)
 
 @main
 struct visionShaderApp: App {

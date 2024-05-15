@@ -28,6 +28,7 @@ class AxisModell {
     var root: Entity?
     
     var axisLoaded = false
+    var oversampling = START_OVERSAMPLING
     
     var loadedVolume: String
     
@@ -113,7 +114,7 @@ class AxisModell {
         
         let axisRenderer: AxisRenderer = AxisRenderer(dataset: dataset)
         for i in 0...axises.count-1 {
-            axises[i].materialEntity = await axisRenderer.createEntities(axis: axises[i].axisName)
+            axises[i].materialEntity = await axisRenderer.createEntities(axis: axises[i].axisName, oversampling: oversampling)
             addEntities(root: root!, axisList: &axises[i])
         }
     }

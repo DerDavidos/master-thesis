@@ -161,8 +161,8 @@ class AxisRenderer {
         let provider = CGDataProvider(dataInfo: nil, data: imageRawPointer!, size: imageWidth*imageHeight) { _, _, _ in}
         image = CGImage(width: imageWidth, height: imageHeight, bitsPerComponent: bitsPerComponent, bitsPerPixel: bitsPerPixel, bytesPerRow: imageWidth, space: colorSpace, bitmapInfo: bitmapInfo, provider: provider!, decode: nil, shouldInterpolate: false, intent: renderingIntent)!
         
-        //        if (OVERSAMPLING < 1.0) {
-        //            image = UIImage(cgImage: image).resize(height:CGFloat(image.height) / (1 / CGFloat(OVERSAMPLING))).cgImage!
+        //        if (oversampling < 1.0) {
+        //            image = UIImage(cgImage: image).resize(height:CGFloat(image.height) / (1 / CGFloat(oversampling))).cgImage!
         //        }
         
         let textureResource = try! TextureResource.generate(from: image, options: TextureResource.CreateOptions(semantic: .color, mipmapsMode: .allocateAndGenerateAll))
@@ -170,7 +170,7 @@ class AxisRenderer {
     }
     
     @MainActor
-    func createEntities(axis: String) async -> [MaterialEntity] {
+    func createEntities(axis: String, oversampling: Float) async -> [MaterialEntity] {
         var entities: [MaterialEntity] = []
         if let scene = try? await Entity(named: "Scene", in: realityKitContentBundle) {
             
@@ -187,7 +187,7 @@ class AxisRenderer {
             }
             
             print("loading \(axis)")
-            for layer in stride(from: 0.0, through: Float(layers - 3), by: 1/OVERSAMPLING) {
+            for layer in stride(from: 0.0, through: Float(layers - 3), by: 1/oversampling) {
                 let entity = Entity()
                 var material: ShaderGraphMaterial? = nil
                 let offset = Float(layer) * layerDistance
@@ -253,7 +253,7 @@ class AxisRenderer {
                 default:
                     fatalError("Unexpected value \(axis)")}
                 
-                try? material?.setParameter(name: "opacityCorrection", value: .float(Float(maxValue) * OVERSAMPLING))
+                try? material?.setParameter(name: "opacityCorrection", value: .float(Float(maxValue) * oversampling))
                 
                 let materialEntity = MaterialEntity(entity: entity, material: material!, width: pWidth, height: pHeight)
                 entities.append(materialEntity)

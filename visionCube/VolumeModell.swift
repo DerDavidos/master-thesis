@@ -5,16 +5,12 @@ import RealityKitContent
 import ARKit
 import Accelerate
 
-let START_TRANSLATION = SIMD3<Float>(x: 0, y: 1.0, z: -1.15)
-let START_SCALE = SIMD3<Float>(1 , 1, 1) * 0.3
-let START_ROTATION: simd_quatf = simd_quatf(.identity)
-let START_SMOOTH_STEP_START: Float = 0
-let START_SMOOTH_STEP_SHIFT: Float = 0.5
-
 let START_TRANSFORM = Transform(scale: START_SCALE, rotation: START_ROTATION, translation: START_TRANSLATION)
 
 @Observable
 class VolumeModell {
+    var visionProPosition: VisionProPositon?
+    
     var axisModell: AxisModell = AxisModell(loadedVolume: START_VOLUME)
     
     var smoothStepStart: Float = START_SMOOTH_STEP_START
@@ -37,13 +33,17 @@ class VolumeModell {
     var selectedShader = "Standard";
     var shaderNeedsUpdate = false;
     
+    var oversampling = START_OVERSAMPLING
+    
     init() {
         dataset = try! QVis(filename: getFromResource(strFileName: selectedVolume, ext: "dat"))
     }
     
     @MainActor
     func initAxisView() async {
-        if !axisModell.axisLoaded || axisModell.loadedVolume != selectedVolume {
+        if !axisModell.axisLoaded || axisModell.loadedVolume != selectedVolume || oversampling != axisModell.oversampling {
+            axisModell.oversampling = oversampling
+            print(oversampling)
             loading = true
             await axisModell.loadAllEntities()
             await axisModell.createEntityList(dataset: dataset, loadedVolume: selectedVolume)
@@ -58,7 +58,7 @@ class VolumeModell {
     }
     
     @MainActor
-    func reset(selectedVolume: String) async {
+    func reset() async {
         loading = true
         dataset = try! QVis(filename: getFromResource(strFileName: selectedVolume, ext: "dat"))
         

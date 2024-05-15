@@ -35,7 +35,7 @@ struct VolumeControll: View {
     @MainActor
     fileprivate func dismissSpaceIfShown() async {
         if (immersiveSpaceIsShown) {
-            visionProPosition!.stopArSession()
+            volumeModell.visionProPosition!.stopArSession()
             await dismissImmersiveSpace()
             immersiveSpaceIsShown = false
         }
@@ -45,8 +45,8 @@ struct VolumeControll: View {
     fileprivate func openSpace(_ viewName: String) async {
         switch await openImmersiveSpace(id: viewName) {
         case .opened:
-            visionProPosition = VisionProPositon()
-            await visionProPosition!.runArSession()
+            volumeModell.visionProPosition = VisionProPositon()
+            await volumeModell.visionProPosition!.runArSession()
             immersiveSpaceIsShown = true
         case .error, .userCancelled:
             fallthrough
@@ -63,7 +63,7 @@ struct VolumeControll: View {
         if viewActive {
             await dismissSpaceIfShown()
             await openSpace(viewName)
-            //            volumeModell.resetTransformation()
+            volumeModell.resetTransformation()
         } else {
             await dismissSpaceIfShown()
         }
@@ -114,6 +114,19 @@ struct VolumeControll: View {
                         }
                     }.opacity(volumeModell.loading ? 0.0 : 1.0)
                 }.opacity(volumeModell.selectedShader.contains("ISO") ? 0.0 : 1.0)
+                GridRow {
+                    Text("Oversampling:").font(.title2)
+                    TextField(
+                        "Oversampling", value: $volumeModell.oversampling, format: .number
+                    ).onSubmit {
+                        Task {
+                            await volumeModell.reset()
+                        }
+                    }.keyboardType(.decimalPad)
+                        .font(.title)
+                        .frame(alignment: .trailing)
+                }.opacity(volumeModell.loading ? 0.0 : 1.0)
+                    .frame(width: 180)
                 
                 GridRow {
                     Toggle("X Clip", isOn: $axisModell.clipBoxX.isEnabled)
@@ -124,50 +137,46 @@ struct VolumeControll: View {
                         .font(.title)
                 }.padding(10).opacity(volumeModell.fullView ? 0.0 : 1.0)
                 
-                NavigationStack {
-                    Form {
-                        Section {
-                            Picker("Shader", selection: $volumeModell.selectedShader) {
-                                
-                                ForEach(["Standard", "Lighting", "ISO", "ISOLighting"], id: \.self) {
-                                    Text($0)
-                                }
-                            }.onChange(of: volumeModell.selectedShader) {
-                                print(volumeModell.selectedShader)
-                                volumeModell.shaderNeedsUpdate = true
+                Form {
+                    Section {
+                        Picker("Shader", selection: $volumeModell.selectedShader) {
+                            
+                            ForEach(["Standard", "Lighting", "ISO", "ISOLighting"], id: \.self) {
+                                Text($0)
                             }
-                            .font(.title)
-                        }.opacity(volumeModell.loading ? 0.0 : 1.0)
-                    }
+                        }.onChange(of: volumeModell.selectedShader) {
+                            print(volumeModell.selectedShader)
+                            volumeModell.shaderNeedsUpdate = true
+                        }
+                        .font(.title)
+                    }.opacity(volumeModell.loading ? 0.0 : 1.0)
                 }.padding(10).opacity(volumeModell.axisView ? 0.0 : 1.0)
                 
-                NavigationStack {
-                    Form {
-                        Section {
-                            Picker("Volume", selection: $volumeModell.selectedVolume) {
-                                ForEach(listRawFiles(at: Bundle.main.resourcePath!), id: \.self) {
-                                    Text($0)
-                                }
-                            }.onChange(of: volumeModell.selectedVolume) {
-                                Task {
-                                    await volumeModell.reset(selectedVolume: volumeModell.selectedVolume)
-                                }
+                Form {
+                    Section {
+                        Picker("Volume", selection: $volumeModell.selectedVolume) {
+                            ForEach(listRawFiles(at: Bundle.main.resourcePath!), id: \.self) {
+                                Text($0)
                             }
-                            .font(.title)
-                        }.opacity(volumeModell.loading ? 0.0 : 1.0)
-                    }
+                        }.onChange(of: volumeModell.selectedVolume) {
+                            Task {
+                                await volumeModell.reset()
+                            }
+                        }
+                        .font(.title)
+                    }.opacity(volumeModell.loading ? 0.0 : 1.0)
                 }.padding(10)
                 
                 Button(action: {
                     Task {
-                        await volumeModell.reset(selectedVolume: volumeModell.selectedVolume)
+                        await volumeModell.reset()
                     }
                 }, label: {
                     Text("Reset").font(.title)
                 })
                 
             }.frame(alignment: .center)
-                .frame(width: 500, height: 500)
+                .frame(width: 500, height: 550)
                 .padding(40)
                 .glassBackgroundEffect()
                 .onDisappear {
