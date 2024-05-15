@@ -1,7 +1,7 @@
 import SwiftUI
 import CompositorServices
 
-let START_VOLUME: String = "c60"
+let START_VOLUME: String = "foot256"
 
 let START_OVERSAMPLING: Float = 1
 

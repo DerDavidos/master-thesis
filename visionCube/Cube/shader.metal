@@ -21,7 +21,7 @@ v2f vertex vertexMain( uint vertexId [[vertex_id]],
 }
 
 float transferFunction(float v, ShaderRenderParamaters params) {
-    v = clamp((v - params.smoothStepStart) / (params.smoothStepShift), 0.0, 1.0);
+    v = clamp((v - params.smoothStepStart) / params.smoothStepShift, 0.0, 1.0);
     return float(v * v * (3-2*v));
 }
 

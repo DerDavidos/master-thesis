@@ -146,7 +146,6 @@ class FullView {
             
             let viewToTexture = Transform(translation: SIMD3<Float>(0.5, 0.5,0.5)).matrix * simd_inverse(viewMatrix * modelMatrix)
             
-            renderParams.cameraPosInTextureSpace = simd_make_float3(viewToTexture * simd_float4(0, 0, 0, 1))
             renderParams.oversampling = volumeModell.oversampling
             renderParams.smoothStepStart = volumeModell.smoothStepStart
             renderParams.smoothStepShift = volumeModell.smoothStepShift

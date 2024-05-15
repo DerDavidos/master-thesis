@@ -120,9 +120,9 @@ struct VolumeControll: View {
                         "Oversampling", value: $volumeModell.oversampling, format: .number
                     ).onSubmit {
                         Task {
-                            await volumeModell.reset()
+                            await volumeModell.initAxisView()
                         }
-                    }.keyboardType(.decimalPad)
+                    }.keyboardType(.numbersAndPunctuation)
                         .font(.title)
                         .frame(alignment: .trailing)
                 }.opacity(volumeModell.loading ? 0.0 : 1.0)
@@ -145,7 +145,6 @@ struct VolumeControll: View {
                                 Text($0)
                             }
                         }.onChange(of: volumeModell.selectedShader) {
-                            print(volumeModell.selectedShader)
                             volumeModell.shaderNeedsUpdate = true
                         }
                         .font(.title)

@@ -41,14 +41,18 @@ class VolumeModell {
     
     @MainActor
     func initAxisView() async {
-        if !axisModell.axisLoaded || axisModell.loadedVolume != selectedVolume || oversampling != axisModell.oversampling {
-            axisModell.oversampling = oversampling
-            print(oversampling)
-            loading = true
-            await axisModell.loadAllEntities()
-            await axisModell.createEntityList(dataset: dataset, loadedVolume: selectedVolume)
-            axisModell.axisLoaded = true
-            loading = false
+        if axisView {
+            if !axisModell.axisLoaded || axisModell.loadedVolume != selectedVolume || oversampling != axisModell.oversampling {
+                axisModell.oversampling = oversampling
+                print(oversampling)
+                loading = true
+                await axisModell.loadAllEntities()
+                await axisModell.createEntityList(dataset: dataset, loadedVolume: selectedVolume)
+                axisModell.axisLoaded = true
+                loading = false
+            }
+            axisModell.root!.transform = transform
+            updateAllAxis()
         }
     }
     
@@ -62,6 +66,8 @@ class VolumeModell {
         loading = true
         dataset = try! QVis(filename: getFromResource(strFileName: selectedVolume, ext: "dat"))
         
+        oversampling = START_OVERSAMPLING
+        
         smoothStepStart = START_SMOOTH_STEP_START
         smoothStepShift = START_SMOOTH_STEP_SHIFT
         resetTransformation()
@@ -72,11 +78,8 @@ class VolumeModell {
         
         axisModell.resetClipPlanes()
         
-        if axisView {
-            await initAxisView()
-            axisModell.root!.transform = transform
-            updateAllAxis()
-        }
+        await initAxisView()
+
         loading = false
     }
     

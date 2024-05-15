@@ -17,7 +17,7 @@
 		6346945E2B7107720063817D /* AxisLoader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6346945D2B7107720063817D /* AxisLoader.swift */; };
 		635E81532BF3756B00978F4B /* FullControls.swift in Sources */ = {isa = PBXBuildFile; fileRef = 635E81522BF3756B00978F4B /* FullControls.swift */; };
 		6374FEA42B83811000F74D28 /* VisionProPosition.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6374FEA32B83811000F74D28 /* VisionProPosition.swift */; };
-		637F4EC52BA0BE2E0042A671 /* VolumeControll.swift in Sources */ = {isa = PBXBuildFile; fileRef = 637F4EC42BA0BE2E0042A671 /* VolumeControll.swift */; };
+		637F4EC52BA0BE2E0042A671 /* ControllMenu.swift in Sources */ = {isa = PBXBuildFile; fileRef = 637F4EC42BA0BE2E0042A671 /* ControllMenu.swift */; };
 		637F4EC72BA1A0CD0042A671 /* AxisModell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 637F4EC62BA1A0CD0042A671 /* AxisModell.swift */; };
 		6389E0942BDFE5CB00E10599 /* hand.dat in Resources */ = {isa = PBXBuildFile; fileRef = 6329F23F2BDFE47C007C0274 /* hand.dat */; };
 		6389E0952BDFE5CB00E10599 /* hand.raw in Resources */ = {isa = PBXBuildFile; fileRef = 6329F23E2BDFE47C007C0274 /* hand.raw */; };
@@ -59,7 +59,7 @@
 		6346945D2B7107720063817D /* AxisLoader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AxisLoader.swift; sourceTree = "<group>"; };
 		635E81522BF3756B00978F4B /* FullControls.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FullControls.swift; sourceTree = "<group>"; };
 		6374FEA32B83811000F74D28 /* VisionProPosition.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VisionProPosition.swift; sourceTree = "<group>"; };
-		637F4EC42BA0BE2E0042A671 /* VolumeControll.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VolumeControll.swift; sourceTree = "<group>"; };
+		637F4EC42BA0BE2E0042A671 /* ControllMenu.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ControllMenu.swift; sourceTree = "<group>"; };
 		637F4EC62BA1A0CD0042A671 /* AxisModell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AxisModell.swift; sourceTree = "<group>"; };
 		638E691D2B6AE81600DC2E98 /* Tesselation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Tesselation.swift; sourceTree = "<group>"; };
 		638E69202B6AE81600DC2E98 /* Vecs.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Vecs.swift; sourceTree = "<group>"; };
@@ -198,8 +198,8 @@
 				6346945F2B71A5490063817D /* dat */,
 				638E692B2B6AE84900DC2E98 /* Cube */,
 				63C245552B66CDC90037B3E1 /* visionShaderApp.swift */,
+				637F4EC42BA0BE2E0042A671 /* ControllMenu.swift */,
 				63318D552BA30FBC004F8061 /* VolumeModell.swift */,
-				637F4EC42BA0BE2E0042A671 /* VolumeControll.swift */,
 				6374FEA32B83811000F74D28 /* VisionProPosition.swift */,
 				63318D582BA30FD2004F8061 /* FullView */,
 				63318D572BA30FCA004F8061 /* MixedView */,
@@ -337,7 +337,7 @@
 				638E69292B6AE81600DC2E98 /* QVis.swift in Sources */,
 				638E692A2B6AE81600DC2E98 /* Volumes.swift in Sources */,
 				630868312B8F656600D14763 /* FullConfigs.swift in Sources */,
-				637F4EC52BA0BE2E0042A671 /* VolumeControll.swift in Sources */,
+				637F4EC52BA0BE2E0042A671 /* ControllMenu.swift in Sources */,
 				63C245562B66CDC90037B3E1 /* visionShaderApp.swift in Sources */,
 				637F4EC72BA1A0CD0042A671 /* AxisModell.swift in Sources */,
 				6346945E2B7107720063817D /* AxisLoader.swift in Sources */,
