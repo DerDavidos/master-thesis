@@ -7,6 +7,10 @@ struct v2f {
     float3 entryPoint;
 };
 
+struct v2fBlit {
+  float4 position [[position]];
+};
+
 v2f vertex vertexMain( uint vertexId [[vertex_id]],
                       ushort amp_id [[amplification_id]],
                       device const float4* position [[buffer(0)]],
@@ -208,4 +212,21 @@ half4 fragment fragmentMainISOLighting( v2f in [[stage_in]],
     } while (inBounds(currentPoint,renderParams));
     
     return half4( result );
+}
+
+v2fBlit vertex vertexMainBlit( uint vertexId [[vertex_id]],
+//                              ushort amp_id [[amplification_id]],
+                           device const float4* position [[buffer(0)]])
+{
+    v2fBlit o;
+    o.position = position[ vertexId ];
+    return o;
+}
+
+half4 fragment fragmentMainBlit( v2fBlit in [[stage_in]],
+//                                ushort amp_id [[amplification_id]],
+                                 texture2d< float, access::read > prevPass [[texture(0)]] )
+{
+//  return half4(prevPass.read(ushort2(in.position.xy)));
+    return half4(0.5);
 }

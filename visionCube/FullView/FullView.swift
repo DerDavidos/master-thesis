@@ -16,9 +16,10 @@ class FullView {
     public let device: MTLDevice
     let commandQueue: MTLCommandQueue
     
-    var pipelineState: MTLRenderPipelineState
-    var depthState: MTLDepthStencilState
-    var texture: MTLTexture
+    var renderPipelineStateFirst: MTLRenderPipelineState
+    var renderPipelineStateSecond: MTLRenderPipelineState
+    var depthStencilState: MTLDepthStencilState
+    var volumeTexture: MTLTexture
     
     let arSession: ARKitSession
     let worldTracking: WorldTrackingProvider
@@ -32,9 +33,12 @@ class FullView {
     
     var volumeName: String
     
-    var vertexBuffer: MTLBuffer!
-    var matrixBuffer: MTLBuffer
-    var parameterBuffer: MTLBuffer
+    var renderTargetTexture: MTLTexture!
+    var vertexDataBufferFullScreen: MTLBuffer!
+    
+    var vertexBufferCube: MTLBuffer!
+    var matrixBufferCube: MTLBuffer
+    var parameterBufferCube: MTLBuffer
     
     var matrix: UnsafeMutablePointer<MatricesArray>
     var param: UnsafeMutablePointer<ParamsArray>
@@ -63,8 +67,11 @@ class FullView {
         self.commandQueue = self.device.makeCommandQueue()!
         
         do {
-            pipelineState = try buildRenderPipelineWithDevice(device: device,
+            renderPipelineStateFirst = try buildFirstRenderPipelineWithDevice(device: device,
                                                               layerRenderer: layerRenderer, shader: volumeModell.selectedShader)
+            
+            renderPipelineStateSecond = try buildSecondRenderPipelineWithDevice(device: device,
+                                                              layerRenderer: layerRenderer)
         } catch {
             fatalError("Unable to compile render pipeline state.  Error info: \(error)")
         }
@@ -72,42 +79,55 @@ class FullView {
         let depthStateDescriptor = MTLDepthStencilDescriptor()
         depthStateDescriptor.depthCompareFunction = MTLCompareFunction.greater
         depthStateDescriptor.isDepthWriteEnabled = true
-        self.depthState = device.makeDepthStencilState(descriptor:depthStateDescriptor)!
+        self.depthStencilState = device.makeDepthStencilState(descriptor:depthStateDescriptor)!
         
         do {
-            texture = try loadTexture(device: device, dataset: volumeModell.dataset)
+            volumeTexture = try loadTexture(device: device, dataset: volumeModell.dataset)
         } catch {
             fatalError("Unable to load texture. Error info: \(error)")
         }
         
-        self.vertexBuffer = nil
+        self.vertexBufferCube = nil
         
-        self.matrixBuffer = self.device.makeBuffer(length: MemoryLayout<Matrices>.stride * 2,
+        self.matrixBufferCube = self.device.makeBuffer(length: MemoryLayout<Matrices>.stride * 2,
                                                    options: [MTLResourceOptions.storageModeShared])!
-        matrix = UnsafeMutableRawPointer(matrixBuffer.contents()).bindMemory(to: MatricesArray.self, capacity: 1)
+        matrix = UnsafeMutableRawPointer(matrixBufferCube.contents()).bindMemory(to: MatricesArray.self, capacity: 1)
         
-        self.parameterBuffer = self.device.makeBuffer(length: MemoryLayout<RenderParams>.stride * 2,
+        self.parameterBufferCube = self.device.makeBuffer(length: MemoryLayout<RenderParams>.stride * 2,
                                                       options: [MTLResourceOptions.storageModeShared])!
-        param = UnsafeMutableRawPointer(parameterBuffer.contents()).bindMemory(to: ParamsArray.self, capacity: 1)
+        param = UnsafeMutableRawPointer(parameterBufferCube.contents()).bindMemory(to: ParamsArray.self, capacity: 1)
         
         worldTracking = WorldTrackingProvider()
         arSession = ARKitSession()
         cube = Tesselation.genBrick(center: Vec3(x: 0, y: 0, z: 0), size: Vec3(x: 1, y: 1, z: 1), texScale: Vec3(x: 1, y: 1, z: 1) ).unpack()
         
-        self.vertexBuffer = self.device.makeBuffer(length: MemoryLayout<Float>.stride * cube.vertices.count,
+        self.vertexBufferCube = self.device.makeBuffer(length: MemoryLayout<Float>.stride * cube.vertices.count,
                                                    options: [MTLResourceOptions.storageModeShared])!
         
+        let tris: [Float] = [
+            2.0, -1.0, 0.0, 1.0,
+            -1.0, -1.0, 0.0, 1.0,
+            -1.0, 2.0, 0.0, 1.0
+        ]
+
+        let trisSize = tris.count * MemoryLayout<Float>.size
+        vertexDataBufferFullScreen = device.makeBuffer(length: trisSize)!
+        vertexDataBufferFullScreen.contents().copyMemory(from: tris, byteCount: trisSize)
+        
+        createFirstPassTexture(width: 1888, height: 1824)
+     
         print("init")
     }
     
-    func buildBuffers() {
-        print("buildBuffers")
-        let matrixDataSize = MemoryLayout<Matrices>.stride
-        let paramDataSize = MemoryLayout<RenderParams>.stride
-        
-        matrixBuffer = device.makeBuffer(length: matrixDataSize)!
-        parameterBuffer = device.makeBuffer(length: paramDataSize)!
-    }
+//    func buildBuffers() {
+//        print("buildBuffers")
+//        let matrixDataSize = MemoryLayout<Matrices>.stride
+//        let paramDataSize = MemoryLayout<RenderParams>.stride
+//        
+//        matrixBufferCube = device.makeBuffer(length: matrixDataSize)!
+//        parameterBufferCube = device.makeBuffer(length: paramDataSize)!
+//
+//    }
     
     func updateMatrices(drawable: LayerRenderer.Drawable,  deviceAnchor: DeviceAnchor?) {
         let translate = volumeModell.transform.translation
@@ -173,97 +193,136 @@ class FullView {
         )
 
         let vertexDataSize = MemoryLayout<Float>.stride * verts.count
-        vertexBuffer.contents().copyMemory(from: verts, byteCount: vertexDataSize * 2)
+        vertexBufferCube.contents().copyMemory(from: verts, byteCount: vertexDataSize * 2)
         vertCount = verts.count / 4
     }
     
-    func renderFrame() {
-        /// Per frame updates hare
-        guard let frame = layerRenderer.queryNextFrame() else { return }
-        
-        if (volumeName != volumeModell.selectedVolume) {
-            texture = try! loadTexture(device: device, dataset: volumeModell.dataset)
-        }
-        
-        if (volumeModell.shaderNeedsUpdate) {
-            pipelineState = try! buildRenderPipelineWithDevice(device: device,
-                                                               layerRenderer: layerRenderer, shader: volumeModell.selectedShader)
-            volumeModell.shaderNeedsUpdate = false
-        }
-        
-        frame.startUpdate()
-        frame.endUpdate()
-        
-        guard let timing = frame.predictTiming() else { return }
-        LayerRenderer.Clock().wait(until: timing.optimalInputTime)
-        
-        guard let commandBuffer = commandQueue.makeCommandBuffer() else {
-            fatalError("Failed to create command buffer")
-        }
-        
-        // Perform frame independent work
-        guard let drawable = frame.queryDrawable() else { return }
-        
-        frame.startSubmission()
-        
-        let time = LayerRenderer.Clock.Instant.epoch.duration(to: drawable.frameTiming.presentationTime).timeInterval
-        let deviceAnchor = worldTracking.queryDeviceAnchor(atTimestamp: time)
-        
-        drawable.deviceAnchor = deviceAnchor
-        
-        updateMatrices(drawable: drawable, deviceAnchor: deviceAnchor)
-        clipCubeToNearplane()
-        
+    func createFirstPassTexture(width: Int, height: Int) {
+        let pOffscreenTextureDesc = MTLTextureDescriptor()
+        pOffscreenTextureDesc.width = width
+        pOffscreenTextureDesc.height = height
+//        pOffscreenTextureDesc.
+        pOffscreenTextureDesc.pixelFormat = .rgba32Float
+        pOffscreenTextureDesc.textureType = .type2D
+        pOffscreenTextureDesc.usage = [.renderTarget, .shaderRead]
+
+        renderTargetTexture = device.makeTexture(descriptor: pOffscreenTextureDesc)
+    }
+
+    func buildSecondRenderPassDescriptor(drawable: LayerRenderer.Drawable) -> MTLRenderPassDescriptor{
         let renderPassDescriptor = MTLRenderPassDescriptor()
         renderPassDescriptor.colorAttachments[0].texture = drawable.colorTextures[0]
         renderPassDescriptor.colorAttachments[0].loadAction = .clear
         renderPassDescriptor.colorAttachments[0].storeAction = .store
         renderPassDescriptor.colorAttachments[0].clearColor = MTLClearColor(red: 0.0, green: 0.0, blue: 0.0, alpha: 0.0)
+        
         renderPassDescriptor.depthAttachment.texture = drawable.depthTextures[0]
         renderPassDescriptor.depthAttachment.loadAction = .clear
         renderPassDescriptor.depthAttachment.storeAction = .store
-        renderPassDescriptor.depthAttachment.clearDepth = 0.0
+//        renderPassDescriptor.depthAttachment.clearDepth = 0.0
         renderPassDescriptor.rasterizationRateMap = drawable.rasterizationRateMaps.first
-        if layerRenderer.configuration.layout == .layered {
-            renderPassDescriptor.renderTargetArrayLength = drawable.views.count
-        }
-        
-        guard let renderEncoder = commandBuffer.makeRenderCommandEncoder(descriptor: renderPassDescriptor) else {
-            fatalError("Failed to create render encoder")
-        }
-        
-        renderEncoder.setCullMode(.back)
-        renderEncoder.setFrontFacing(.counterClockwise)
-        renderEncoder.setRenderPipelineState(pipelineState)
-        renderEncoder.setDepthStencilState(depthState)
-        
-        renderEncoder.setVertexBuffer(vertexBuffer, offset: 0, index: 0)
-        renderEncoder.setVertexBuffer(matrixBuffer, offset: 0, index: 1)
-        
-        let viewports = drawable.views.map { $0.textureMap.viewport }
-        renderEncoder.setViewports(viewports)
-        
-        if drawable.views.count > 1 {
-            var viewMappings = (0..<drawable.views.count).map {
-                MTLVertexAmplificationViewMapping(viewportArrayIndexOffset: UInt32($0),
-                                                  renderTargetArrayIndexOffset: UInt32($0))
-            }
-            renderEncoder.setVertexAmplificationCount(viewports.count, viewMappings: &viewMappings)
-        }
-        
-        renderEncoder.setFragmentTexture(texture, index: TextureIndex.color.rawValue)
-        
-        renderEncoder.setFragmentBuffer(parameterBuffer, offset: 0, index: 0)
-        
-        renderEncoder.drawPrimitives(type: MTLPrimitiveType.triangle, vertexStart: 0, vertexCount: vertCount)
-        
-        renderEncoder.popDebugGroup()
-        renderEncoder.endEncoding()
-        drawable.encodePresent(commandBuffer: commandBuffer)
-        commandBuffer.commit()
-        
-        frame.endSubmission()
+        return renderPassDescriptor
     }
+    
+    func renderFrame() {
+         /// Per frame updates hare
+         guard let frame = layerRenderer.queryNextFrame() else { return }
+        
+         if (volumeName != volumeModell.selectedVolume) {
+             volumeTexture = try! loadTexture(device: device, dataset: volumeModell.dataset)
+         }
+         
+         if (volumeModell.shaderNeedsUpdate) {
+             renderPipelineStateFirst = try! buildFirstRenderPipelineWithDevice(device: device,
+                                                                layerRenderer: layerRenderer, shader: volumeModell.selectedShader)
+             volumeModell.shaderNeedsUpdate = false
+         }
+         
+         frame.startUpdate()
+         frame.endUpdate()
+         
+         guard let timing = frame.predictTiming() else { return }
+         LayerRenderer.Clock().wait(until: timing.optimalInputTime)
+         
+         guard let commandBuffer = commandQueue.makeCommandBuffer() else {
+             fatalError("Failed to create command buffer")
+         }
+         
+         // Perform frame independent work
+         guard let drawable = frame.queryDrawable() else { return }
+        
+         frame.startSubmission()
+         
+         let time = LayerRenderer.Clock.Instant.epoch.duration(to: drawable.frameTiming.presentationTime).timeInterval
+         let deviceAnchor = worldTracking.queryDeviceAnchor(atTimestamp: time)
+         
+         drawable.deviceAnchor = deviceAnchor
+         
+         updateMatrices(drawable: drawable, deviceAnchor: deviceAnchor)
+         clipCubeToNearplane()
+         
+        let renderPassDescriptorFirst = MTLRenderPassDescriptor()
+        renderPassDescriptorFirst.colorAttachments[0].texture = renderTargetTexture
+//        drawable.colorTextures[0]
+        renderPassDescriptorFirst.colorAttachments[0].loadAction = .clear
+        renderPassDescriptorFirst.colorAttachments[0].storeAction = .store
+        renderPassDescriptorFirst.colorAttachments[0].clearColor = MTLClearColor(red: 0.0, green: 0.0, blue: 1.0, alpha: 1.0)
+//        renderPassDescriptorFirst.depthAttachment.clearDepth = 1.0
+        
+        let renderEncoderFirst = commandBuffer.makeRenderCommandEncoder(descriptor: renderPassDescriptorFirst)!
+         
+         renderEncoderFirst.setCullMode(.back)
+         renderEncoderFirst.setFrontFacing(.counterClockwise)
+         renderEncoderFirst.setRenderPipelineState(renderPipelineStateFirst)
+//         renderEncoderFirst.setDepthStencilState(depthState)
+         
+         renderEncoderFirst.setVertexBuffer(vertexBufferCube, offset: 0, index: 0)
+         renderEncoderFirst.setVertexBuffer(matrixBufferCube, offset: 0, index: 1)
+         
+//         let viewports = drawable.views.map { $0.textureMap.viewport }
+//         renderEncoderFirst.setViewports(viewports)
+//         
+//         if drawable.views.count > 1 {
+//             var viewMappings = (0..<drawable.views.count).map {
+//                 MTLVertexAmplificationViewMapping(viewportArrayIndexOffset: UInt32($0),
+//                                                   renderTargetArrayIndexOffset: UInt32($0))
+//             }
+//             renderEncoderFirst.setVertexAmplificationCount(viewports.count, viewMappings: &viewMappings)
+//         }
+         
+         renderEncoderFirst.setFragmentTexture(volumeTexture, index: 0)
+         
+         renderEncoderFirst.setFragmentBuffer(parameterBufferCube, offset: 0, index: 0)
+         renderEncoderFirst.drawPrimitives(type: MTLPrimitiveType.triangle, vertexStart: 0, vertexCount: vertCount)
+        
+//         renderEncoderFirst.popDebugGroup()
+         renderEncoderFirst.endEncoding()
+        
+        
+        
+        let renderPassDescriptorSecond = buildSecondRenderPassDescriptor(drawable: drawable)
+         if layerRenderer.configuration.layout == .layered {
+             renderPassDescriptorSecond.renderTargetArrayLength = drawable.views.count
+         }
+        
+        let renderEncoderSecond = commandBuffer.makeRenderCommandEncoder(descriptor: renderPassDescriptorSecond)!
+         
+        renderEncoderSecond.setFrontFacing(.counterClockwise)
+        renderEncoderSecond.setRenderPipelineState(renderPipelineStateSecond)
+        renderEncoderSecond.setDepthStencilState(depthStencilState)
+         
+        renderEncoderSecond.setVertexBuffer(vertexDataBufferFullScreen, offset: 0, index: 0)
+        renderEncoderSecond.setFragmentTexture(renderTargetTexture, index: 0)
+        renderEncoderSecond.setCullMode(.none)
+        
+        renderEncoderSecond.drawPrimitives(type: MTLPrimitiveType.triangle, vertexStart: 0, vertexCount: 3)
+        renderEncoderSecond.endEncoding()
+        
+         drawable.encodePresent(commandBuffer: commandBuffer)
+         commandBuffer.commit()
+         
+         frame.endSubmission()
+     }
     
     func startRenderLoop() {
         Task {

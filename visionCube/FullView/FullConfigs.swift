@@ -26,7 +26,7 @@ func buildMetalVertexDescriptor() -> MTLVertexDescriptor {
     return mtlVertexDescriptor
 }
 
-func buildRenderPipelineWithDevice(device: MTLDevice, layerRenderer: LayerRenderer, shader: String) throws -> MTLRenderPipelineState {
+func buildFirstRenderPipelineWithDevice(device: MTLDevice, layerRenderer: LayerRenderer, shader: String) throws -> MTLRenderPipelineState {
     let mtlVertexDescriptor = buildMetalVertexDescriptor()
     
     let library = device.makeDefaultLibrary()
@@ -43,9 +43,35 @@ func buildRenderPipelineWithDevice(device: MTLDevice, layerRenderer: LayerRender
     
     pipelineDescriptor.maxVertexAmplificationCount = layerRenderer.properties.viewCount
     
-    pipelineDescriptor.isAlphaToCoverageEnabled = true
-    pipelineDescriptor.colorAttachments[0].pixelFormat = layerRenderer.configuration.colorFormat
-    pipelineDescriptor.depthAttachmentPixelFormat = layerRenderer.configuration.depthFormat
+//    pipelineDescriptor.isAlphaToCoverageEnabled = true
+    pipelineDescriptor.colorAttachments[0].pixelFormat = .rgba32Float /*layerRenderer.configuration.colorFormat*/
+    pipelineDescriptor.depthAttachmentPixelFormat = .invalid
+    pipelineDescriptor.rasterSampleCount = 1
+    
+    return try device.makeRenderPipelineState(descriptor: pipelineDescriptor)
+}
+
+func buildSecondRenderPipelineWithDevice(device: MTLDevice, layerRenderer: LayerRenderer) throws -> MTLRenderPipelineState {
+//    let mtlVertexDescriptor = buildMetalVertexDescriptor()
+    
+    let library = device.makeDefaultLibrary()
+    
+    let vertexFunction = library?.makeFunction(name: "vertexMainBlit")
+
+    let fragmentFunction = library?.makeFunction(name: "fragmentMainBlit")
+    
+    let pipelineDescriptor = MTLRenderPipelineDescriptor()
+    pipelineDescriptor.label = "RenderPipeline2"
+    pipelineDescriptor.vertexFunction = vertexFunction
+    pipelineDescriptor.fragmentFunction = fragmentFunction
+//    pipelineDescriptor.vertexDescriptor = mtlVertexDescriptor
+    
+    pipelineDescriptor.maxVertexAmplificationCount = layerRenderer.properties.viewCount
+    
+//    pipelineDescriptor.colorAttachments[
+//    pipelineDescriptor.isAlphaToCoverageEnabled = true
+    pipelineDescriptor.colorAttachments[0].pixelFormat = /*.bgra8Unorm_srgb*/ layerRenderer.configuration.colorFormat
+    pipelineDescriptor.depthAttachmentPixelFormat = /*.depth16Unorm*/ layerRenderer.configuration.depthFormat
     
     return try device.makeRenderPipelineState(descriptor: pipelineDescriptor)
 }
@@ -97,3 +123,5 @@ struct ContentStageConfiguration: CompositorLayerConfiguration {
         configuration.layout = supportedLayouts.contains(.layered) ? .layered : .dedicated
     }
 }
+
+
