@@ -7,6 +7,10 @@ struct v2f {
     float3 entryPoint;
 };
 
+struct v2fBlit {
+  float4 position [[position]];
+};
+
 v2f vertex vertexMain( uint vertexId [[vertex_id]],
                       ushort amp_id [[amplification_id]],
                       device const float4* position [[buffer(0)]],
@@ -208,4 +212,117 @@ half4 fragment fragmentMainISOLighting( v2f in [[stage_in]],
     } while (inBounds(currentPoint,renderParams));
     
     return half4( result );
+}
+
+struct QuadMRTOut {
+  float4 mrt0 [[ color(0) ]];
+  float4 mrt1 [[ color(1) ]];
+  float4 mrt2 [[ color(2) ]];
+  float4 mrt3 [[ color(3) ]];
+};
+
+QuadMRTOut fragment fragmentMainIsoRC( v2f in [[stage_in]],
+                                   texture3d< half, access::sample > volume [[texture(0)]],
+                                   device const ShaderRenderParamaters& renderParams [[buffer(0)]])
+{
+    QuadMRTOut out;
+    out.mrt0 = float4( 0 );
+    out.mrt1 = float4( 0 );
+    out.mrt2 = float4( 0 );
+    out.mrt3 = float4( 0 );
+
+    constexpr sampler s( address::clamp_to_border, filter::linear );
+    float3 voxelCount = float3(volume.get_width(), volume.get_height(), volume.get_depth());
+
+    float3 rayDirectionInTextureSpace = normalize(in.entryPoint-renderParams.cameraPosInTextureSpace);
+
+    // compute delta
+    float samples = dot(abs(rayDirectionInTextureSpace),voxelCount);
+    float3 delta = rayDirectionInTextureSpace/(samples*renderParams.oversampling);
+
+    float3 currentPoint = in.entryPoint;
+    do {
+      float volumeValue = volume.sample( s, currentPoint ).r;
+      if (volumeValue >= renderParams.smoothStepStart) {
+          out.mrt0 = float4(currentPoint,1);
+          out.mrt1 = float4(computeNormal(currentPoint, voxelCount, float3(1,1,1), volume),1.0);
+          break;
+      }
+      currentPoint += delta;
+    } while (inBounds(currentPoint,renderParams));
+
+    do {
+      float volumeValue = volume.sample( s, currentPoint ).r;
+      if (volumeValue >= renderParams.smoothStepShift) {
+          out.mrt2 = float4(currentPoint,1);
+          out.mrt3 = float4(computeNormal(currentPoint, voxelCount, float3(1,1,1), volume),1.0);
+          return out;
+      }
+      currentPoint += delta;
+    } while (inBounds(currentPoint,renderParams));
+
+    return out;
+}
+
+float computeCurvatureApprox(ushort2 fragPos, float3 centerNormal, texture2d< float, access::read > normalTex) {
+
+  float3 normalXp = normalTex.read(fragPos+ushort2( 1, 0)).xyz;
+  float3 normalXn = normalTex.read(fragPos+ushort2(-1, 0)).xyz;
+  float3 normalYp = normalTex.read(fragPos+ushort2( 0, 1)).xyz;
+  float3 normalYn = normalTex.read(fragPos+ushort2( 0,-1)).xyz;
+
+  return saturate(length(centerNormal-normalXp)+
+                  length(centerNormal-normalXn)+
+                  length(centerNormal-normalYp)+
+                  length(centerNormal-normalYn));
+}
+
+
+half4 fragment fragmentMainIsoSecond( v2fBlit in [[stage_in]],
+                                texture2d< float, access::read > isoPosTex0 [[texture(0)]],
+                                texture2d< float, access::read > isoNormalTex0 [[texture(1)]],
+                                texture2d< float, access::read > isoPosTex1 [[texture(2)]],
+                                texture2d< float, access::read > isoNormalTex1 [[texture(3)]],
+                                device const ShaderRenderParamaters& renderParams [[buffer(0)]])
+{
+  ushort2 fragPos = ushort2(in.position.xy);
+
+  float4 isoPos0 = isoPosTex0.read(fragPos);
+  if (isoPos0.w < 0.5) return half4(0);
+  float3 normal0 = isoNormalTex0.read(fragPos).xyz;
+  float4 colorIso0 = float4(lighting((renderParams.modelView*float4((isoPos0.xyz-0.5)*2,1)).xyz,
+                                     (renderParams.modelViewIT*float4(normal0,0)).xyz, float3(1.0,0.0,0.0)),1);
+  float curvature = computeCurvatureApprox(fragPos, normal0, isoNormalTex0);
+
+  float4 colorIso1 = float4(0);
+  float4 isoPos1 = isoPosTex1.read(fragPos);
+  if (isoPos1.w > 0.5) {
+    float3 normal1 = isoNormalTex1.read(fragPos).xyz;
+    colorIso1.xyz = lighting((renderParams.modelView*float4((isoPos1.xyz-0.5)*2,1)).xyz,
+                                (renderParams.modelViewIT*float4(normal1,0)).xyz, float3(0.0,1.0,0.0));
+    colorIso1.w = 1;
+  }
+
+  ushort2 centerFrag = ushort2(renderParams.xPos, renderParams.yPos);
+  float3 centerPos = isoPosTex0.read(centerFrag).xyz;
+
+  float centerDistScale = saturate(length(centerPos-isoPos0.xyz)*renderParams.cvScale);
+  if (centerDistScale > 0.9 && centerDistScale < 1.0) colorIso0.rgb -= 0.4;
+  float weight = saturate(curvature+centerDistScale);
+  return half4(mix(colorIso1, colorIso0, weight));
+}
+
+v2fBlit vertex vertexMainBlit( uint vertexId [[vertex_id]],
+                           device const float4* position [[buffer(0)]])
+{
+    v2fBlit o;
+    o.position = position[ vertexId ];
+    return o;
+}
+
+half4 fragment fragmentMainBlit( v2fBlit in [[stage_in]],
+                                 texture2d< float, access::read > prevPass [[texture(0)]] )
+{
+//    return half4(1,0,0,1);
+  return half4(prevPass.read(ushort2(in.position.xy)));
 }

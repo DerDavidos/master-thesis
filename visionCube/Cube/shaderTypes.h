@@ -38,6 +38,9 @@ struct ShaderRenderParamaters {
     float smoothStepStart;
     float smoothStepShift;
     float oversampling;
+    ushort xPos;
+    ushort yPos;
+    float cvScale;
     vector_float3 cameraPosInTextureSpace;
     vector_float3 minBounds;
     vector_float3 maxBounds;

@@ -60,6 +60,7 @@ func loadTexture(device: MTLDevice,
     volumeTextureDesc.pixelFormat = .r8Unorm
     volumeTextureDesc.textureType = .type3D
     
+    
     let texture = device.makeTexture(descriptor: volumeTextureDesc)
     
     texture!.replace(

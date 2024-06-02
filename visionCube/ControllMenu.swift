@@ -28,9 +28,12 @@ struct VolumeControll: View {
     @Environment(\.dismissWindow) var dismissWindow
     
     @State private var immersiveSpaceIsShown = false
+
     
     var axisModell: AxisModell? = nil
     var volumeModell: VolumeModell
+    
+    
     
     @MainActor
     fileprivate func dismissSpaceIfShown() async {
@@ -139,13 +142,14 @@ struct VolumeControll: View {
                 
                 Form {
                     Section {
-                        Picker("Shader", selection: $volumeModell.selectedShader) {
+                        Picker("Shader", selection: $volumeModell.menuShader) {
                             
-                            ForEach(["Standard", "Lighting", "ISO", "ISOLighting"], id: \.self) {
+                            ForEach(["Standard", "Lighting", "ISO", "ISOLighting", "IsoRC"], id: \.self) {
                                 Text($0)
                             }
-                        }.onChange(of: volumeModell.selectedShader) {
+                        }.onChange(of: volumeModell.menuShader) {
                             volumeModell.shaderNeedsUpdate = true
+                            volumeModell.selectedShader = volumeModell.menuShader
                         }
                         .font(.title)
                     }.opacity(volumeModell.loading ? 0.0 : 1.0)

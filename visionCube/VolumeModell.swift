@@ -31,6 +31,8 @@ class VolumeModell {
     var selectedVolume = START_VOLUME
     
     var selectedShader = "Standard";
+    var menuShader = "Standard";
+    
     var shaderNeedsUpdate = false;
     
     var oversampling = START_OVERSAMPLING
