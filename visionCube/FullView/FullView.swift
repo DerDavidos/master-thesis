@@ -64,56 +64,14 @@ class FullView {
         var modelView: simd_float4x4
         var modelViewIT: simd_float4x4
     }
-    
-    fileprivate func createFirstPipelineState() -> MTLRenderPipelineState {
-        let vertexFunction = library?.makeFunction(name: "vertexMain")
-        let fragmentFunction = library?.makeFunction(name: "fragmentMain" + volumeModell.selectedShader)
-        let firstPipelineDescriptor = MTLRenderPipelineDescriptor()
-        firstPipelineDescriptor.vertexFunction = vertexFunction
-        firstPipelineDescriptor.fragmentFunction = fragmentFunction
-        firstPipelineDescriptor.rasterSampleCount = 1
-        firstPipelineDescriptor.colorAttachments[0].pixelFormat = .rgba16Float
-        
-        firstPipelineDescriptor.colorAttachments[1].pixelFormat = .invalid
-        firstPipelineDescriptor.colorAttachments[2].pixelFormat = .invalid
-        firstPipelineDescriptor.colorAttachments[3].pixelFormat = .invalid
-        print("updated")
-        print(volumeModell.selectedShader)
-        if (volumeModell.selectedShader == "IsoRC"){
-            print("rc")
-            firstPipelineDescriptor.colorAttachments[1].pixelFormat = .rgba16Float
-            firstPipelineDescriptor.colorAttachments[2].pixelFormat = .rgba16Float
-            firstPipelineDescriptor.colorAttachments[3].pixelFormat = .rgba16Float
-        }
-        
-        firstPipelineDescriptor.depthAttachmentPixelFormat = .invalid
-        return try! device.makeRenderPipelineState(descriptor: firstPipelineDescriptor)
-    }
-    
-    fileprivate func createRenderTargetTexture() {
-        let offscreenTextureDesc = MTLTextureDescriptor()
-        offscreenTextureDesc.width = 3600
-        offscreenTextureDesc.height = 3600
-        offscreenTextureDesc.pixelFormat = .rgba16Float
-        offscreenTextureDesc.textureType = .type2D
-        offscreenTextureDesc.usage = [.renderTarget, .shaderRead]
-        for i in 0..<4 {
-            renderTargetTexture[i] = device.makeTexture(descriptor: offscreenTextureDesc)!
-        }
-    }
-    
-    fileprivate func createDepthStencilState() -> MTLDepthStencilState {
-        let depthStateDescriptor = MTLDepthStencilDescriptor()
-        depthStateDescriptor.depthCompareFunction = MTLCompareFunction.always
-        depthStateDescriptor.isDepthWriteEnabled = true
-        return device.makeDepthStencilState(descriptor:depthStateDescriptor)!
-    }
+ 
     
     fileprivate func createBuffers() {
         self.cube = Tesselation.genBrick(center: Vec3(x: 0, y: 0, z: 0), size: Vec3(x: 1, y: 1, z: 1), texScale: Vec3(x: 1, y: 1, z: 1) ).unpack()
         
         self.vertexBuffer = self.device.makeBuffer(length: MemoryLayout<Float>.stride * cube.vertices.count,
                                                    options: [MTLResourceOptions.storageModeShared])!
+        
         self.matrixBuffer = self.device.makeBuffer(length: MemoryLayout<Matrices>.stride * 2,
                                                    options: [MTLResourceOptions.storageModeShared])!
         self.matrix = UnsafeMutableRawPointer(matrixBuffer.contents()).bindMemory(to: MatricesArray.self, capacity: 1)
@@ -211,6 +169,9 @@ class FullView {
             }
         }
         
+        firstRenderPassDescriptor.rasterizationRateMap = drawable.rasterizationRateMaps.first
+
+        
         let firstRenderEncoder = commandBuffer.makeRenderCommandEncoder(descriptor: firstRenderPassDescriptor)!
         firstRenderEncoder.setRenderPipelineState(firstPipelineState)
         
@@ -226,17 +187,19 @@ class FullView {
         
         firstRenderEncoder.endEncoding()
         
+        /// ********************************
+        
         let secondRenderPassDescriptor = MTLRenderPassDescriptor()
         secondRenderPassDescriptor.colorAttachments[0].texture = drawable.colorTextures[0]
         secondRenderPassDescriptor.colorAttachments[0].loadAction = .clear
         secondRenderPassDescriptor.colorAttachments[0].storeAction = .store
-        secondRenderPassDescriptor.colorAttachments[0].clearColor = MTLClearColor(red: 0.0, green: 0.5, blue: 0.5, alpha: 0.0)
+        secondRenderPassDescriptor.colorAttachments[0].clearColor = MTLClearColor(red: 0.0, green: 0.5, blue: 0.5, alpha: 1.0)
         
         secondRenderPassDescriptor.depthAttachment.texture = drawable.depthTextures[0]
         secondRenderPassDescriptor.depthAttachment.loadAction = .clear
         secondRenderPassDescriptor.depthAttachment.storeAction = .store
-        secondRenderPassDescriptor.depthAttachment.clearDepth = 0.0
-
+        secondRenderPassDescriptor.depthAttachment.clearDepth = 1.0
+        
         let secondRenderEncoder = commandBuffer.makeRenderCommandEncoder(descriptor: secondRenderPassDescriptor)!
         secondRenderEncoder.setRenderPipelineState(secondPipelineState)
         secondRenderEncoder.setDepthStencilState(depthSencilState)
@@ -260,6 +223,37 @@ class FullView {
         frame.endSubmission()
     }
     
+    fileprivate func createFirstPipelineState() -> MTLRenderPipelineState {
+        let mtlVertexDescriptor = buildMetalVertexDescriptor()
+        let vertexFunction = library?.makeFunction(name: "vertexMain")
+        let fragmentFunction = library?.makeFunction(name: "fragmentMain" + volumeModell.selectedShader)
+        let firstPipelineDescriptor = MTLRenderPipelineDescriptor()
+        firstPipelineDescriptor.vertexFunction = vertexFunction
+        firstPipelineDescriptor.fragmentFunction = fragmentFunction
+        firstPipelineDescriptor.vertexDescriptor = mtlVertexDescriptor
+        firstPipelineDescriptor.rasterSampleCount = 1
+        firstPipelineDescriptor.colorAttachments[0].pixelFormat = .rgba16Float
+        
+        firstPipelineDescriptor.colorAttachments[1].pixelFormat = .invalid
+        firstPipelineDescriptor.colorAttachments[2].pixelFormat = .invalid
+        firstPipelineDescriptor.colorAttachments[3].pixelFormat = .invalid
+        
+        firstPipelineDescriptor.maxVertexAmplificationCount = layerRenderer.properties.viewCount
+        
+        firstPipelineDescriptor.isAlphaToCoverageEnabled = true
+        
+        print("updated")
+        print(volumeModell.selectedShader)
+        if (volumeModell.selectedShader == "IsoRC"){
+            print("rc")
+            firstPipelineDescriptor.colorAttachments[1].pixelFormat = .rgba16Float
+            firstPipelineDescriptor.colorAttachments[2].pixelFormat = .rgba16Float
+            firstPipelineDescriptor.colorAttachments[3].pixelFormat = .rgba16Float
+        }
+        
+        firstPipelineDescriptor.depthAttachmentPixelFormat = .invalid
+        return try! device.makeRenderPipelineState(descriptor: firstPipelineDescriptor)
+    }
     fileprivate func createSecondPipelineState() -> MTLRenderPipelineState {
         let secondvertexFunction = library?.makeFunction(name: "vertexMainBlit")
         
@@ -276,12 +270,31 @@ class FullView {
         secondPipelineDescriptor.colorAttachments[0].pixelFormat = .bgra8Unorm_srgb
         secondPipelineDescriptor.depthAttachmentPixelFormat = /*.depth16Unorm*/.depth32Float
         
-//        secondPipelineDescriptor.isAlphaToCoverageEnabled = true
+        secondPipelineDescriptor.maxVertexAmplificationCount = layerRenderer.properties.viewCount
+        
+        secondPipelineDescriptor.isAlphaToCoverageEnabled = true
         
         return try!device.makeRenderPipelineState(descriptor: secondPipelineDescriptor)
     }
     
-    var pos: UInt16 = 0
+    fileprivate func createDepthStencilState() -> MTLDepthStencilState {
+        let depthStateDescriptor = MTLDepthStencilDescriptor()
+        depthStateDescriptor.depthCompareFunction = MTLCompareFunction.always
+        depthStateDescriptor.isDepthWriteEnabled = false
+        return device.makeDepthStencilState(descriptor:depthStateDescriptor)!
+    }
+    
+    fileprivate func createRenderTargetTexture() {
+        let offscreenTextureDesc = MTLTextureDescriptor()
+        offscreenTextureDesc.width = 1888
+        offscreenTextureDesc.height = 1824
+        offscreenTextureDesc.pixelFormat = .rgba16Float
+        offscreenTextureDesc.textureType = .type2D
+        offscreenTextureDesc.usage = [.renderTarget, .shaderRead]
+        for i in 0..<4 {
+            renderTargetTexture[i] = device.makeTexture(descriptor: offscreenTextureDesc)!
+        }
+    }
     
     func updateMatrices(drawable: LayerRenderer.Drawable,  deviceAnchor: DeviceAnchor?) {
         let translate = volumeModell.transform.translation
@@ -329,9 +342,9 @@ class FullView {
             renderParams.modelView = viewMatrix * modelMatrix * clipBox
             renderParams.modelViewIT = simd_transpose(simd_inverse(viewMatrix * modelMatrix * clipBox));
             
-            renderParams.xPos = 1500
-            renderParams.yPos = 1200
-            renderParams.cvScale = 4.5
+            renderParams.xPos = 1888 / 2 
+            renderParams.yPos = 1824 / 2
+            renderParams.cvScale = 3.5
             
             matrix.clip = clipBox
             matrix.modelViewProjection = projection * viewMatrix * modelMatrix * clipBox
