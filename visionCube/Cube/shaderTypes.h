@@ -53,9 +53,11 @@ typedef struct
     struct shaderMatrices matrices[2];
 } MatricesArray;
 
+
 typedef struct
 {
     struct ShaderRenderParamaters params[2];
 } ParamsArray;
+
 #endif /* ShaderTypes_h */
 

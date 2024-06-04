@@ -24,7 +24,6 @@ class FullView {
     var texture: MTLTexture!
     var renderTargetTexture: [MTLTexture?] = Array(repeating: nil, count: 4)
 
-    
     let arSession: ARKitSession
     let worldTracking: WorldTrackingProvider
     let layerRenderer: LayerRenderer
@@ -64,13 +63,9 @@ class FullView {
         var modelView: simd_float4x4
         var modelViewIT: simd_float4x4
     }
- 
     
     fileprivate func createBuffers() {
         self.cube = Tesselation.genBrick(center: Vec3(x: 0, y: 0, z: 0), size: Vec3(x: 1, y: 1, z: 1), texScale: Vec3(x: 1, y: 1, z: 1) ).unpack()
-        
-        self.vertexBuffer = self.device.makeBuffer(length: MemoryLayout<Float>.stride * cube.vertices.count,
-                                                   options: [MTLResourceOptions.storageModeShared])!
         
         self.matrixBuffer = self.device.makeBuffer(length: MemoryLayout<Matrices>.stride * 2,
                                                    options: [MTLResourceOptions.storageModeShared])!
@@ -85,8 +80,8 @@ class FullView {
             -1, 3, 0.0, 1
         ]
         let trisSize = tris.count * MemoryLayout<Float>.size
-        vertexBufferFullScreen = device.makeBuffer(length: trisSize)!
-        vertexBufferFullScreen.contents().copyMemory(from: tris, byteCount: trisSize)
+        self.vertexBufferFullScreen = device.makeBuffer(length: trisSize)!
+        self.vertexBufferFullScreen.contents().copyMemory(from: tris, byteCount: trisSize)
     }
     
     init(_ layerRenderer: LayerRenderer, volumeModell: VolumeModell) {
@@ -102,186 +97,158 @@ class FullView {
         self.library = device.makeDefaultLibrary()
         self.firstPipelineState = createFirstPipelineState()
         self.secondPipelineState = createSecondPipelineState()
+        self.depthSencilState = createDepthStencilState()
         
         self.texture = try! loadTexture(device: device, dataset: volumeModell.dataset)
-        
-        self.depthSencilState = createDepthStencilState()
         
         createRenderTargetTexture()
         
         createBuffers()
-        
-        clipCubeToNearplane()
-        
-        print("init")
     }
-
     
     func renderFrame() {
-        /// Per frame updates hare
         guard let frame = layerRenderer.queryNextFrame() else { return }
         
         if (volumeName != volumeModell.selectedVolume) {
-            texture = try! loadTexture(device: device, dataset: volumeModell.dataset)
+            self.texture = try! loadTexture(device: device, dataset: volumeModell.dataset)
         }
         
         frame.startUpdate()
         frame.endUpdate()
 
-        
         guard let timing = frame.predictTiming() else { return }
         LayerRenderer.Clock().wait(until: timing.optimalInputTime)
-        
-        guard let commandBuffer = commandQueue.makeCommandBuffer() else {
-            fatalError("Failed to create command buffer")
-        }
-        
-        // Perform frame independent work
+        let commandBuffer = commandQueue.makeCommandBuffer()!
         guard let drawable = frame.queryDrawable() else { return }
         
         frame.startSubmission()
         
         let time = LayerRenderer.Clock.Instant.epoch.duration(to: drawable.frameTiming.presentationTime).timeInterval
         let deviceAnchor = worldTracking.queryDeviceAnchor(atTimestamp: time)
-        
         drawable.deviceAnchor = deviceAnchor
         
         updateMatrices(drawable: drawable, deviceAnchor: deviceAnchor)
         
         if (volumeModell.shaderNeedsUpdate) {
-            firstPipelineState = createFirstPipelineState()
-            secondPipelineState = createSecondPipelineState()
+            self.firstPipelineState = createFirstPipelineState()
+            self.secondPipelineState = createSecondPipelineState()
             volumeModell.shaderNeedsUpdate = false
         }
         
+        /* ************************************************************************************************* */
+        
         let firstRenderPassDescriptor = MTLRenderPassDescriptor()
-        firstRenderPassDescriptor.colorAttachments[0].texture = renderTargetTexture[0]
+        firstRenderPassDescriptor.colorAttachments[0].texture = self.renderTargetTexture[0]
         firstRenderPassDescriptor.colorAttachments[0].loadAction = .clear
-        firstRenderPassDescriptor.colorAttachments[0].storeAction = .store
         firstRenderPassDescriptor.colorAttachments[0].clearColor = MTLClearColor(red: 0.0, green: 0.0, blue: 0.0, alpha: 0.0)
 
         if (volumeModell.selectedShader == "IsoRC" && !volumeModell.shaderNeedsUpdate) {
             for i in 1..<4 {
-                firstRenderPassDescriptor.colorAttachments[i].texture = renderTargetTexture[i]
+                firstRenderPassDescriptor.colorAttachments[i].texture = self.renderTargetTexture[i]
                 firstRenderPassDescriptor.colorAttachments[i].loadAction = .clear
-                firstRenderPassDescriptor.colorAttachments[i].storeAction = .store
                 firstRenderPassDescriptor.colorAttachments[i].clearColor = MTLClearColor(red: 0.0, green: 0.0, blue: 0.0, alpha: 0.0)
             }
         }
         
         firstRenderPassDescriptor.rasterizationRateMap = drawable.rasterizationRateMaps.first
-
         
         let firstRenderEncoder = commandBuffer.makeRenderCommandEncoder(descriptor: firstRenderPassDescriptor)!
-        firstRenderEncoder.setRenderPipelineState(firstPipelineState)
+        firstRenderEncoder.setRenderPipelineState(self.firstPipelineState)
         
-        firstRenderEncoder.setVertexBuffer(vertexBuffer, offset: 0, index: 0)
-        firstRenderEncoder.setVertexBuffer(matrixBuffer, offset: 0, index: 1)
-        firstRenderEncoder.setFragmentTexture(texture, index: TextureIndex.color.rawValue)
-        firstRenderEncoder.setFragmentBuffer(parameterBuffer, offset: 0, index: 0)
+        firstRenderEncoder.setVertexBuffer(self.vertexBuffer, offset: 0, index: 0)
+        firstRenderEncoder.setVertexBuffer(self.matrixBuffer, offset: 0, index: 1)
+        firstRenderEncoder.setFragmentTexture(self.texture, index: TextureIndex.color.rawValue)
+        firstRenderEncoder.setFragmentBuffer(self.parameterBuffer, offset: 0, index: 0)
         
         firstRenderEncoder.setCullMode(.back)
         firstRenderEncoder.setFrontFacing(.counterClockwise)
-        
-        firstRenderEncoder.drawPrimitives(type: MTLPrimitiveType.triangle, vertexStart: 0, vertexCount: vertCount)
-        
+        firstRenderEncoder.drawPrimitives(type: MTLPrimitiveType.triangle, vertexStart: 0, vertexCount: self.vertCount)
         firstRenderEncoder.endEncoding()
         
-        /// ********************************
+        /* ************************************************************************************************* */
         
         let secondRenderPassDescriptor = MTLRenderPassDescriptor()
         secondRenderPassDescriptor.colorAttachments[0].texture = drawable.colorTextures[0]
         secondRenderPassDescriptor.colorAttachments[0].loadAction = .clear
-        secondRenderPassDescriptor.colorAttachments[0].storeAction = .store
-        secondRenderPassDescriptor.colorAttachments[0].clearColor = MTLClearColor(red: 0.0, green: 0.5, blue: 0.5, alpha: 1.0)
         
         secondRenderPassDescriptor.depthAttachment.texture = drawable.depthTextures[0]
-        secondRenderPassDescriptor.depthAttachment.loadAction = .clear
         secondRenderPassDescriptor.depthAttachment.storeAction = .store
-        secondRenderPassDescriptor.depthAttachment.clearDepth = 1.0
         
         let secondRenderEncoder = commandBuffer.makeRenderCommandEncoder(descriptor: secondRenderPassDescriptor)!
-        secondRenderEncoder.setRenderPipelineState(secondPipelineState)
-        secondRenderEncoder.setDepthStencilState(depthSencilState)
-        secondRenderEncoder.setVertexBuffer(vertexBufferFullScreen, offset: 0, index: 0)
-        secondRenderEncoder.setFragmentTexture(renderTargetTexture[0], index: 0)
+        secondRenderEncoder.setRenderPipelineState(self.secondPipelineState)
+        secondRenderEncoder.setDepthStencilState(self.depthSencilState)
         
+        secondRenderEncoder.setVertexBuffer(self.vertexBufferFullScreen, offset: 0, index: 0)
+        secondRenderEncoder.setFragmentTexture(self.renderTargetTexture[0], index: 0)
         if (volumeModell.selectedShader == "IsoRC" && !volumeModell.shaderNeedsUpdate) {
-            secondRenderEncoder.setFragmentBuffer(parameterBuffer, offset: 0, index: 0)
+            secondRenderEncoder.setFragmentBuffer(self.parameterBuffer, offset: 0, index: 0)
             for i in 1..<4 {
-                secondRenderEncoder.setFragmentTexture(renderTargetTexture[i], index: i)
+                secondRenderEncoder.setFragmentTexture(self.renderTargetTexture[i], index: i)
             }
         }
         
         secondRenderEncoder.setCullMode(.none)
         secondRenderEncoder.drawPrimitives(type: .triangle, vertexStart: 0, vertexCount: 3)
-        
         secondRenderEncoder.endEncoding()
+        
+        /* ************************************************************************************************* */
+        
         drawable.encodePresent(commandBuffer: commandBuffer)
         commandBuffer.commit()
-        
         frame.endSubmission()
     }
     
     fileprivate func createFirstPipelineState() -> MTLRenderPipelineState {
+        let firstPipelineDescriptor = MTLRenderPipelineDescriptor()
+        
         let mtlVertexDescriptor = buildMetalVertexDescriptor()
         let vertexFunction = library?.makeFunction(name: "vertexMain")
         let fragmentFunction = library?.makeFunction(name: "fragmentMain" + volumeModell.selectedShader)
-        let firstPipelineDescriptor = MTLRenderPipelineDescriptor()
+        
         firstPipelineDescriptor.vertexFunction = vertexFunction
         firstPipelineDescriptor.fragmentFunction = fragmentFunction
         firstPipelineDescriptor.vertexDescriptor = mtlVertexDescriptor
-        firstPipelineDescriptor.rasterSampleCount = 1
-        firstPipelineDescriptor.colorAttachments[0].pixelFormat = .rgba16Float
-        
-        firstPipelineDescriptor.colorAttachments[1].pixelFormat = .invalid
-        firstPipelineDescriptor.colorAttachments[2].pixelFormat = .invalid
-        firstPipelineDescriptor.colorAttachments[3].pixelFormat = .invalid
         
         firstPipelineDescriptor.maxVertexAmplificationCount = layerRenderer.properties.viewCount
-        
+        firstPipelineDescriptor.rasterSampleCount = 1
         firstPipelineDescriptor.isAlphaToCoverageEnabled = true
         
-        print("updated")
-        print(volumeModell.selectedShader)
+        firstPipelineDescriptor.colorAttachments[0].pixelFormat = .rgba16Float
         if (volumeModell.selectedShader == "IsoRC"){
-            print("rc")
             firstPipelineDescriptor.colorAttachments[1].pixelFormat = .rgba16Float
             firstPipelineDescriptor.colorAttachments[2].pixelFormat = .rgba16Float
             firstPipelineDescriptor.colorAttachments[3].pixelFormat = .rgba16Float
+        } else {
+            firstPipelineDescriptor.colorAttachments[1].pixelFormat = .invalid
+            firstPipelineDescriptor.colorAttachments[2].pixelFormat = .invalid
+            firstPipelineDescriptor.colorAttachments[3].pixelFormat = .invalid
         }
-        
         firstPipelineDescriptor.depthAttachmentPixelFormat = .invalid
+        
         return try! device.makeRenderPipelineState(descriptor: firstPipelineDescriptor)
     }
+    
     fileprivate func createSecondPipelineState() -> MTLRenderPipelineState {
-        let secondvertexFunction = library?.makeFunction(name: "vertexMainBlit")
+        let secondPipelineDescriptor = MTLRenderPipelineDescriptor()
         
+        let secondvertexFunction = library?.makeFunction(name: "vertexMainBlit")
         var secondfragmentFunction: MTLFunction! = nil
         if (volumeModell.selectedShader == "IsoRC") {
             secondfragmentFunction = library?.makeFunction(name: "fragmentMainIsoSecond")
         } else {
             secondfragmentFunction = library?.makeFunction(name: "fragmentMainBlit")
         }
-
-        let secondPipelineDescriptor = MTLRenderPipelineDescriptor()
+        
         secondPipelineDescriptor.vertexFunction = secondvertexFunction
         secondPipelineDescriptor.fragmentFunction = secondfragmentFunction
+        
         secondPipelineDescriptor.colorAttachments[0].pixelFormat = .bgra8Unorm_srgb
-        secondPipelineDescriptor.depthAttachmentPixelFormat = /*.depth16Unorm*/.depth32Float
-        
+        secondPipelineDescriptor.depthAttachmentPixelFormat = .depth32Float
+
         secondPipelineDescriptor.maxVertexAmplificationCount = layerRenderer.properties.viewCount
-        
         secondPipelineDescriptor.isAlphaToCoverageEnabled = true
         
         return try!device.makeRenderPipelineState(descriptor: secondPipelineDescriptor)
-    }
-    
-    fileprivate func createDepthStencilState() -> MTLDepthStencilState {
-        let depthStateDescriptor = MTLDepthStencilDescriptor()
-        depthStateDescriptor.depthCompareFunction = MTLCompareFunction.always
-        depthStateDescriptor.isDepthWriteEnabled = false
-        return device.makeDepthStencilState(descriptor:depthStateDescriptor)!
     }
     
     fileprivate func createRenderTargetTexture() {
@@ -294,6 +261,12 @@ class FullView {
         for i in 0..<4 {
             renderTargetTexture[i] = device.makeTexture(descriptor: offscreenTextureDesc)!
         }
+    }
+    
+    fileprivate func createDepthStencilState() -> MTLDepthStencilState {
+        let depthStateDescriptor = MTLDepthStencilDescriptor()
+        depthStateDescriptor.isDepthWriteEnabled = false
+        return device.makeDepthStencilState(descriptor: depthStateDescriptor)!
     }
     
     func updateMatrices(drawable: LayerRenderer.Drawable,  deviceAnchor: DeviceAnchor?) {
@@ -348,24 +321,34 @@ class FullView {
             
             matrix.clip = clipBox
             matrix.modelViewProjection = projection * viewMatrix * modelMatrix * clipBox
+            
+            clipCubeToNearplane(viewMatrix * modelMatrix, drawable.depthRange.y)
         }
         
-        projection(forView: 0, renderParams: &param.pointee.params.0, matrix: &matrix.pointee.matrices.0)
+        projection(forView: 0, renderParams: &self.param.pointee.params.0, matrix: &self.matrix.pointee.matrices.0)
         
         if drawable.views.count > 1 {
-            projection(forView: 1, renderParams: &param.pointee.params.1, matrix: &matrix.pointee.matrices.1)
+            projection(forView: 1, renderParams: &self.param.pointee.params.1, matrix: &self.matrix.pointee.matrices.1)
         }
     }
     
-    func clipCubeToNearplane() {
+    func clipCubeToNearplane(_ view: simd_float4x4, _ near: Float) {
+        let objectSpaceNearPlane = simd.simd_transpose(view) * simd_float4(0, 0, 1.0, near + 0.01)
+        
         let verts = meshPlane(
             posData: cube.vertices,
-            A: 0, B: 0, C: 0,D: 0
+            A: objectSpaceNearPlane.x,
+            B: objectSpaceNearPlane.y,
+            C: objectSpaceNearPlane.z,
+            D: objectSpaceNearPlane.w
         )
 
         let vertexDataSize = MemoryLayout<Float>.stride * verts.count
-        vertexBuffer.contents().copyMemory(from: verts, byteCount: vertexDataSize * 2)
-        vertCount = verts.count / 4
+        self.vertexBuffer = self.device.makeBuffer(length: MemoryLayout<Float>.stride * vertexDataSize,
+                                                   options: [MTLResourceOptions.storageModeShared])!
+        
+        self.vertexBuffer.contents().copyMemory(from: verts, byteCount: vertexDataSize)
+        self.vertCount = verts.count / 4
     }
     
     func startRenderLoop() {
