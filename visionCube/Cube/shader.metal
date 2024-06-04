@@ -9,6 +9,7 @@ struct v2f {
 
 struct v2fBlit {
   float4 position [[position]];
+    ushort amp_id;
 };
 
 v2f vertex vertexMain( uint vertexId [[vertex_id]],
@@ -277,14 +278,32 @@ float computeCurvatureApprox(ushort2 fragPos, float3 centerNormal, texture2d< fl
                   length(centerNormal-normalYn));
 }
 
-
 half4 fragment fragmentMainIsoSecond( v2fBlit in [[stage_in]],
+                                     ushort amp_id [[amplification_id]],
                                 texture2d< float, access::read > isoPosTex0 [[texture(0)]],
-                                texture2d< float, access::read > isoNormalTex0 [[texture(1)]],
-                                texture2d< float, access::read > isoPosTex1 [[texture(2)]],
-                                texture2d< float, access::read > isoNormalTex1 [[texture(3)]],
+                                texture2d< float, access::read > isoPosTex0_1 [[texture(1)]],
+                                     
+                                texture2d< float, access::read > isoNormalTex0 [[texture(2)]],
+                                texture2d< float, access::read > isoNormalTex0_1 [[texture(3)]],
+                                     
+                                texture2d< float, access::read > isoPosTex1 [[texture(4)]],
+                                texture2d< float, access::read > isoPosTex1_1 [[texture(5)]],
+                                     
+                                texture2d< float, access::read > isoNormalTex1 [[texture(6)]],
+                                texture2d< float, access::read > isoNormalTex1_1 [[texture(7)]],
+                                     
                                 device const ShaderRenderParamaters& renderParams [[buffer(0)]])
 {
+    float xPos = renderParams.xPos + 100;
+    if (amp_id == 1) {
+        isoPosTex0 = isoPosTex0_1;
+        isoNormalTex0 = isoNormalTex0_1;
+        isoPosTex1 = isoPosTex1_1;
+        isoNormalTex1 = isoNormalTex1_1;
+        
+        xPos = renderParams.xPos - 100;
+    }
+    
   ushort2 fragPos = ushort2(in.position.xy);
 
   float4 isoPos0 = isoPosTex0.read(fragPos);
@@ -303,7 +322,7 @@ half4 fragment fragmentMainIsoSecond( v2fBlit in [[stage_in]],
     colorIso1.w = 1;
   }
 
-  ushort2 centerFrag = ushort2(renderParams.xPos, renderParams.yPos);
+  ushort2 centerFrag = ushort2(xPos, renderParams.yPos);
   float3 centerPos = isoPosTex0.read(centerFrag).xyz;
 
   float centerDistScale = saturate(length(centerPos-isoPos0.xyz)*renderParams.cvScale);
@@ -313,16 +332,22 @@ half4 fragment fragmentMainIsoSecond( v2fBlit in [[stage_in]],
 }
 
 v2fBlit vertex vertexMainBlit( uint vertexId [[vertex_id]],
+                              ushort amp_id [[amplification_id]],
                            device const float4* position [[buffer(0)]])
 {
     v2fBlit o;
     o.position = position[ vertexId ];
+    o.amp_id = amp_id;
     return o;
 }
 
 half4 fragment fragmentMainBlit( v2fBlit in [[stage_in]],
-                                 texture2d< float, access::read > prevPass [[texture(0)]] )
+                                texture2d< float, access::read > prevPass [[texture(0)]],
+                                texture2d< float, access::read > prevPass1 [[texture(1)]])
 {
-//    return half4(1,0,0,1);
-  return half4(prevPass.read(ushort2(in.position.xy)));
+    if (in.amp_id == 0) {
+        return half4(prevPass.read(ushort2(in.position.xy)));
+    } else {
+        return half4(prevPass1.read(ushort2(in.position.xy)));
+    }
 }

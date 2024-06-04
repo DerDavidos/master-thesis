@@ -106,6 +106,10 @@ class FullView {
         createBuffers()
     }
     
+    fileprivate func getTexture(_ i: Int, _ j: Int) -> (any MTLTexture)? {
+        return renderTargetTexture[i]!.makeTextureView(pixelFormat: .rgba16Float, textureType: .type2D, levels: 0..<1, slices: j..<j+1)
+    }
+    
     func renderFrame() {
         guard let frame = layerRenderer.queryNextFrame() else { return }
         
@@ -126,7 +130,8 @@ class FullView {
         let time = LayerRenderer.Clock.Instant.epoch.duration(to: drawable.frameTiming.presentationTime).timeInterval
         let deviceAnchor = worldTracking.queryDeviceAnchor(atTimestamp: time)
         drawable.deviceAnchor = deviceAnchor
-        
+        let viewports = drawable.views.map { $0.textureMap.viewport }
+
         updateMatrices(drawable: drawable, deviceAnchor: deviceAnchor)
         
         if (volumeModell.shaderNeedsUpdate) {
@@ -142,6 +147,10 @@ class FullView {
         firstRenderPassDescriptor.colorAttachments[0].loadAction = .clear
         firstRenderPassDescriptor.colorAttachments[0].clearColor = MTLClearColor(red: 0.0, green: 0.0, blue: 0.0, alpha: 0.0)
 
+        if layerRenderer.configuration.layout == .layered {
+            firstRenderPassDescriptor.renderTargetArrayLength = drawable.views.count
+        }
+        
         if (volumeModell.selectedShader == "IsoRC" && !volumeModell.shaderNeedsUpdate) {
             for i in 1..<4 {
                 firstRenderPassDescriptor.colorAttachments[i].texture = self.renderTargetTexture[i]
@@ -154,6 +163,15 @@ class FullView {
         
         let firstRenderEncoder = commandBuffer.makeRenderCommandEncoder(descriptor: firstRenderPassDescriptor)!
         firstRenderEncoder.setRenderPipelineState(self.firstPipelineState)
+        
+        firstRenderEncoder.setViewports(viewports)
+        if drawable.views.count > 1 {
+            var viewMappings = (0..<drawable.views.count).map {
+                MTLVertexAmplificationViewMapping(viewportArrayIndexOffset: UInt32($0),
+                                                  renderTargetArrayIndexOffset: UInt32($0))
+            }
+            firstRenderEncoder.setVertexAmplificationCount(viewports.count, viewMappings: &viewMappings)
+        }
         
         firstRenderEncoder.setVertexBuffer(self.vertexBuffer, offset: 0, index: 0)
         firstRenderEncoder.setVertexBuffer(self.matrixBuffer, offset: 0, index: 1)
@@ -174,16 +192,31 @@ class FullView {
         secondRenderPassDescriptor.depthAttachment.texture = drawable.depthTextures[0]
         secondRenderPassDescriptor.depthAttachment.storeAction = .store
         
+        if layerRenderer.configuration.layout == .layered {
+            secondRenderPassDescriptor.renderTargetArrayLength = drawable.views.count
+        }
+        
         let secondRenderEncoder = commandBuffer.makeRenderCommandEncoder(descriptor: secondRenderPassDescriptor)!
         secondRenderEncoder.setRenderPipelineState(self.secondPipelineState)
         secondRenderEncoder.setDepthStencilState(self.depthSencilState)
         
+        secondRenderEncoder.setViewports(viewports)
+        if drawable.views.count > 1 {
+            var viewMappings = (0..<drawable.views.count).map {
+                MTLVertexAmplificationViewMapping(viewportArrayIndexOffset: UInt32($0),
+                                                  renderTargetArrayIndexOffset: UInt32($0))
+            }
+            secondRenderEncoder.setVertexAmplificationCount(viewports.count, viewMappings: &viewMappings)
+        }
+        
         secondRenderEncoder.setVertexBuffer(self.vertexBufferFullScreen, offset: 0, index: 0)
-        secondRenderEncoder.setFragmentTexture(self.renderTargetTexture[0], index: 0)
+        secondRenderEncoder.setFragmentTexture(getTexture(0, 0), index: 0)
+        secondRenderEncoder.setFragmentTexture(getTexture(0, 1), index: 1)
         if (volumeModell.selectedShader == "IsoRC" && !volumeModell.shaderNeedsUpdate) {
             secondRenderEncoder.setFragmentBuffer(self.parameterBuffer, offset: 0, index: 0)
             for i in 1..<4 {
-                secondRenderEncoder.setFragmentTexture(self.renderTargetTexture[i], index: i)
+                secondRenderEncoder.setFragmentTexture(getTexture(i, 0), index: i*2)
+                secondRenderEncoder.setFragmentTexture(getTexture(i, 1), index: i*2+1)
             }
         }
         
@@ -256,8 +289,9 @@ class FullView {
         offscreenTextureDesc.width = 1888
         offscreenTextureDesc.height = 1824
         offscreenTextureDesc.pixelFormat = .rgba16Float
-        offscreenTextureDesc.textureType = .type2D
-        offscreenTextureDesc.usage = [.renderTarget, .shaderRead]
+        offscreenTextureDesc.textureType = .type2DArray
+        offscreenTextureDesc.arrayLength = 2
+        offscreenTextureDesc.usage = [.renderTarget, .shaderRead, .pixelFormatView]
         for i in 0..<4 {
             renderTargetTexture[i] = device.makeTexture(descriptor: offscreenTextureDesc)!
         }
@@ -317,7 +351,7 @@ class FullView {
             
             renderParams.xPos = 1888 / 2 
             renderParams.yPos = 1824 / 2
-            renderParams.cvScale = 3.5
+            renderParams.cvScale = 2.7
             
             matrix.clip = clipBox
             matrix.modelViewProjection = projection * viewMatrix * modelMatrix * clipBox
