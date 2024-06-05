@@ -39,6 +39,8 @@ class FullView {
     var vertexBufferFullScreen: MTLBuffer!
     
     var vertexBuffer: MTLBuffer!
+    var vertexBuffer1: MTLBuffer!
+    
     var matrixBuffer: MTLBuffer!
     var parameterBuffer: MTLBuffer!
     
@@ -174,7 +176,8 @@ class FullView {
         }
         
         firstRenderEncoder.setVertexBuffer(self.vertexBuffer, offset: 0, index: 0)
-        firstRenderEncoder.setVertexBuffer(self.matrixBuffer, offset: 0, index: 1)
+        firstRenderEncoder.setVertexBuffer(self.vertexBuffer1, offset: 0, index: 1)
+        firstRenderEncoder.setVertexBuffer(self.matrixBuffer, offset: 0, index: 2)
         firstRenderEncoder.setFragmentTexture(self.texture, index: TextureIndex.color.rawValue)
         firstRenderEncoder.setFragmentBuffer(self.parameterBuffer, offset: 0, index: 0)
         
@@ -349,14 +352,14 @@ class FullView {
             renderParams.modelView = viewMatrix * modelMatrix * clipBox
             renderParams.modelViewIT = simd_transpose(simd_inverse(viewMatrix * modelMatrix * clipBox));
             
-            renderParams.xPos = 1888 / 2 
+            renderParams.xPos = 1888 / 2
             renderParams.yPos = 1824 / 2
             renderParams.cvScale = 2.7
             
             matrix.clip = clipBox
             matrix.modelViewProjection = projection * viewMatrix * modelMatrix * clipBox
             
-            clipCubeToNearplane(viewMatrix * modelMatrix, drawable.depthRange.y)
+            clipCubeToNearplane(forView, viewMatrix * modelMatrix, drawable.depthRange.y)
         }
         
         projection(forView: 0, renderParams: &self.param.pointee.params.0, matrix: &self.matrix.pointee.matrices.0)
@@ -366,8 +369,8 @@ class FullView {
         }
     }
     
-    func clipCubeToNearplane(_ view: simd_float4x4, _ near: Float) {
-        let objectSpaceNearPlane = simd.simd_transpose(view) * simd_float4(0, 0, 1.0, near + 0.01)
+    func clipCubeToNearplane(_ forView: Int, _ viewModel: simd_float4x4, _ near: Float) {
+        let objectSpaceNearPlane = simd.simd_transpose(viewModel) * simd_float4(0, 0, 1.0, near + 0.01)
         
         let verts = meshPlane(
             posData: cube.vertices,
@@ -378,11 +381,19 @@ class FullView {
         )
 
         let vertexDataSize = MemoryLayout<Float>.stride * verts.count
-        self.vertexBuffer = self.device.makeBuffer(length: MemoryLayout<Float>.stride * vertexDataSize,
-                                                   options: [MTLResourceOptions.storageModeShared])!
-        
-        self.vertexBuffer.contents().copyMemory(from: verts, byteCount: vertexDataSize)
         self.vertCount = verts.count / 4
+        
+        if (forView == 0) {
+            self.vertexBuffer = self.device.makeBuffer(length: MemoryLayout<Float>.stride * vertexDataSize,
+                                                       options: [MTLResourceOptions.storageModeShared])!
+            
+            self.vertexBuffer.contents().copyMemory(from: verts, byteCount: vertexDataSize)
+        } else {
+            self.vertexBuffer1 = self.device.makeBuffer(length: MemoryLayout<Float>.stride * vertexDataSize,
+                                                       options: [MTLResourceOptions.storageModeShared])!
+            
+            self.vertexBuffer1.contents().copyMemory(from: verts, byteCount: vertexDataSize)
+        }
     }
     
     func startRenderLoop() {

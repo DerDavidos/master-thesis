@@ -15,11 +15,15 @@ struct v2fBlit {
 v2f vertex vertexMain( uint vertexId [[vertex_id]],
                       ushort amp_id [[amplification_id]],
                       device const float4* position [[buffer(0)]],
-                      device const MatricesArray& matricesArray [[buffer(1)]])
+                      device const float4* position1 [[buffer(1)]],
+                      device const MatricesArray& matricesArray [[buffer(2)]])
 {
     shaderMatrices matrices = matricesArray.matrices[amp_id];
-    v2f o;
+    if (amp_id == 0) {
+        position = position1;
+    }
     
+    v2f o;
     o.position = matrices.modelViewProjection * position[ vertexId ];
     o.entryPoint = (matrices.clip*position[ vertexId ]).xyz+0.5;
     return o;
@@ -277,6 +281,7 @@ float computeCurvatureApprox(ushort2 fragPos, float3 centerNormal, texture2d< fl
                   length(centerNormal-normalYp)+
                   length(centerNormal-normalYn));
 }
+
 
 half4 fragment fragmentMainIsoSecond( v2fBlit in [[stage_in]],
                                      ushort amp_id [[amplification_id]],
