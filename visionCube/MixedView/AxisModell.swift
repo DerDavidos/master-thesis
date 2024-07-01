@@ -39,7 +39,6 @@ class AxisModell {
     
     @MainActor
     func enableAxis(axisName: String) {
-        //        print(axisName)
         for axis in axises {
             if (axis.axisName == axisName) {
                 axis.listEntity.isEnabled = true
@@ -79,12 +78,12 @@ class AxisModell {
         }
     }
     
+    @MainActor
     func addEntities(root: Entity, axisList: inout axisList) {
         for i in 0...axisList.materialEntity.count - 1 {
             axisList.listEntity.addChild(axisList.materialEntity[i].entity)
         }
         root.addChild(axisList.listEntity)
-        axises.append(axisList)
     }
     
     func resetClipPlanes() {

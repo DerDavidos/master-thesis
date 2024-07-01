@@ -165,7 +165,7 @@ class AxisRenderer {
         //            image = UIImage(cgImage: image).resize(height:CGFloat(image.height) / (1 / CGFloat(oversampling))).cgImage!
         //        }
         
-        let textureResource = try! TextureResource.generate(from: image, options: TextureResource.CreateOptions(semantic: .color, mipmapsMode: .allocateAndGenerateAll))
+        let textureResource = try! TextureResource(image: image, options: TextureResource.CreateOptions(semantic: .color, mipmapsMode: .allocateAndGenerateAll))
         return textureResource
     }
     

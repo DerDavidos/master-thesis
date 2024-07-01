@@ -5,7 +5,7 @@ import RealityKitContent
 import ARKit
 import Accelerate
 
-let START_TRANSFORM = Transform(scale: START_SCALE, rotation: START_ROTATION, translation: START_TRANSLATION)
+let START_TRANSFORM: Transform = Transform(scale: START_SCALE, rotation: START_ROTATION, translation: START_TRANSLATION)
 
 @Observable
 class VolumeModell {

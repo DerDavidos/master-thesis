@@ -10,8 +10,6 @@ import RealityKitContent
 import ARKit
 import Accelerate
 
-let maxBuffersInFlight = 10
-
 class FullView {
     public let device: MTLDevice!
     

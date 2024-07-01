@@ -28,12 +28,9 @@ struct VolumeControll: View {
     @Environment(\.dismissWindow) var dismissWindow
     
     @State private var immersiveSpaceIsShown = false
-
     
     var axisModell: AxisModell? = nil
     var volumeModell: VolumeModell
-    
-    
     
     @MainActor
     fileprivate func dismissSpaceIfShown() async {
