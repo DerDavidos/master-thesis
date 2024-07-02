@@ -1,11 +1,9 @@
-import Foundation
-
 func epsilonEqual(_ a: Float, _ b: Float) -> Bool {
     return abs(a - b) <= Float.ulpOfOne
 }
 
 func rayPlaneIntersection(la: Vec3, lb: Vec3, n: Vec3, D: Float, hit: inout Vec3) -> Bool {
-    let denom = Vec3.dot(n, (la - lb))
+    let denom = Vec3.dot(n, la - lb)
     
     if epsilonEqual(denom, 0.0) {
         return false
@@ -17,123 +15,103 @@ func rayPlaneIntersection(la: Vec3, lb: Vec3, n: Vec3, D: Float, hit: inout Vec3
 }
 
 func splitTriangle(a: Vec3, b: Vec3, c: Vec3, fa: Float, fb: Float, fc: Float, normal: Vec3, D: Float, out: inout [Vec3], newVerts: inout [Vec3]) {
-    // Rotation / mirroring.
-    // ... (same as before)
+    var a = a, b = b, c = c
+    var fa = fa, fb = fb, fc = fc
     
-    // Create mutable copies for swapping and modification.
-    var mutableA = a
-    var mutableB = b
-    var mutableC = c
-    
-    var muatlbeFA = fa
-    var mutableFB = fb
-    var mutableFC = fc
-    
-    // If fa*fc is non-negative, both have the same sign -- and thus are on the
-    // same side of the plane.
     if fa * fc >= 0 {
-        swap(&mutableFB, &mutableFC)
-        swap(&mutableB, &mutableC)
-        swap(&muatlbeFA, &mutableFB)
-        swap(&mutableA, &mutableB)
+        swap(&fb, &fc)
+        swap(&b, &c)
+        swap(&fa, &fb)
+        swap(&a, &b)
     } else if fb * fc >= 0 {
-        swap(&muatlbeFA, &mutableFC)
-        swap(&mutableA, &mutableC)
-        swap(&muatlbeFA, &mutableFB)
-        swap(&mutableA, &mutableB)
+        swap(&fa, &fc)
+        swap(&a, &c)
+        swap(&fa, &fb)
+        swap(&a, &b)
     }
     
-    // Find the intersection points.
-    var intersectionA = Vec3()
-    var intersectionB = Vec3()
-    if rayPlaneIntersection(la: mutableA, lb: mutableC, n: normal, D: D, hit: &intersectionA),
-       rayPlaneIntersection(la: mutableB, lb: mutableC, n: normal, D: D, hit: &intersectionB) {
-        print("Clipper error")
-    }
+    var A = Vec3(x: 0, y: 0, z: 0)
+    var B = Vec3(x: 0, y: 0, z: 0)
+    _ = rayPlaneIntersection(la: a, lb: c, n: normal, D: D, hit: &A)
+    _ = rayPlaneIntersection(la: b, lb: c, n: normal, D: D, hit: &B)
     
     if fc >= 0 {
-        out.append(contentsOf: [mutableA, mutableB, intersectionA, mutableB, intersectionB, intersectionA])
+        out.append(a); out.append(b); out.append(A)
+        out.append(b); out.append(B); out.append(A)
     } else {
-        out.append(contentsOf: [intersectionA, intersectionB, mutableC])
+        out.append(A); out.append(B); out.append(c)
     }
-    newVerts.append(contentsOf: [intersectionA, intersectionB])
+    newVerts.append(A)
+    newVerts.append(B)
 }
 
-func rawToVec3(posData: [Float]) -> [Vec3] {
-    var v = [Vec3](repeating: Vec3(), count: posData.count / 3)
-    for i in 0..<posData.count / 3 {
-        v[i] = Vec3(x: posData[i * 3], y: posData[i * 3 + 1], z: posData[i * 3 + 2])
-    }
-    return v
-}
-
-func vec3toRaw4(posData: [Vec3]) -> [Float] {
-    var v = [Float](repeating: 0, count: posData.count * 4)
-    for i in 0..<posData.count {
-        v[i * 4] = posData[i].x
-        v[i * 4 + 1] = posData[i].y
-        v[i * 4 + 2] = posData[i].z
-        v[i * 4 + 3] = 1
-    }
-    return v
-}
-func triPlane(posData: [Vec3], normal: Vec3, D: Float) -> ([Vec3], [Vec3]) {
-    var newVertices: [Vec3] = []
-    var out: [Vec3] = []
-    
-    if posData.count % 3 != 0 {
-        return (newVertices, out)
-    }
-    
-    for i in stride(from: 0, to: posData.count - 2, by: 3) {
-        let a: Vec3 = posData[i]
-        let b: Vec3 = posData[i + 1]
-        let c: Vec3 = posData[i + 2]
+class Clipper {
+    static func triPlane(posData: inout [Vec3], normal: Vec3, D: Float) -> [Vec3] {
+        var newVertices = [Vec3]()
+        var out = [Vec3]()
+        if posData.count % 3 != 0 { return newVertices }
         
-        var fa: Float = Vec3.dot(normal, a) + D
-        var fb: Float = Vec3.dot(normal, b) + D
-        var fc: Float = Vec3.dot(normal, c) + D
-        
-        if abs(fa) < (2 * Float.ulpOfOne) {
-            fa = 0
-        }
-        
-        if abs(fb) < (2 * Float.ulpOfOne) {
-            fb = 0
-        }
-        
-        if abs(fc) < (2 * Float.ulpOfOne) {
-            fc = 0
-        }
-        
-        if fa >= 0 && fb >= 0 && fc >= 0 {
-            continue // trivial reject
-        } else if fa <= 0 && fb <= 0 && fc <= 0 {
-            out.append(a)
-            out.append(b)
-            out.append(c)
-        } else {
-            var tris: [Vec3] = []
-            var newVerts: [Vec3] = []
+        for i in stride(from: 0, to: posData.count, by: 3) {
+            let a = posData[i]
+            let b = posData[i + 1]
+            let c = posData[i + 2]
             
-            splitTriangle(a: a, b: b, c: c, fa: fa, fb: fb, fc: fc, normal: normal, D: D, out: &tris, newVerts: &newVerts)
+            var fa = Vec3.dot(normal, a) + D
+            var fb = Vec3.dot(normal, b) + D
+            var fc = Vec3.dot(normal, c) + D
             
-            out.append(contentsOf: tris)
-            newVertices.append(contentsOf: newVerts)
+            if abs(fa) < (2 * Float.ulpOfOne) { fa = 0 }
+            if abs(fb) < (2 * Float.ulpOfOne) { fb = 0 }
+            if abs(fc) < (2 * Float.ulpOfOne) { fc = 0 }
+            
+            if fa >= 0 && fb >= 0 && fc >= 0 {
+                continue
+            } else if fa <= 0 && fb <= 0 && fc <= 0 {
+                out.append(a)
+                out.append(b)
+                out.append(c)
+            } else {
+                var tris = [Vec3]()
+                var newVerts = [Vec3]()
+                splitTriangle(a: a, b: b, c: c, fa: fa, fb: fb, fc: fc, normal: normal, D: D, out: &tris, newVerts: &newVerts)
+                
+                out.append(contentsOf: tris)
+                newVertices.append(contentsOf: newVerts)
+            }
+        }
+        
+        posData = out
+        return newVertices
+    }
+    
+    static func meshPlane(posData: inout [Vec3], normal: Vec3, D: Float) {
+        var newVertices = Clipper.triPlane(posData: &posData, normal: normal, D: D)
+        
+        if newVertices.count < 3 { return }
+        
+        newVertices.sort(by: { $0.x < $1.x || ($0.x == $1.x && $0.y < $1.y) || ($0.x == $1.x && $0.y == $1.y && $0.z < $1.z) })
+        newVertices = Array(newVertices)
+        
+        var center = Vec3(x: 0, y: 0, z: 0)
+        for vertex in newVertices {
+            center = center + vertex
+        }
+        center = center / Float(newVertices.count)
+        
+        let a = newVertices[0]
+        newVertices.sort(by: { angleSorter(i: $0, j: $1, center: center, refVec: Vec3.normalize(a - center), normal: normal) })
+        
+        for i in 2..<newVertices.count {
+            posData.append(newVertices[0])
+            posData.append(newVertices[i - 1])
+            posData.append(newVertices[i])
         }
     }
     
-    return (newVertices, posData)
-}
-
-
-struct CompSorter {
-    static func compare(_ i: Vec3, _ j: Vec3) -> ComparisonResult {
-        if i.x < j.x || (i.x == j.x && i.y < j.y) || (i.x == j.x && i.y == j.y && i.z < j.z) {
-            return .orderedAscending
-        } else {
-            return .orderedDescending
-        }
+    static func meshPlane(posData: [Float], A: Float, B: Float, C: Float, D: Float) -> [Float] {
+        var vecPos = rawToVec3(posData: posData)
+        meshPlane(posData: &vecPos, normal: Vec3(x: A, y: B, z: C), D: D)
+        return vec3toRaw4(posData: vecPos)
     }
 }
 
@@ -152,51 +130,21 @@ func angleSorter(i: Vec3, j: Vec3, center: Vec3, refVec: Vec3, normal: Vec3) -> 
     return acI > acJ
 }
 
-func meshPlane(posData: inout [Vec3], normal: Vec3, D: Float) {
-    var (newVertices, posData) = triPlane(posData: posData, normal: normal, D: D)
-    guard newVertices.count >= 3 else {
-        return
+func rawToVec3(posData: [Float]) -> [Vec3] {
+    var v = [Vec3]()
+    for i in stride(from: 0, to: posData.count, by: 3) {
+        v.append(Vec3(x: posData[i], y: posData[i + 1], z: posData[i + 2]))
     }
-    
-    // Remove duplicate vertices
-    newVertices.sort(by: { CompSorter.compare($0, $1) == .orderedAscending })
-    newVertices.removeDuplicates()
-    
-    // Sort counter-clockwise
-    let center = newVertices.reduce(Vec3(), +) / Float(newVertices.count)
-    
-    let newVerticesCopy = newVertices
-    
-    newVertices.sort {
-        angleSorter(i: $0, j: $1, center: center, refVec: Vec3.normalize(newVerticesCopy[0] - center), normal: normal)
-    }
-    
-    // Create a triangle fan with the newly created vertices to close the polytope
-    for vertexIndex in 2..<newVertices.count {
-        let vertex = newVertices[vertexIndex]
-        posData.append(newVertices[0])
-        posData.append(newVertices[vertexIndex - 1])
-        posData.append(vertex)
-    }
-    
+    return v
 }
 
-func meshPlane(posData: [Float], A: Float, B: Float, C: Float, D: Float) -> [Float] {
-    var vecPos = rawToVec3(posData: posData)
-    meshPlane(posData: &vecPos, normal: Vec3(x: A, y: B, z: C), D: D)
-    return vec3toRaw4(posData: vecPos)
-}
-
-
-extension Array where Element: Equatable {
-    mutating func removeDuplicates() {
-        var uniqueElements: [Element] = []
-        for element in self {
-            if !uniqueElements.contains(element) {
-                uniqueElements.append(element)
-            }
-        }
-        self = uniqueElements
+func vec3toRaw4(posData: [Vec3]) -> [Float] {
+    var v = [Float]()
+    for vec in posData {
+        v.append(vec.x)
+        v.append(vec.y)
+        v.append(vec.z)
+        v.append(1)
     }
+    return v
 }
-

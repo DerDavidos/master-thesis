@@ -226,7 +226,7 @@ struct QuadMRTOut {
   float4 mrt3 [[ color(3) ]];
 };
 
-QuadMRTOut fragment fragmentMainIsoRC( v2f in [[stage_in]],
+QuadMRTOut fragment fragmentMainClearView( v2f in [[stage_in]],
                                    texture3d< half, access::sample > volume [[texture(0)]],
                                    device const ShaderRenderParamaters& renderParams [[buffer(0)]])
 {

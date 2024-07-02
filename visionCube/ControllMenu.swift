@@ -141,7 +141,7 @@ struct VolumeControll: View {
                     Section {
                         Picker("Shader", selection: $volumeModell.menuShader) {
                             
-                            ForEach(["Standard", "Lighting", "ISO", "ISOLighting", "IsoRC"], id: \.self) {
+                            ForEach(["Standard", "Lighting", "ISO", "ISOLighting", "ClearView"], id: \.self) {
                                 Text($0)
                             }
                         }.onChange(of: volumeModell.menuShader) {

@@ -113,6 +113,8 @@
 				630868272B8F589700D14763 /* FullView.swift */,
 				630868302B8F656600D14763 /* FullConfigs.swift */,
 				635E81522BF3756B00978F4B /* FullControls.swift */,
+				6308682C2B8F5A7D00D14763 /* shader.metal */,
+				6308682E2B8F5A8B00D14763 /* shaderTypes.h */,
 			);
 			path = FullView;
 			sourceTree = "<group>";
@@ -169,8 +171,6 @@
 				638E691D2B6AE81600DC2E98 /* Tesselation.swift */,
 				638E69202B6AE81600DC2E98 /* Vecs.swift */,
 				638E69232B6AE81600DC2E98 /* Volumes.swift */,
-				6308682C2B8F5A7D00D14763 /* shader.metal */,
-				6308682E2B8F5A8B00D14763 /* shaderTypes.h */,
 			);
 			path = Cube;
 			sourceTree = "<group>";
@@ -491,7 +491,7 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SUPPORTED_PLATFORMS = "xros xrsimulator";
 				SWIFT_EMIT_LOC_STRINGS = YES;
-				SWIFT_OBJC_BRIDGING_HEADER = visionCube/Cube/ShaderTypes.h;
+				SWIFT_OBJC_BRIDGING_HEADER = visionCube/FullView/shaderTypes.h;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2,7";
 				XROS_DEPLOYMENT_TARGET = 2.0;
@@ -518,7 +518,7 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SUPPORTED_PLATFORMS = "xros xrsimulator";
 				SWIFT_EMIT_LOC_STRINGS = YES;
-				SWIFT_OBJC_BRIDGING_HEADER = visionCube/Cube/ShaderTypes.h;
+				SWIFT_OBJC_BRIDGING_HEADER = visionCube/FullView/shaderTypes.h;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2,7";
 				XROS_DEPLOYMENT_TARGET = 2.0;
