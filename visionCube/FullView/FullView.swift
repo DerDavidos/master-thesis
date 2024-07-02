@@ -36,8 +36,8 @@ class FullView {
     
     var vertexBufferFullScreen: MTLBuffer!
     
-    var vertexBuffer: MTLBuffer!
-    var vertexBuffer1: MTLBuffer!
+    var vertexBufferLeft: MTLBuffer!
+    var vertexBufferRight: MTLBuffer!
     
     var matrixBuffer: MTLBuffer!
     var parameterBuffer: MTLBuffer!
@@ -151,7 +151,7 @@ class FullView {
             firstRenderPassDescriptor.renderTargetArrayLength = drawable.views.count
         }
         
-        if (volumeModell.selectedShader == "IsoRC" && !volumeModell.shaderNeedsUpdate) {
+        if (volumeModell.selectedShader == "ClearView" && !volumeModell.shaderNeedsUpdate) {
             for i in 1..<4 {
                 firstRenderPassDescriptor.colorAttachments[i].texture = self.renderTargetTexture[i]
                 firstRenderPassDescriptor.colorAttachments[i].loadAction = .clear
@@ -173,8 +173,12 @@ class FullView {
             firstRenderEncoder.setVertexAmplificationCount(viewports.count, viewMappings: &viewMappings)
         }
         
-        firstRenderEncoder.setVertexBuffer(self.vertexBuffer, offset: 0, index: 0)
-        firstRenderEncoder.setVertexBuffer(self.vertexBuffer1, offset: 0, index: 1)
+        firstRenderEncoder.setVertexBuffer(self.vertexBufferLeft, offset: 0, index: 0)
+        if drawable.views.count > 1 {
+            firstRenderEncoder.setVertexBuffer(self.vertexBufferRight, offset: 0, index: 1)
+        } else {
+            firstRenderEncoder.setVertexBuffer(self.vertexBufferLeft, offset: 0, index: 1) // Give simulator some value for the other buffer
+        }
         firstRenderEncoder.setVertexBuffer(self.matrixBuffer, offset: 0, index: 2)
         firstRenderEncoder.setFragmentTexture(self.texture, index: TextureIndex.color.rawValue)
         firstRenderEncoder.setFragmentBuffer(self.parameterBuffer, offset: 0, index: 0)
@@ -213,7 +217,7 @@ class FullView {
         secondRenderEncoder.setVertexBuffer(self.vertexBufferFullScreen, offset: 0, index: 0)
         secondRenderEncoder.setFragmentTexture(getTexture(0, 0), index: 0)
         secondRenderEncoder.setFragmentTexture(getTexture(0, 1), index: 1)
-        if (volumeModell.selectedShader == "IsoRC" && !volumeModell.shaderNeedsUpdate) {
+        if (volumeModell.selectedShader == "ClearView" && !volumeModell.shaderNeedsUpdate) {
             secondRenderEncoder.setFragmentBuffer(self.parameterBuffer, offset: 0, index: 0)
             for i in 1..<4 {
                 secondRenderEncoder.setFragmentTexture(getTexture(i, 0), index: i*2)
@@ -248,7 +252,7 @@ class FullView {
         firstPipelineDescriptor.isAlphaToCoverageEnabled = true
         
         firstPipelineDescriptor.colorAttachments[0].pixelFormat = .rgba16Float
-        if (volumeModell.selectedShader == "IsoRC"){
+        if (volumeModell.selectedShader == "ClearView"){
             firstPipelineDescriptor.colorAttachments[1].pixelFormat = .rgba16Float
             firstPipelineDescriptor.colorAttachments[2].pixelFormat = .rgba16Float
             firstPipelineDescriptor.colorAttachments[3].pixelFormat = .rgba16Float
@@ -267,7 +271,7 @@ class FullView {
         
         let secondvertexFunction = library?.makeFunction(name: "vertexMainBlit")
         var secondfragmentFunction: MTLFunction! = nil
-        if (volumeModell.selectedShader == "IsoRC") {
+        if (volumeModell.selectedShader == "ClearView") {
             secondfragmentFunction = library?.makeFunction(name: "fragmentMainIsoSecond")
         } else {
             secondfragmentFunction = library?.makeFunction(name: "fragmentMainBlit")
@@ -287,7 +291,7 @@ class FullView {
     
     fileprivate func createRenderTargetTexture() {
         let offscreenTextureDesc = MTLTextureDescriptor()
-        offscreenTextureDesc.width = 1888
+        offscreenTextureDesc.width = 1888 // size of one eye, addjust for simulator
         offscreenTextureDesc.height = 1824
         offscreenTextureDesc.pixelFormat = .rgba16Float
         offscreenTextureDesc.textureType = .type2DArray
@@ -369,28 +373,28 @@ class FullView {
     
     func clipCubeToNearplane(_ forView: Int, _ viewModel: simd_float4x4, _ near: Float) {
         let objectSpaceNearPlane = simd.simd_transpose(viewModel) * simd_float4(0, 0, 1.0, near + 0.01)
-        
-        let verts = meshPlane(
+
+        let verts = Clipper.meshPlane(
             posData: cube.vertices,
             A: objectSpaceNearPlane.x,
             B: objectSpaceNearPlane.y,
             C: objectSpaceNearPlane.z,
             D: objectSpaceNearPlane.w
         )
-
+        
         let vertexDataSize = MemoryLayout<Float>.stride * verts.count
         self.vertCount = verts.count / 4
         
         if (forView == 0) {
-            self.vertexBuffer = self.device.makeBuffer(length: MemoryLayout<Float>.stride * vertexDataSize,
+            self.vertexBufferLeft = self.device.makeBuffer(length: MemoryLayout<Float>.stride * vertexDataSize,
                                                        options: [MTLResourceOptions.storageModeShared])!
             
-            self.vertexBuffer.contents().copyMemory(from: verts, byteCount: vertexDataSize)
+            self.vertexBufferLeft.contents().copyMemory(from: verts, byteCount: vertexDataSize)
         } else {
-            self.vertexBuffer1 = self.device.makeBuffer(length: MemoryLayout<Float>.stride * vertexDataSize,
+            self.vertexBufferRight = self.device.makeBuffer(length: MemoryLayout<Float>.stride * vertexDataSize,
                                                        options: [MTLResourceOptions.storageModeShared])!
             
-            self.vertexBuffer1.contents().copyMemory(from: verts, byteCount: vertexDataSize)
+            self.vertexBufferRight.contents().copyMemory(from: verts, byteCount: vertexDataSize)
         }
     }
     
