@@ -46,7 +46,6 @@ class VolumeModell {
         if axisView {
             if !axisModell.axisLoaded || axisModell.loadedVolume != selectedVolume || oversampling != axisModell.oversampling {
                 axisModell.oversampling = oversampling
-                print(oversampling)
                 loading = true
                 await axisModell.loadAllEntities()
                 await axisModell.createEntityList(dataset: dataset, loadedVolume: selectedVolume)

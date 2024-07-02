@@ -186,7 +186,6 @@ class AxisRenderer {
                 fatalError("Unexpected value \(axis)")
             }
             
-            print("loading \(axis)")
             for layer in stride(from: 0.0, through: Float(layers - 3), by: 1/oversampling) {
                 let entity = Entity()
                 var material: ShaderGraphMaterial? = nil
@@ -277,7 +276,6 @@ class AxisRenderer {
         }
         resultFolderURL = resultFolderURL.appendingPathComponent(String(id) + ".png")
         var _ = writeCGImage(image, to: resultFolderURL)
-        print(resultFolderURL)
     }
 }
 

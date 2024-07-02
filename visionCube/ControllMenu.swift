@@ -15,8 +15,7 @@ func listRawFiles(at directoryPath: String) -> [String] {
         }
         return rawFiles
     } catch {
-        print("Error getting directory contents: \(error)")
-        return []
+        fatalError("Error getting directory contents: \(error)")
     }
 }
 
@@ -84,6 +83,7 @@ struct VolumeControll: View {
                     Task {
                         if volumeModell.axisView {
                             volumeModell.fullView = false
+                            volumeModell.menuShader = "Standard"
                         }
                         await updateView(viewActive: showAxisView, viewName: "AxisView")
                     }
@@ -99,7 +99,7 @@ struct VolumeControll: View {
                 
                 Spacer()
                 GridRow {
-                    Text(volumeModell.selectedShader.contains("ISO") ? "ISO:" : "Start:").font(.title)
+                    Text(volumeModell.selectedShader.contains("ISO") || volumeModell.selectedShader.contains("ClearView") ? "ISO:" : "Start:").font(.title)
                     Slider(value: $volumeModell.smoothStepStart, in: 0...1) { editing in
                         if (!editing) {
                             volumeModell.updateAllAxis()
@@ -107,7 +107,7 @@ struct VolumeControll: View {
                     }.opacity(volumeModell.loading ? 0.0 : 1.0)
                 }
                 GridRow {
-                    Text("Shift:").font(.title)
+                    Text(volumeModell.selectedShader.contains("ClearView") ? "ISO Inner:" : "Shift:").font(.title)
                     Slider(value: $volumeModell.smoothStepShift, in: 0...1) { editing in
                         if (!editing) {
                             volumeModell.updateAllAxis()

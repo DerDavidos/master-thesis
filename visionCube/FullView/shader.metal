@@ -299,14 +299,17 @@ half4 fragment fragmentMainIsoSecond( v2fBlit in [[stage_in]],
                                      
                                 device const ShaderRenderParamaters& renderParams [[buffer(0)]])
 {
-    float xPos = renderParams.xPos + 100;
+    float eyeDistance = 125; // ???
+    float xPos = renderParams.xPos;
     if (amp_id == 1) {
         isoPosTex0 = isoPosTex0_1;
         isoNormalTex0 = isoNormalTex0_1;
         isoPosTex1 = isoPosTex1_1;
         isoNormalTex1 = isoNormalTex1_1;
         
-        xPos = renderParams.xPos - 100;
+        xPos = xPos - eyeDistance;
+    } else {
+        xPos = xPos + eyeDistance;
     }
     
   ushort2 fragPos = ushort2(in.position.xy);
