@@ -249,7 +249,6 @@ class FullView {
         
         firstPipelineDescriptor.maxVertexAmplificationCount = layerRenderer.properties.viewCount
         firstPipelineDescriptor.rasterSampleCount = 1
-        firstPipelineDescriptor.isAlphaToCoverageEnabled = true
         
         firstPipelineDescriptor.colorAttachments[0].pixelFormat = .rgba16Float
         if (volumeModell.selectedShader == "ClearView"){
@@ -284,7 +283,6 @@ class FullView {
         secondPipelineDescriptor.depthAttachmentPixelFormat = .depth32Float
 
         secondPipelineDescriptor.maxVertexAmplificationCount = layerRenderer.properties.viewCount
-        secondPipelineDescriptor.isAlphaToCoverageEnabled = true
         
         return try!device.makeRenderPipelineState(descriptor: secondPipelineDescriptor)
     }
