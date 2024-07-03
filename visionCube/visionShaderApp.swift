@@ -25,11 +25,11 @@ struct visionShaderApp: App {
             VolumeControll(volumeModell: volumeModell)
         }.windowStyle(.plain)
         
-        ImmersiveSpace(id: "AxisView") {
+        ImmersiveSpace(id: "Axis-Aligned") {
             AxisView(volumeModell: volumeModell)
         }.immersionStyle(selection: .constant(.mixed), in: .mixed)
         
-        ImmersiveSpace(id: "FullView") {
+        ImmersiveSpace(id: "Ray Casting") {
             CompositorLayer(configuration: ContentStageConfiguration()) { layerRenderer in
                 let fullView = FullView(layerRenderer, volumeModell: volumeModell)
                 fullView.startRenderLoop()

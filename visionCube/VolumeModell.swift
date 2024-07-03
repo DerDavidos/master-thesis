@@ -24,8 +24,8 @@ class VolumeModell {
     var lastTransform: Transform = START_TRANSFORM
     
     var loading = false
-    var axisView = false
-    var fullView = false
+    var axisAligned = false
+    var rayCasting = false
     
     var dataset: QVis!
     var selectedVolume = START_VOLUME
@@ -43,7 +43,7 @@ class VolumeModell {
     
     @MainActor
     func initAxisView() async {
-        if axisView {
+        if axisAligned {
             if !axisModell.axisLoaded || axisModell.loadedVolume != selectedVolume || oversampling != axisModell.oversampling {
                 axisModell.oversampling = oversampling
                 loading = true
@@ -85,7 +85,7 @@ class VolumeModell {
     }
     
     func updateAllAxis() {
-        if !axisView {
+        if !axisAligned {
             return
         }
         Task {

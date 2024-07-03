@@ -75,25 +75,25 @@ struct VolumeControll: View {
         VStack {
             Grid(verticalSpacing: 15) {
                 VStack (spacing: 10) {
-                    Toggle("Axis View", isOn: $volumeModell.axisView).font(.largeTitle)
-                    Toggle("Full View", isOn: $volumeModell.fullView).font(.largeTitle)
+                    Toggle("Axis-Aligned", isOn: $volumeModell.axisAligned).font(.largeTitle)
+                    Toggle("Ray Casting", isOn: $volumeModell.rayCasting).font(.largeTitle)
                 }
                 .opacity(volumeModell.loading ? 0.0 : 1.0)
-                .onChange(of: volumeModell.axisView) { _, showAxisView in
+                .onChange(of: volumeModell.axisAligned) { _, showAxisView in
                     Task {
-                        if volumeModell.axisView {
-                            volumeModell.fullView = false
+                        if volumeModell.axisAligned {
+                            volumeModell.rayCasting = false
                             volumeModell.menuShader = "Standard"
                         }
-                        await updateView(viewActive: showAxisView, viewName: "AxisView")
+                        await updateView(viewActive: showAxisView, viewName: "Axis-Aligned")
                     }
                 }
-                .onChange(of: volumeModell.fullView) { _, showFullView in
+                .onChange(of: volumeModell.rayCasting) { _, showFullView in
                     Task {
-                        if volumeModell.fullView {
-                            volumeModell.axisView = false
+                        if volumeModell.rayCasting {
+                            volumeModell.axisAligned = false
                         }
-                        await updateView(viewActive: showFullView, viewName: "FullView")
+                        await updateView(viewActive: showFullView, viewName: "Ray Casting")
                     }
                 }.frame(width: 400)
                 
@@ -135,7 +135,7 @@ struct VolumeControll: View {
                         .font(.title)
                     Toggle("Z Clip", isOn: $axisModell.clipBoxZ.isEnabled)
                         .font(.title)
-                }.padding(10).opacity(volumeModell.fullView ? 0.0 : 1.0)
+                }.padding(10).opacity(volumeModell.rayCasting ? 0.0 : 1.0)
                 
                 Form {
                     Section {
@@ -150,7 +150,7 @@ struct VolumeControll: View {
                         }
                         .font(.title)
                     }.opacity(volumeModell.loading ? 0.0 : 1.0)
-                }.padding(10).opacity(volumeModell.axisView ? 0.0 : 1.0)
+                }.padding(10).opacity(volumeModell.axisAligned ? 0.0 : 1.0)
                 
                 Form {
                     Section {
